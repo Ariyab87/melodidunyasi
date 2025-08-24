@@ -1,0 +1,56 @@
+name: Build Static Frontend
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to build for'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build static frontend
+      run: npm run build:static
+      env:
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://melodidunyasi.com' }}
+        NEXT_PUBLIC_POLL_MAX_DELAY: ${{ secrets.NEXT_PUBLIC_POLL_MAX_DELAY || '15000' }}
+        NEXT_PUBLIC_POLL_INITIAL_DELAY: ${{ secrets.NEXT_PUBLIC_POLL_INITIAL_DELAY || '1000' }}
+        
+    - name: Create frontend zip
+      run: |
+        cd out
+        zip -r ../front.zip .
+        
+    - name: Upload frontend zip artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-out-zip
+        path: front.zip
+        retention-days: 30
+        
+    - name: Show build info
+      run: |
+        echo "✅ Static build completed!"
+        echo "📁 Output directory: out/"
+        echo "📦 Zip file: front.zip"
+        echo "🚀 Ready for upload to Turhost public_html"

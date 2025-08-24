@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: song-webapp-api
+    env: node
+    rootDir: api
+    buildCommand: "npm ci"
+    startCommand: "node server.js"
+    healthCheckPath: "/health"
+    autoDeploy: true
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGINS
+        value: https://melodidunyasi.com,https://www.melodidunyasi.com
+      - key: BACKEND_PUBLIC_URL
+        value: https://melodidunyasi.com
+      - key: FRONTEND_URL
+        value: https://melodidunyasi.com
+      - key: MUSIC_PROVIDER
+        value: sunoapi_org
+      - key: SUNOAPI_ORG_BASE_URL
+        value: https://api.sunoapi.org/api/v1
+      - key: SUNOAPI_ORG_GENERATE_PATH
+        value: /generate
+      - key: SUNOAPI_ORG_RECORDINFO_PATH
+        value: /generate/record-info
+      # Add other environment variables in Render dashboard:
+      # - SUNOAPI_ORG_API_KEY
+      # - MONGODB_URI
+      # - JWT_SECRET
+      # - SESSION_SECRET
+      # - SMTP_HOST, SMTP_USER, SMTP_PASS
+      # - KITS_API_KEY, RUNWAY_API_KEY

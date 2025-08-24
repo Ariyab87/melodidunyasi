@@ -1,0 +1,45 @@
+{
+  "name": "song-webapp-api",
+  "version": "1.0.0",
+  "description": "Backend API server for SongCreator webapp with AI API integrations",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon server.js",
+    "start": "node server.js",
+    "health": "node -e \"require('./server'); console.log('ok')\""
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "form-data": "^4.0.0",
+    "fs-extra": "^11.1.1",
+    "helmet": "^7.1.0",
+    "https-proxy-agent": "^7.0.6",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.5",
+    "path": "^0.12.7",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "ai",
+    "music",
+    "voice-cloning",
+    "video-animation",
+    "suno",
+    "kits-ai",
+    "runwayml"
+  ],
+  "author": "SongCreator",
+  "license": "MIT"
+}

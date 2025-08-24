@@ -1,0 +1,38 @@
+{
+  "name": "song-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "build:static": "npm run build",
+    "zip:front": "bash -c \"rm -f front.zip && cd out && zip -r ../front.zip .\"",
+    "zip:api": "bash -c \"cd api && rm -f ../api.zip && zip -r ../api.zip . -x 'node_modules/*'\""
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.3.2",
+    "@stripe/stripe-js": "^2.1.11",
+    "autoprefixer": "^10.4.16",
+    "framer-motion": "^10.16.4",
+    "lucide-react": "^0.292.0",
+    "next": "14.0.0",
+    "next-intl": "^3.0.0",
+    "postcss": "^8.4.31",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.47.0",
+    "stripe": "^14.5.0",
+    "tailwindcss": "^3.3.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.0",
+    "typescript": "^5"
+  }
+}
