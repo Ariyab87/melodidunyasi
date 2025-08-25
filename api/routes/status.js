@@ -31,12 +31,25 @@ async function pingSuno() {
 }
 
 // API health of *our* backend
-router.get("/status", (_req, res) => {
+router.get("/", (_req, res) => {
   res.json({ ok: true, uptime: process.uptime(), provider: MUSIC_PROVIDER });
 });
 
 // Provider status (used by frontend)
-router.get("/status/provider", async (_req, res) => {
+router.get("/provider", async (_req, res) => {
+  try {
+    if (MUSIC_PROVIDER !== "sunoapi_org") {
+      return res.json({ provider: MUSIC_PROVIDER, ok: true, note: "not-suno" });
+    }
+    const r = await pingSuno();
+    return res.json({ provider: "sunoapi_org", ...r });
+  } catch (e) {
+    return res.json({ provider: "sunoapi_org", ok: false, status: 0, error: "ping_exception" });
+  }
+});
+
+// Alias for backward compatibility (used by frontend)
+router.get("/music", async (_req, res) => {
   try {
     if (MUSIC_PROVIDER !== "sunoapi_org") {
       return res.json({ provider: MUSIC_PROVIDER, ok: true, note: "not-suno" });

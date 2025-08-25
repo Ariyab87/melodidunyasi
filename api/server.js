@@ -6,11 +6,30 @@ const app = express();
 
 // CORS configuration - read from environment variable
 const origins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+
+// Fallback origins for development/production
+const fallbackOrigins = [
+  'https://melodidunyasi.com',
+  'https://www.melodidunyasi.com',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
+
+// Combine environment origins with fallbacks
+const allOrigins = [...new Set([...origins, ...fallbackOrigins])];
+
+console.log('[CORS] Configured origins:', origins);
+console.log('[CORS] CORS_ORIGINS env var:', process.env.CORS_ORIGINS);
+console.log('[CORS] All allowed origins:', allOrigins);
+
 app.use(cors({ 
   origin: (origin, callback) => {
-    if (!origin || origins.includes(origin)) {
+    console.log('[CORS] Request from origin:', origin);
+    if (!origin || allOrigins.includes(origin)) {
+      console.log('[CORS] Allowing origin:', origin);
       callback(null, true);
     } else {
+      console.log('[CORS] Blocking origin:', origin, 'Allowed origins:', allOrigins);
       callback(new Error('CORS blocked'));
     }
   }, 
@@ -96,6 +115,9 @@ const adminRoutes = require('./routes/adminRoutes');
 const debugRoutes = require('./routes/debug');
 const statusRoutes = require('./routes/status');
 const downloadRoutes = require('./routes/downloadRoutes');
+
+// Add route aliases for backward compatibility
+app.use('/api/status', statusRoutes);
 
 // Initialize request store at startup
 const store = require('./lib/requestStore');

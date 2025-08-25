@@ -52,7 +52,7 @@ export function SunoStatusProvider({ children }: MusicStatusProviderProps) {
       setError(null);
       
       // Use the new music status endpoint
-      const response = await fetch(`${API_BASE}/api/status/music`, {
+      const response = await fetch(`${API_BASE}/status/provider`, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache',
