@@ -485,16 +485,19 @@ router.post('/generate', async (req, res) => {
         console.info(`[map] requestId=${requestId} → providerJobId=${songResult.metadata.jobId}`);
       }
 
-      // Return success response
-      res.status(200).json({
+      // Return success response with both songId and jobId
+      const response = {
         success: true,
         message: 'Song generation started successfully',
-        requestId: requestId,
-        songId: songResult.id,
-        status: songResult.status,
+        songId: requestId,
+        jobId: songResult.metadata?.jobId || null,
+        status: songResult.status || 'queued',
         estimatedTime: '2-5 minutes',
         data: songResult
-      });
+      };
+      
+      console.log(`✅ [GENERATE] Success response for ${requestId}:`, response);
+      res.status(200).json(response);
 
     } catch (generationError) {
       console.error('❌ Song generation failed:', generationError.message);

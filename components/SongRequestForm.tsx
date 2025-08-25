@@ -76,15 +76,22 @@ export default function SongRequestForm() {
     
     try {
       // Send form data to backend API
-      const response = await fetch('/api/song', {
+      const response = await fetch('/api/song/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          timestamp: new Date().toISOString(),
-          status: 'pending'
+          fullName: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          songStyle: formData.songStyle,
+          mood: formData.mood,
+          specialOccasion: formData.specialOccasion,
+          namesToInclude: formData.namesToInclude,
+          yourStory: formData.story,
+          tempo: formData.tempo,
+          additionalNotes: formData.notes
         }),
       });
 
@@ -101,7 +108,7 @@ export default function SongRequestForm() {
       const result = await response.json();
       
       if (result.success) {
-        setSongId(result.id); // Use the backend-provided ID
+        setSongId(result.songId); // Use the new songId field
         setSubmitStatus('success');
         // Reset form after successful submission
         setFormData({
@@ -118,19 +125,20 @@ export default function SongRequestForm() {
           instrumental: false
         });
         
-        // Navigate to song status page with the backend-provided ID
-        if (result.id) {
-          window.location.href = `/song-status/${result.id}`;
+        // Navigate to song status page with songId and jobId
+        if (result.songId) {
+          const jobIdParam = result.jobId ? `?jobId=${encodeURIComponent(result.jobId)}` : '';
+          window.location.href = `/song-status/${result.songId}${jobIdParam}`;
         }
       } else {
         throw new Error(result.error || 'Failed to submit song request');
+        }
+      } catch (error) {
+        console.error('Error submitting song request:', error);
+        setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
+        setSubmitStatus('error');
       }
-    } catch (error) {
-      console.error('Error submitting song request:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
-      setSubmitStatus('error');
-    }
-  };
+    };
 
   const songStyles = [
     'Pop', 'Rock', 'Jazz', 'Classical', 'Country', 'Hip Hop', 'Electronic', 'Folk', 'R&B', 'Blues'

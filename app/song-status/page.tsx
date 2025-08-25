@@ -1,77 +1,95 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Music, Clock, CheckCircle, AlertCircle, AlertTriangle, Download, ArrowLeft, RefreshCw, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { API_BASE } from '@/lib/api';
 
-interface SongStatus {
-  id: string;
-  status: string;
-  progress?: number;
-  message?: string;
-  downloadUrl?: string;
-  audioUrl?: string;
-  savedFilename?: string;
-  createdAt?: string;
-  updatedAt?: string;
+type StatusResp = { 
+  ok: boolean; 
+  jobId?: string; 
+  status: string; 
+  audioUrls?: string[]; 
+  result?: any; 
+  updatedAt?: string 
 }
 
 export default function SongStatusPage() {
-  const [songId, setSongId] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [songStatus, setSongStatus] = useState<SongStatus | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [elapsed, setElapsed] = useState(0);
+  const searchParams = useSearchParams();
+  const urlSongId = searchParams.get('songId') || '';
+  const urlJobId = searchParams.get('jobId') || '';
   
-  // Environment variables with defaults
-  const MAX_DELAY = parseInt(process.env.NEXT_PUBLIC_POLL_MAX_DELAY || '15000');
-  const INITIAL_DELAY = parseInt(process.env.NEXT_PUBLIC_POLL_INITIAL_DELAY || '1000');
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+  const [songId, setSongId] = useState(urlSongId);
+  const [jobId, setJobId] = useState(urlJobId);
+  const [status, setStatus] = useState<string>('pending');
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  
+  // If we have URL parameters, start polling automatically
+  const shouldAutoStart = urlSongId || urlJobId;
 
-  const delayRef = useRef(INITIAL_DELAY);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isPollingRef = useRef(true);
+  useEffect(() => {
+    let alive = true;
+    let delay = 1500;
+    const maxDelay = 15000;
 
-  function calculateBackoff(currentDelay: number): number {
-    const backoffDelay = Math.min(MAX_DELAY, currentDelay * 1.6);
-    const jitter = Math.floor(Math.random() * 500);
-    return backoffDelay + jitter;
-  }
+    async function tick() {
+      try {
+        const url = jobId
+          ? `${API_BASE}/status/song?jobId=${encodeURIComponent(jobId)}`
+          : `${API_BASE}/status/song?songId=${encodeURIComponent(songId)}`;
+        
+        if (!songId && !jobId) return;
+        
+        const r = await fetch(url, { credentials: 'include' });
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        const j: StatusResp = await r.json();
 
-  const nextDelay = () => {
-    const next = Math.min(MAX_DELAY, delayRef.current * 1.6);
-    delayRef.current = next;
-    return next;
-  };
+        if (!alive) return;
+        if (!jobId && j.jobId) setJobId(j.jobId);
+        setStatus(j.status || 'pending');
+        if (j.audioUrls?.length && !audioUrl) setAudioUrl(j.audioUrls[0]);
+
+        const done = ['success','done'].includes((j.status||'').toLowerCase());
+        const failed = ['failed','error'].includes((j.status||'').toLowerCase());
+        if (!done && !failed) {
+          delay = Math.min(maxDelay, Math.floor(delay * 1.6));
+          setTimeout(tick, delay);
+        }
+        if (failed) setError('Generation failed. Please try again.');
+      } catch (e:any) {
+        if (!alive) return;
+        setError(e.message || 'Status check failed');
+        delay = Math.min(maxDelay, Math.floor(delay * 1.6));
+        setTimeout(tick, delay);
+      }
+    }
+
+    if (shouldAutoStart) {
+      tick();
+    }
+
+    return () => { alive = false };
+  }, [songId, jobId, shouldAutoStart, audioUrl]);
 
   const fetchSongStatus = async () => {
     try {
-      const apiUrl = API_BASE_URL ? `${API_BASE_URL}/api/song/status/${songId}` : `/api/song/status/${songId}`;
-      const response = await fetch(apiUrl, {
-        cache: 'no-store'
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      setSongStatus(result);
+      const url = jobId
+        ? `${API_BASE}/status/song?jobId=${encodeURIComponent(jobId)}`
+        : `${API_BASE}/status/song?songId=${encodeURIComponent(songId)}`;
+      
+      const response = await fetch(url, { credentials: 'include' });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const result: StatusResp = await response.json();
+      setStatus(result.status || 'pending');
+      if (result.audioUrls?.length) setAudioUrl(result.audioUrls[0]);
+      if (result.jobId && !jobId) setJobId(result.jobId);
       setError(null);
-
-      if (isPollingRef.current && ['initializing', 'queued', 'processing'].includes(result.status)) {
-        setElapsed(prev => prev + delayRef.current);
-        delayRef.current = nextDelay();
-        timeoutRef.current = setTimeout(fetchSongStatus, delayRef.current);
-      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
-      delayRef.current = calculateBackoff(delayRef.current);
-      if (isPollingRef.current) {
-        timeoutRef.current = setTimeout(fetchSongStatus, delayRef.current);
-      }
     }
   };
 
@@ -80,10 +98,6 @@ export default function SongStatusPage() {
     if (songId.trim()) {
       setIsSearching(true);
       setError(null);
-      setSongStatus(null);
-      setElapsed(0);
-      delayRef.current = INITIAL_DELAY;
-      
       await fetchSongStatus();
       setIsSearching(false);
     }
@@ -92,237 +106,175 @@ export default function SongStatusPage() {
   const handleRetry = async () => {
     if (songId.trim()) {
       setError(null);
-      setElapsed(0);
-      delayRef.current = INITIAL_DELAY;
       await fetchSongStatus();
     }
   };
 
-  useEffect(() => {
-    return () => {
-      isPollingRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
   return (
-    <div className="min-h-screen bg-dark-900">
-      <div className="container mx-auto px-4 py-20">
+    <div className="min-h-screen bg-dark-900 text-white">
+      <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <Link href="/" className="inline-flex items-center text-primary-400 hover:text-primary-300 mb-6 transition-colors duration-200">
-            <ArrowLeft size={20} className="mr-2" />
-            Back to Home
-          </Link>
-          <h1 className="text-4xl font-bold text-white mb-4">Song Status</h1>
-          <p className="text-xl text-dark-300 mb-4">Track your song creation progress</p>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            {shouldAutoStart ? 'Creating your song…' : 'Song Status Checker'}
+          </h1>
+          <p className="text-xl text-dark-300 max-w-2xl mx-auto">
+            {shouldAutoStart 
+              ? 'Your song is being generated. This may take a few minutes.'
+              : 'Check the status of your song generation request. Enter your song ID below to get started.'
+            }
+          </p>
         </div>
 
-        {/* Search Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto"
-        >
-          <div className="bg-dark-800 rounded-lg p-8 border border-dark-700">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-dark-700 rounded-full mb-4">
-                <Search size={48} className="text-primary-500" />
+        {/* Auto-status display when songId/jobId provided */}
+        {shouldAutoStart ? (
+          <div className="max-w-3xl mx-auto">
+            {/* Progress Steps */}
+            <ol className="space-y-2 mb-6">
+              <li className={`flex items-center ${['pending','queued'].includes(status) ? 'font-medium' : ''}`}>
+                1. Queued / Contacting provider
+              </li>
+              <li className={`flex items-center ${status === 'processing' ? 'font-medium' : ''}`}>
+                2. Generating
+              </li>
+              <li className={`flex items-center ${['success','done'].includes(status) ? 'font-medium' : ''}`}>
+                3. Finalizing
+              </li>
+            </ol>
+
+            {/* Status Display */}
+            {!audioUrl && !error && (
+              <div className="flex items-center gap-3 text-sm text-gray-400 mb-6">
+                <span className="animate-spin h-4 w-4 rounded-full border-2 border-current border-t-transparent" />
+                <span>Status: {status}</span>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Check Song Status</h2>
-              <p className="text-dark-300">Enter your song ID to check the current status</p>
+            )}
+
+            {/* Audio Player and Download */}
+            {audioUrl && (
+              <div className="space-y-4 mb-6">
+                <audio controls src={audioUrl} className="w-full" />
+                <div className="flex gap-3">
+                  <a href={audioUrl} download className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+                    Download
+                  </a>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(audioUrl)}
+                    className="px-4 py-2 rounded bg-gray-800 text-white hover:bg-gray-700"
+                  >
+                    Copy link
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <div className="text-red-500 mt-6">
+                {error} &nbsp;
+                <Link href="/" className="underline">Try again</Link>
+              </div>
+            )}
+
+            {/* Manual Search Form */}
+            <div className="mt-12 p-6 bg-dark-800 rounded-lg border border-dark-700">
+              <h3 className="text-lg font-semibold text-white mb-4">Check Another Song</h3>
+              <form onSubmit={handleSearch} className="space-y-4">
+                <div>
+                  <label htmlFor="songId" className="block text-sm font-medium text-white mb-2">
+                    Song ID
+                  </label>
+                  <input
+                    type="text"
+                    id="songId"
+                    value={songId}
+                    onChange={(e) => setSongId(e.target.value)}
+                    placeholder="Enter your song ID here..."
+                    className="w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={!songId.trim() || isSearching}
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                    songId.trim() && !isSearching
+                      ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                      : 'bg-dark-600 text-dark-400 cursor-not-allowed'
+                  }`}
+                >
+                  {isSearching ? 'Searching...' : 'Check Status'}
+                </button>
+              </form>
             </div>
+          </div>
+        ) : (
+          /* Manual Search Form */
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-dark-800 rounded-lg p-8 border border-dark-700">
+              <h2 className="text-2xl font-semibold text-white mb-6">Enter Song ID</h2>
+              
+              <form onSubmit={handleSearch} className="space-y-6">
+                <div>
+                  <label htmlFor="songId" className="block text-sm font-medium text-white mb-2">
+                    Song ID
+                  </label>
+                  <input
+                    type="text"
+                    id="songId"
+                    value={songId}
+                    onChange={(e) => setSongId(e.target.value)}
+                    placeholder="Enter your song ID here..."
+                    className="w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    required
+                  />
+                  <p className="text-xs text-dark-400 mt-2">
+                    You can find your song ID in the confirmation email or from your account dashboard.
+                  </p>
+                </div>
 
-            <form onSubmit={handleSearch} className="space-y-6">
-              <div>
-                <label htmlFor="songId" className="block text-sm font-medium text-white mb-2">
-                  Song ID
-                </label>
-                <input
-                  type="text"
-                  id="songId"
-                  value={songId}
-                  onChange={(e) => setSongId(e.target.value)}
-                  placeholder="Enter your song ID here..."
-                  className="w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
-                />
-                <p className="text-xs text-dark-400 mt-2">
-                  You can find your song ID in the confirmation email or from your account dashboard.
-                </p>
-              </div>
+                <button
+                  type="submit"
+                  disabled={!songId.trim() || isSearching}
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                    songId.trim() && !isSearching
+                      ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                      : 'bg-dark-600 text-dark-400 cursor-not-allowed'
+                  }`}
+                >
+                  {isSearching ? 'Searching...' : 'Check Status'}
+                </button>
+              </form>
 
-              <button
-                type="submit"
-                disabled={!songId.trim() || isSearching}
-                className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-                  songId.trim() && !isSearching
-                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                    : 'bg-dark-600 text-dark-400 cursor-not-allowed'
-                }`}
-              >
-                {isSearching ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Searching...</span>
-                  </>
-                ) : (
-                  <>
-                    <Search size={20} className="mr-2" />
-                    <span>Check Status</span>
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Help Section */}
-            <div className="mt-8 p-4 bg-dark-700 rounded-lg">
-              <h3 className="text-lg font-semibold text-white mb-3">Need Help?</h3>
-              <div className="space-y-2 text-sm text-dark-300">
-                <p>• Check your email for the song ID after submitting a request</p>
-                <p>• Song IDs are typically 24 characters long</p>
-                <p>• If you can't find your song ID, contact support</p>
-                <p>• Status updates happen automatically every few seconds</p>
+              {/* Help Section */}
+              <div className="mt-8 p-4 bg-dark-700 rounded-lg">
+                <h3 className="text-lg font-semibold text-white mb-3">Need Help?</h3>
+                <div className="space-y-2 text-sm text-dark-300">
+                  <p>• Check your email for the song ID after submitting a request</p>
+                  <p>• Song IDs are typically 24 characters long</p>
+                  <p>• If you can't find your song ID, contact support</p>
+                  <p>• Status updates happen automatically every few seconds</p>
+                </div>
               </div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Song Status Display */}
-        {songStatus && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto mt-8"
-          >
-            <div className="bg-dark-800 rounded-lg p-8 border border-dark-700">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Song Status</h2>
-                <p className="text-dark-300">ID: {songStatus.id}</p>
-              </div>
-
-              {/* Status Indicator */}
-              <div className="flex items-center justify-center mb-6">
-                {songStatus.status === 'completed' && (
-                  <div className="flex items-center text-green-500">
-                    <CheckCircle size={24} className="mr-2" />
-                    <span className="font-semibold">Completed</span>
-                  </div>
-                )}
-                {songStatus.status === 'processing' && (
-                  <div className="flex items-center text-blue-500">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-2"></div>
-                    <span className="font-semibold">Processing</span>
-                  </div>
-                )}
-                {songStatus.status === 'queued' && (
-                  <div className="flex items-center text-yellow-500">
-                    <Clock size={24} className="mr-2" />
-                    <span className="font-semibold">Queued</span>
-                  </div>
-                )}
-                {songStatus.status === 'failed' && (
-                  <div className="flex items-center text-red-500">
-                    <AlertTriangle size={24} className="mr-2" />
-                    <span className="font-semibold">Failed</span>
-                  </div>
-                )}
-                {songStatus.status === 'initializing' && (
-                  <div className="flex items-center text-purple-500">
-                    <Music size={24} className="mr-2" />
-                    <span className="font-semibold">Initializing</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Progress Bar */}
-              {songStatus.progress !== undefined && (
-                <div className="mb-6">
-                  <div className="flex justify-between text-sm text-dark-300 mb-2">
-                    <span>Progress</span>
-                    <span>{songStatus.progress}%</span>
-                  </div>
-                  <div className="w-full bg-dark-700 rounded-full h-2">
-                    <div 
-                      className="bg-primary-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${songStatus.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-
-              {/* Message */}
-              {songStatus.message && (
-                <div className="mb-6 p-4 bg-dark-700 rounded-lg">
-                  <p className="text-dark-300">{songStatus.message}</p>
-                </div>
-              )}
-
-              {/* Download Section */}
-              {songStatus.status === 'completed' && (songStatus.downloadUrl || songStatus.audioUrl) && (
-                <div className="text-center">
-                  <a
-                    href={songStatus.downloadUrl || songStatus.audioUrl || '#'}
-                    download={songStatus.savedFilename || "Generated_Song.mp3"}
-                    className="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors duration-200"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Download size={20} className="mr-2" />
-                    Download Song
-                  </a>
-                </div>
-              )}
-
-              {/* Elapsed Time */}
-              {elapsed > 0 && ['initializing', 'queued', 'processing'].includes(songStatus.status) && (
-                <div className="text-center mt-4">
-                  <p className="text-sm text-dark-400">
-                    Elapsed time: {Math.floor(elapsed / 1000)}s
-                  </p>
-                </div>
-              )}
-
-              {/* Retry Button for Failed Status */}
-              {songStatus.status === 'failed' && (
-                <div className="text-center mt-4">
-                  <button
-                    onClick={handleRetry}
-                    className="inline-flex items-center px-4 py-2 bg-dark-600 hover:bg-dark-500 text-white rounded-lg font-medium transition-colors duration-200"
-                  >
-                    <RefreshCw size={16} className="mr-2" />
-                    Retry
-                  </button>
-                </div>
-              )}
-            </div>
-          </motion.div>
         )}
 
         {/* Error Display */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto mt-8"
-          >
+        {error && !shouldAutoStart && (
+          <div className="max-w-2xl mx-auto mt-8">
             <div className="bg-red-900/20 border border-red-700 rounded-lg p-6">
               <div className="flex items-center text-red-400 mb-4">
-                <AlertCircle size={24} className="mr-2" />
                 <h3 className="text-lg font-semibold">Error</h3>
               </div>
               <p className="text-red-300 mb-4">{error}</p>
               <button
                 onClick={handleRetry}
-                className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
               >
-                <RefreshCw size={16} className="mr-2" />
                 Retry
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>
