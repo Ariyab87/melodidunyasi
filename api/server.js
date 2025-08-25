@@ -4,9 +4,14 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-console.log('[ENV] MUSIC_PROVIDER:', process.env.MUSIC_PROVIDER, '| SUNO KEY present:', !!process.env.SUNOAPI_ORG_API_KEY);
 
-/* ------------------------- CORS ------------------------- */
+// Basic env log (don’t print secrets)
+console.log(
+  '[ENV] MUSIC_PROVIDER:', process.env.MUSIC_PROVIDER,
+  '| SUNO KEY present:', !!process.env.SUNOAPI_ORG_API_KEY
+);
+
+/* ----------------------------- CORS (TOP) ----------------------------- */
 const envOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
@@ -22,41 +27,73 @@ const fallbackOrigins = [
 const allOrigins = [...new Set([...envOrigins, ...fallbackOrigins])];
 console.log('[CORS] Allowed origins:', allOrigins);
 
-app.use(cors({
+const corsConfig = {
   origin: (origin, cb) => {
+    // allow server-to-server/no-origin, and our allowed list
     if (!origin || allOrigins.includes(origin)) return cb(null, true);
     console.log('[CORS] Blocked:', origin);
     return cb(new Error('CORS blocked'));
   },
   credentials: true,
-}));
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 204,
+};
 
-/* -------------------- Parsers -------------------- */
+app.use(cors(corsConfig));
+// VERY IMPORTANT: handle preflight for every route
+app.options('*', cors(corsConfig));
+/* --------------------------- end CORS (TOP) --------------------------- */
+
+/* ----------------------------- Parsers ----------------------------- */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-/* ------------------ SUNO callback ---------------- */
+/* -------------------------- SUNO callback -------------------------- */
 app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
   try {
     console.log('[SUNO CALLBACK]', JSON.stringify(req.body));
     const payload = req.body || {};
-    const jobId = payload.jobId || payload.taskId || payload.id || payload.data?.taskId || payload.data?.id || null;
-    const recordId = payload.recordId || payload.data?.recordId || payload.data?.id || null;
+    const jobId =
+      payload.jobId ||
+      payload.taskId ||
+      payload.id ||
+      payload.data?.taskId ||
+      payload.data?.id ||
+      null;
+
+    const recordId =
+      payload.recordId ||
+      payload.data?.recordId ||
+      payload.data?.id ||
+      null;
 
     if (jobId || recordId) {
       const store = require('./lib/requestStore');
       const all = await store.list();
-      const record = all.find(r => r.providerJobId === jobId || (recordId && r.providerRecordId === recordId));
+      const record = all.find(
+        r =>
+          r.providerJobId === jobId ||
+          (recordId && r.providerRecordId === recordId)
+      );
 
       if (record) {
         const audioUrl =
-          payload.audioUrl || payload.audio_url || payload.url ||
-          payload.data?.audioUrl || payload.data?.audio_url ||
-          payload.data?.audio?.url || (payload.data?.files?.[0]?.url) || null;
+          payload.audioUrl ||
+          payload.audio_url ||
+          payload.url ||
+          payload.data?.audioUrl ||
+          payload.data?.audio_url ||
+          payload.data?.audio?.url ||
+          (payload.data?.files?.[0]?.url) ||
+          null;
 
         const status =
-          payload.status || payload.state || payload.jobStatus ||
-          payload.data?.status || (audioUrl ? 'completed' : 'processing');
+          payload.status ||
+          payload.state ||
+          payload.jobStatus ||
+          payload.data?.status ||
+          (audioUrl ? 'completed' : 'processing');
 
         const patch = { status, updatedAt: new Date().toISOString() };
         if (recordId && !record.providerRecordId) patch.providerRecordId = recordId;
@@ -65,7 +102,12 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
         await store.update(record.id, patch);
         await store.saveNow();
 
-        console.info('[CALLBACK] Updated %s -> %s (audio: %s)', record.id, status, audioUrl ? 'yes' : 'no');
+        console.info(
+          '[CALLBACK] Updated %s -> %s (audio: %s)',
+          record.id,
+          status,
+          audioUrl ? 'yes' : 'no'
+        );
       } else {
         console.warn('[CALLBACK] No matching record for jobId=%s recordId=%s', jobId, recordId);
       }
@@ -77,12 +119,16 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
   }
 });
 
-/* ---------------------- Health ---------------------- */
+/* ------------------------------ Health ------------------------------ */
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime(), env: process.env.NODE_ENV || 'development' });
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    env: process.env.NODE_ENV || 'development',
+  });
 });
 
-/* ---------------------- Routes ---------------------- */
+/* ------------------------------ Routes ------------------------------ */
 const songRoutes     = require('./routes/songRoutes');
 const voiceRoutes    = require('./routes/voiceRoutes');
 const videoRoutes    = require('./routes/videoRoutes');
@@ -93,11 +139,10 @@ const statusRoutes   = require('./routes/status');
 const downloadRoutes = require('./routes/downloadRoutes');
 
 /**
- * IMPORTANT:
- * Mount status under a *fixed base* first to avoid collisions with any router
+ * Mount status under a fixed base FIRST to avoid collisions with any router
  * that registers generic param routes like `/:id`.
  */
-app.use('/api/status', statusRoutes);     // exposes: GET /api/status, /api/status/provider, /api/status/music
+app.use('/api/status', statusRoutes); // -> /api/status, /api/status/provider, /api/status/music
 
 // Mount the rest under /api
 app.use('/api', songRoutes);
@@ -108,7 +153,7 @@ app.use('/api', adminRoutes);
 app.use('/api', debugRoutes);
 app.use('/api', downloadRoutes);
 
-/* --------------- Init request store --------------- */
+/* ----------------------- Initialize request store ----------------------- */
 const store = require('./lib/requestStore');
 (async () => {
   try {
@@ -119,31 +164,43 @@ const store = require('./lib/requestStore');
   }
 })();
 
-/* --------------------- Errors ---------------------- */
+/* ----------------------------- Error handler ---------------------------- */
 app.use((err, _req, res, _next) => {
   console.error('Error:', err);
+
   if (err?.type === 'entity.too.large' || err?.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({ error: 'File too large', message: 'The uploaded file exceeds the maximum allowed size.' });
+    return res.status(413).json({
+      error: 'File too large',
+      message: 'The uploaded file exceeds the maximum allowed size.',
+    });
   }
+
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 });
 
-/* ---------------------- 404 ------------------------ */
+/* -------------------------------- 404 -------------------------------- */
 app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found', message: `The requested route ${req.originalUrl} does not exist.` });
+  res.status(404).json({
+    error: 'Route not found',
+    message: `The requested route ${req.originalUrl} does not exist.`,
+  });
 });
 
 module.exports = app;
 
+/* ------------------------------ Start ------------------------------ */
 if (require.main === module) {
   const PORT = process.env.PORT || 5001;
   app.listen(PORT, () => {
     console.log('API listening on', PORT);
     console.log(`Env: ${process.env.NODE_ENV || 'development'}`);
-    const baseUrl = process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || `http://localhost:${PORT}`;
+    const baseUrl =
+      process.env.BACKEND_PUBLIC_URL ||
+      process.env.FRONTEND_URL ||
+      `http://localhost:${PORT}`;
     console.log(`Health: ${baseUrl}/health`);
   });
 }
