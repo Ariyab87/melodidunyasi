@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+console.log('[ENV] MUSIC_PROVIDER:', process.env.MUSIC_PROVIDER, '| SUNO KEY present:', !!process.env.SUNOAPI_ORG_API_KEY);
 
 /* ------------------------- CORS ------------------------- */
 const envOrigins = (process.env.CORS_ORIGINS || '')
