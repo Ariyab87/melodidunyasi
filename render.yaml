@@ -6,6 +6,7 @@ services:
     buildCommand: "npm ci"
     startCommand: "node server.js"
     healthCheckPath: "/health"
+    # Force redeploy with CORS fixes
     autoDeploy: true
     plan: free
     envVars:

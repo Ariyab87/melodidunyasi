@@ -5,6 +5,7 @@ require('dotenv').config();
 const app = express();
 
 // CORS configuration - read from environment variable
+// FIXED: Allow melodidunyasi.com to access the backend
 const origins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 
 // Fallback origins for development/production
