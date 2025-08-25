@@ -12,6 +12,7 @@ import {
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface ContentField {
   name: string;
@@ -67,10 +68,11 @@ export default function ContentManagement({ adminKey }: AdminDashboardProps) {
   const fetchContent = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/content', {
+      const response = await fetch(`${API_BASE}/api/admin/content`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -103,12 +105,13 @@ export default function ContentManagement({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (section: string) => {
     try {
-      const response = await fetch('/api/admin/content/update', {
+      const response = await fetch(`${API_BASE}/api/admin/content/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
         body: JSON.stringify({
           section,
           content: editForm,

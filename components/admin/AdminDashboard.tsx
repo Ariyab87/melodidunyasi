@@ -15,6 +15,7 @@ import {
   FileText,
   Zap
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface DashboardStats {
   system: {
@@ -53,10 +54,11 @@ export default function AdminDashboard({ adminKey }: AdminDashboardProps) {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/dashboard', {
+      const response = await fetch(`${API_BASE}/api/admin/dashboard`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {

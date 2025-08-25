@@ -28,6 +28,7 @@ import EmailTemplates from '@/components/admin/EmailTemplates';
 import SunoStatusBanner from '@/components/admin/SunoStatusBanner';
 import { SunoStatusProvider } from '@/lib/sunoStatusContext';
 import SongGenerationForm from '@/components/admin/SongGenerationForm';
+import { API_BASE } from '@/lib/api';
 
 type AdminTab = 'dashboard' | 'services' | 'storage' | 'requests' | 'logs' | 'content' | 'orders' | 'pricing' | 'email' | 'song-generation';
 
@@ -46,10 +47,11 @@ export default function AdminPage() {
     
     try {
       // Test the admin key by making a request to the dashboard endpoint
-      const response = await fetch('/api/admin/dashboard', {
+      const response = await fetch(`${API_BASE}/api/admin/dashboard`, {
         headers: {
           'x-admin-key': adminKey.trim(),
         },
+        credentials: 'include',
       });
       
       if (response.ok) {

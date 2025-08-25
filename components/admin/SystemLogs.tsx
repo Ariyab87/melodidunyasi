@@ -14,6 +14,7 @@ import {
   Server,
   Download
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface SystemLog {
   timestamp: string;
@@ -54,10 +55,11 @@ export default function SystemLogs({ adminKey }: AdminDashboardProps) {
         ...(filters.service && { service: filters.service }),
       });
 
-      const response = await fetch(`/api/admin/logs?${params}`, {
+      const response = await fetch(`${API_BASE}/api/admin/logs?${params}`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {

@@ -12,6 +12,7 @@ import {
   Copy,
   CheckCircle
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface EmailTemplate {
   name: string;
@@ -41,10 +42,11 @@ export default function EmailTemplates({ adminKey }: AdminDashboardProps) {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/email-templates', {
+      const response = await fetch(`${API_BASE}/api/admin/email-templates`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -87,12 +89,13 @@ export default function EmailTemplates({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (templateKey: string) => {
     try {
-      const response = await fetch('/api/admin/email-templates/update', {
+      const response = await fetch(`${API_BASE}/api/admin/email-templates/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
         body: JSON.stringify({
           template: templateKey,
           content: editForm,

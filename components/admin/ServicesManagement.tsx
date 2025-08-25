@@ -15,6 +15,7 @@ import {
   Globe,
   Gauge
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface Service {
   name: string;
@@ -44,10 +45,11 @@ export default function ServicesManagement({ adminKey }: AdminDashboardProps) {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/services', {
+      const response = await fetch(`${API_BASE}/api/admin/services`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -87,12 +89,13 @@ export default function ServicesManagement({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (serviceKey: string) => {
     try {
-      const response = await fetch('/api/admin/services/update', {
+      const response = await fetch(`${API_BASE}/api/admin/services/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
         body: JSON.stringify({
           service: serviceKey,
           config: editForm,
@@ -114,12 +117,13 @@ export default function ServicesManagement({ adminKey }: AdminDashboardProps) {
 
   const handleToggleService = async (serviceKey: string, enabled: boolean) => {
     try {
-      const response = await fetch('/api/admin/services/toggle', {
+      const response = await fetch(`${API_BASE}/api/admin/services/toggle`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
         body: JSON.stringify({
           service: serviceKey,
           enabled,

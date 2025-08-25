@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE } from './api';
 
 interface MusicStatus {
   ok: boolean;
@@ -51,12 +52,13 @@ export function SunoStatusProvider({ children }: MusicStatusProviderProps) {
       setError(null);
       
       // Use the new music status endpoint
-      const response = await fetch('/api/status/music', {
+      const response = await fetch(`${API_BASE}/api/status/music`, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
-        }
+        },
+        credentials: 'include'
       });
 
       if (!response.ok) {

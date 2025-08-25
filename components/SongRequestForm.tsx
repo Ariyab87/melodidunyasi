@@ -7,6 +7,7 @@ import { useLanguage } from '@/lib/languageContext';
 import { useSunoGuard } from '@/lib/useSunoGuard';
 import { useSunoStatus } from '@/lib/sunoStatusContext';
 import Toast from '@/components/ui/Toast';
+import { API_BASE } from '@/lib/api';
 
 interface SongRequestFormData {
   name: string;
@@ -76,11 +77,12 @@ export default function SongRequestForm() {
     
     try {
       // Send form data to backend API
-      const response = await fetch('/api/song/generate', {
+      const response = await fetch(`${API_BASE}/api/song/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           fullName: formData.name,
           email: formData.email,

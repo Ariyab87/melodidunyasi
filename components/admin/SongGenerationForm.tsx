@@ -5,6 +5,7 @@ import { useSunoGuard } from '@/lib/useSunoGuard';
 import { useSunoStatus } from '@/lib/sunoStatusContext';
 import { Music, Play, AlertTriangle } from 'lucide-react';
 import Toast from '@/components/ui/Toast';
+import { API_BASE } from '@/lib/api';
 
 interface SongGenerationFormData {
   prompt: string;
@@ -53,11 +54,12 @@ export default function SongGenerationForm() {
     
     try {
       // Send form data to backend API
-      const response = await fetch('/api/song/simple', {
+      const response = await fetch(`${API_BASE}/api/song/simple`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 

@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface Addon {
   price: number;
@@ -53,10 +54,11 @@ export default function PricingManagement({ adminKey }: AdminDashboardProps) {
   const fetchPricing = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/pricing', {
+      const response = await fetch(`${API_BASE}/api/admin/pricing`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -99,12 +101,13 @@ export default function PricingManagement({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (serviceKey: string) => {
     try {
-      const response = await fetch('/api/admin/pricing/update', {
+      const response = await fetch(`${API_BASE}/api/admin/pricing/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
         body: JSON.stringify({
           service: serviceKey,
           pricing: editForm,

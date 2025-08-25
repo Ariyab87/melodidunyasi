@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 
 interface StorageDirectory {
   path: string;
@@ -49,10 +50,11 @@ export default function StorageManagement({ adminKey }: AdminDashboardProps) {
   const fetchStorageInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/storage', {
+      const response = await fetch(`${API_BASE}/api/admin/storage`, {
         headers: {
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -76,12 +78,13 @@ export default function StorageManagement({ adminKey }: AdminDashboardProps) {
   const handleCleanup = async () => {
     try {
       setCleanupLoading(true);
-      const response = await fetch('/api/admin/storage/cleanup', {
+      const response = await fetch(`${API_BASE}/api/admin/storage/cleanup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey,
         },
+        credentials: 'include',
         body: JSON.stringify({
           type: cleanupType,
           olderThan: cleanupType === 'temp' ? olderThan : undefined,
