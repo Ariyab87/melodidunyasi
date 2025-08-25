@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const app = express();
 
-// ---- DIAGNOSTICS (don’t print secrets) ----
 console.log(
   '[ENV] MUSIC_PROVIDER:', process.env.MUSIC_PROVIDER,
   '| SUNO KEY present:', !!process.env.SUNOAPI_ORG_API_KEY
@@ -27,54 +26,48 @@ const fallbackOrigins = [
 const allowedOrigins = [...new Set([...envOrigins, ...fallbackOrigins])];
 console.log('[CORS] Allowed origins:', allowedOrigins);
 
-// manual preflight handler to guarantee headers even if something else misbehaves
+// Manual middleware: reflect requested headers so preflight always passes
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const isAllowed = !origin || allowedOrigins.includes(origin);
+  const allowed = !origin || allowedOrigins.includes(origin);
 
-  if (isAllowed) {
-    // Always reflect the origin (so credentials can work)
+  if (allowed) {
     if (origin) {
       res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Vary', 'Origin'); // make proxies cache by Origin
+      res.setHeader('Vary', 'Origin');
     } else {
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader(
-      'Access-Control-Allow-Methods',
-      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'
-    );
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+
+    // If the browser sends Access-Control-Request-Headers, echo them back.
+    // Otherwise allow a safe default list including Cache-Control/Pragma.
+    const reqHeaders = req.headers['access-control-request-headers'];
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, Accept'
+      reqHeaders || 'Content-Type, Authorization, X-Requested-With, Accept, Cache-Control, Pragma, Expires'
     );
-    // Optional: expose a couple of useful headers
+
+    // Cache preflight for a day
+    res.setHeader('Access-Control-Max-Age', '86400');
     res.setHeader('Access-Control-Expose-Headers', 'Content-Type, Content-Length');
   }
 
   if (req.method === 'OPTIONS') {
-    // Short-circuit preflights here with 204
     return res.sendStatus(204);
   }
-
-  if (!isAllowed) {
+  if (!allowed) {
     return res.status(403).json({ error: 'CORS blocked', origin });
   }
-
-  return next();
+  next();
 });
 
-// keep cors() too (harmless; helps with edge cases)
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error('CORS blocked'));
-    },
-    credentials: true,
-  })
-);
+// Keep cors() too (harmless; complements the manual handler)
+app.use(cors({
+  origin: (origin, cb) => (!origin || allowedOrigins.includes(origin)) ? cb(null, true) : cb(new Error('CORS blocked')),
+  credentials: true,
+}));
 /* ========================== END CORS (MUST BE FIRST) ========================== */
 
 /* ----------------------------- Parsers ----------------------------- */
@@ -93,7 +86,6 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
       const store = require('./lib/requestStore');
       const all = await store.list();
       const record = all.find(r => r.providerJobId === jobId || (recordId && r.providerRecordId === recordId));
-
       if (record) {
         const audioUrl =
           payload.audioUrl || payload.audio_url || payload.url ||
@@ -110,7 +102,6 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
 
         await store.update(record.id, patch);
         await store.saveNow();
-
         console.info('[CALLBACK] Updated %s -> %s (audio: %s)', record.id, status, audioUrl ? 'yes' : 'no');
       } else {
         console.warn('[CALLBACK] No matching record for jobId=%s recordId=%s', jobId, recordId);
@@ -138,12 +129,10 @@ const debugRoutes    = require('./routes/debug');
 const statusRoutes   = require('./routes/status');
 const downloadRoutes = require('./routes/downloadRoutes');
 
-/**
- * Mount status under a fixed base FIRST to avoid collisions with any `/:id` routes.
- */
+// Status first, fixed base (avoid /:id collisions)
 app.use('/api/status', statusRoutes);   // -> /api/status, /api/status/provider, /api/status/music
 
-// Mount the rest under /api
+// Others under /api
 app.use('/api', songRoutes);
 app.use('/api', voiceRoutes);
 app.use('/api', videoRoutes);
