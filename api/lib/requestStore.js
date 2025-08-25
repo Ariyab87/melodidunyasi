@@ -218,6 +218,32 @@ class RequestStore {
   }
 
   /**
+   * Get a request by provider job ID
+   */
+  async getByProviderJobId(providerJobId) {
+    await this.init();
+    for (const [id, request] of this.requests.entries()) {
+      if (request.providerJobId === providerJobId) {
+        return request;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get a request by provider record ID
+   */
+  async getByProviderRecordId(providerRecordId) {
+    await this.init();
+    for (const [id, request] of this.requests.entries()) {
+      if (request.providerRecordId === providerRecordId) {
+        return request;
+      }
+    }
+    return null;
+  }
+
+  /**
    * List all requests
    */
   async list() {

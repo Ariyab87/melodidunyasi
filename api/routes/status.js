@@ -11,6 +11,9 @@ const musicProvider = getMusicProvider();
 const currentProvider = musicProvider.getProviderInfo().name;
 const baseUrl = musicProvider.getProviderInfo().baseUrl;
 
+// Import request store for song lookup
+const requestStore = require('../lib/requestStore');
+
 // Proxy configuration - prioritize PROXY_URL over SUNO_HTTP_PROXY
 const proxyUrl = process.env.PROXY_URL || process.env.SUNO_HTTP_PROXY;
 
@@ -24,6 +27,229 @@ const agentOptions = proxyUrl ?
     httpAgent: new http.Agent({ keepAlive: true }),
     httpsAgent: new https.Agent({ keepAlive: true })
   };
+
+/**
+ * @route GET /api/status/song
+ * @desc Get song status by jobId or songId
+ * @access Public
+ */
+router.get('/song', async (req, res) => {
+  try {
+    const { jobId, songId } = req.query;
+    
+    if (!jobId && !songId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'MISSING_JOB_ID',
+        message: 'Please provide either jobId or songId parameter'
+      });
+    }
+
+    let resolvedJobId = jobId;
+    let resolvedSongId = songId;
+
+    // If only songId provided, look up providerJobId from store
+    if (!resolvedJobId && resolvedSongId) {
+      try {
+        const record = await requestStore.getById(resolvedSongId);
+        if (!record) {
+          return res.status(404).json({
+            ok: false,
+            error: 'SONG_NOT_FOUND',
+            message: `No song found with ID: ${resolvedSongId}`
+          });
+        }
+        
+        if (!record.providerJobId) {
+          return res.status(400).json({
+            ok: false,
+            error: 'NO_PROVIDER_JOB_ID',
+            message: `Song ${resolvedSongId} has no provider job ID`
+          });
+        }
+        
+        resolvedJobId = record.providerJobId;
+        console.log(`[status/song] Resolved songId=${resolvedSongId} → jobId=${resolvedJobId}`);
+      } catch (storeError) {
+        console.error('[status/song] Store lookup error:', storeError.message);
+        return res.status(500).json({
+          ok: false,
+          error: 'STORE_ERROR',
+          message: 'Failed to lookup song from store'
+        });
+      }
+    }
+
+    console.log('[status/song] songId=%s jobId=%s', resolvedSongId || '-', resolvedJobId || '-');
+
+    // Get status from provider
+    try {
+      const statusResult = await musicProvider.getRecordInfo({ jobId: resolvedJobId });
+      
+      // Get song record for additional context
+      let songRecord = null;
+      if (resolvedSongId) {
+        songRecord = await requestStore.getById(resolvedSongId);
+      } else {
+        // Try to find song by providerJobId
+        songRecord = await requestStore.getByProviderJobId(resolvedJobId);
+      }
+
+      const response = {
+        ok: true,
+        songId: songRecord?.id || resolvedSongId || null,
+        jobId: resolvedJobId,
+        status: statusResult.status,
+        result: {
+          audioUrl: statusResult.audioUrl,
+          progress: statusResult.progress,
+          recordId: statusResult.recordId
+        },
+        raw: statusResult,
+        provider: currentProvider,
+        timestamp: new Date().toISOString()
+      };
+
+      res.status(200).json(response);
+      
+    } catch (providerError) {
+      console.error('[status/song] Provider error:', providerError.message);
+      
+      // Return partial success if we have store data
+      if (resolvedSongId) {
+        try {
+          const record = await requestStore.getById(resolvedSongId);
+          if (record) {
+            return res.status(200).json({
+              ok: true,
+              songId: resolvedSongId,
+              jobId: resolvedJobId,
+              status: record.status || 'unknown',
+              result: {
+                audioUrl: record.fileUrl || null,
+                progress: null,
+                recordId: record.providerRecordId || null
+              },
+              raw: { error: providerError.message },
+              provider: currentProvider,
+              timestamp: new Date().toISOString(),
+              note: 'Status from store (provider unavailable)'
+            });
+          }
+        } catch (storeError) {
+          console.error('[status/song] Store fallback error:', storeError.message);
+        }
+      }
+
+      res.status(500).json({
+        ok: false,
+        error: 'PROVIDER_ERROR',
+        message: 'Failed to get status from provider',
+        details: providerError.message,
+        jobId: resolvedJobId,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error) {
+    console.error('[status/song] Unexpected error:', error.message);
+    res.status(500).json({
+      ok: false,
+      error: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * @route GET /api/status/song/:jobId
+ * @desc Get song status by jobId (path parameter)
+ * @access Public
+ */
+router.get('/song/:jobId', async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    
+    if (!jobId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'MISSING_JOB_ID',
+        message: 'Job ID is required'
+      });
+    }
+
+    console.log('[status/song] songId=%s jobId=%s', '-', jobId);
+
+    // Get status from provider
+    try {
+      const statusResult = await musicProvider.getRecordInfo({ jobId });
+      
+      // Try to find song by providerJobId
+      let songRecord = null;
+      songRecord = await requestStore.getByProviderJobId(jobId);
+
+      const response = {
+        ok: true,
+        songId: songRecord?.id || null,
+        jobId: jobId,
+        status: statusResult.status,
+        result: {
+          audioUrl: statusResult.audioUrl,
+          progress: statusResult.progress,
+          recordId: statusResult.recordId
+        },
+        raw: statusResult,
+        provider: currentProvider,
+        timestamp: new Date().toISOString()
+      };
+
+      res.status(200).json(response);
+      
+    } catch (providerError) {
+      console.error('[status/song] Provider error:', providerError.message);
+      
+      // Return partial success if we have store data
+      const songRecord = await requestStore.getByProviderJobId(jobId);
+      
+      if (songRecord) {
+        return res.status(200).json({
+          ok: true,
+          songId: songRecord.id,
+          jobId: jobId,
+          status: songRecord.status || 'unknown',
+          result: {
+            audioUrl: songRecord.fileUrl || null,
+            progress: null,
+            recordId: songRecord.providerRecordId || null
+          },
+          raw: { error: providerError.message },
+          provider: currentProvider,
+          timestamp: new Date().toISOString(),
+          note: 'Status from store (provider unavailable)'
+        });
+      }
+
+      res.status(500).json({
+        ok: false,
+        error: 'PROVIDER_ERROR',
+        message: 'Failed to get status from provider',
+        details: providerError.message,
+        jobId: jobId,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error) {
+    console.error('[status/song] Unexpected error:', error.message);
+    res.status(500).json({
+      ok: false,
+      error: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 /**
  * @route GET /api/status/music
