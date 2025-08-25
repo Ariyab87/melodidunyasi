@@ -26,8 +26,12 @@ services:
         value: /generate
       - key: SUNOAPI_ORG_RECORDINFO_PATH
         value: /generate/record-info
+      # Test environment variable
+      - key: TEST_VAR
+        value: "test_value"
       # Add other environment variables in Render dashboard:
-      # - SUNOAPI_ORG_API_KEY
+      - key: SUNOAPI_ORG_API_KEY
+        value: "226c6f04c6b35974342adb1821e8cafc"
       # - MONGODB_URI
       # - JWT_SECRET
       # - SESSION_SECRET
