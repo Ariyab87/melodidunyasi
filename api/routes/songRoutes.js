@@ -100,7 +100,7 @@ router.post('/test', async (req, res) => {
         
         downloadInfo = {
           savedFilename: downloadResult.filename,
-          downloadUrl: `${process.env.PUBLIC_API_BASE || "http://localhost:5001"}/api/download/${downloadResult.filename}`,
+          downloadUrl: `${process.env.PUBLIC_API_BASE || process.env.BACKEND_PUBLIC_URL || "http://localhost:5001"}/api/download/${downloadResult.filename}`,
           size: downloadResult.size
         };
         
@@ -204,7 +204,7 @@ router.post('/simple', async (req, res) => {
         
         downloadInfo = {
           savedFilename: downloadResult.filename,
-          downloadUrl: `${process.env.PUBLIC_API_BASE || "http://localhost:5001"}/api/download/${downloadResult.filename}`,
+          downloadUrl: `${process.env.PUBLIC_API_BASE || process.env.BACKEND_PUBLIC_URL || "http://localhost:5001"}/api/download/${downloadResult.filename}`,
           size: downloadResult.size
         };
         
@@ -968,8 +968,9 @@ router.get('/health', (req, res) => {
   const apiUrl = process.env.SUNOAPI_ORG_BASE_URL || 'https://api.sunoapi.org/api/v1';
   
   // Get callback URL for validation
-  const callbackUrl = process.env.SUNOAPI_ORG_CALLBACK_URL || 
-    (process.env.BACKEND_PUBLIC_URL ? `${process.env.BACKEND_PUBLIC_URL.replace(/\/$/, '')}/api/song/callback` : null);
+  const base = (process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || '').replace(/\/$/, '');
+  const defaultCb = base ? `${base}/callback/suno` : '';
+  const callbackUrl = process.env.SUNOAPI_ORG_CALLBACK_URL || defaultCb;
 
   res.status(200).json({
     success: true,

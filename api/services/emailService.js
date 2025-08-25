@@ -58,7 +58,7 @@ async function sendSongCompletionEmail(record) {
           </ul>
           
           <p style="margin-top: 30px;">
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/song-status/${record.id}" 
+            <a href="${process.env.FRONTEND_URL || process.env.BACKEND_PUBLIC_URL || 'http://localhost:3000'}/song-status/${record.id}" 
                style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
               🎵 Listen to Your Song
             </a>
@@ -82,7 +82,7 @@ async function sendSongCompletionEmail(record) {
         - Occasion: ${record.specialOccasion || 'N/A'}
         - Request ID: ${record.id}
         
-        Listen to your song: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/song-status/${record.id}
+        Listen to your song: ${process.env.FRONTEND_URL || process.env.BACKEND_PUBLIC_URL || 'http://localhost:3000'}/song-status/${record.id}
         
         Thank you for using our AI song generation service!
       `

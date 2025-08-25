@@ -9,7 +9,11 @@ class SunoApiOrgProvider {
     this.baseUrl = process.env.SUNOAPI_ORG_BASE_URL || 'https://api.sunoapi.org/api/v1';
     this.generatePath = process.env.SUNOAPI_ORG_GENERATE_PATH || '/generate';
     this.recordInfoPath = process.env.SUNOAPI_ORG_RECORDINFO_PATH || '/generate/record-info';
-    this.callbackUrl = process.env.SUNOAPI_ORG_CALLBACK_URL || 'https://webhook.site/your-unique-url';
+    
+    // Get callback URL from env or construct from backend URL
+    const base = (process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || '').replace(/\/$/, '');
+    const defaultCb = base ? `${base}/callback/suno` : '';
+    this.callbackUrl = process.env.SUNOAPI_ORG_CALLBACK_URL || defaultCb;
     
     // Log configuration (masked key)
     if (this.apiKey) {
@@ -171,6 +175,8 @@ class SunoApiOrgProvider {
         callBackUrl: this.callbackUrl // Required parameter
       };
       
+      console.log(`[SUNOAPI_ORG] Using callBackUrl:`, this.callbackUrl);
+      console.log(`[SUNOAPI_ORG] Sending payload:`, JSON.stringify(requestPayload));
       console.log(`[SUNOAPI_ORG][POST] ${this.baseUrl}${this.generatePath}`);
       
       const response = await axios({

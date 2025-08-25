@@ -141,11 +141,11 @@ function createSunoApiProvider({ apiKey, baseURL } = {}) {
     async generate({ prompt, style, tags, instrumental, callbackUrl }) {
       try {
         // Get callback URL from params, env, or construct from backend URL
+        const base = (process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || '').replace(/\/$/, '');
+        const defaultCb = base ? `${base}/callback/suno` : '';
         const cb = callbackUrl
           || process.env.SUNOAPI_ORG_CALLBACK_URL
-          || (process.env.BACKEND_PUBLIC_URL
-              ? `${process.env.BACKEND_PUBLIC_URL.replace(/\/$/, '')}/api/song/callback`
-              : undefined);
+          || defaultCb;
 
         if (!cb) console.warn('[sunoapi_org] No callback URL configured; provider may 400');
 
@@ -163,6 +163,7 @@ function createSunoApiProvider({ apiKey, baseURL } = {}) {
         };
         
         const body = clean(payload);
+        console.log('[sunoapi_org] Using callBackUrl:', cb);
         console.log('[sunoapi_org] Sending payload:', JSON.stringify(body));
         const { data } = await http.post('/generate', body);
         

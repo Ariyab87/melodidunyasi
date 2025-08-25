@@ -11,10 +11,9 @@ async function startGeneration(record) {
   try {
     console.info(`[gen] starting for ${record.id}`);
     // Get callback URL from env or construct from backend URL
-    const cbUrl = process.env.SUNOAPI_ORG_CALLBACK_URL
-      || (process.env.BACKEND_PUBLIC_URL
-          ? `${process.env.BACKEND_PUBLIC_URL.replace(/\/$/, '')}/api/song/callback`
-          : undefined);
+    const base = (process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || '').replace(/\/$/, '');
+    const defaultCb = base ? `${base}/callback/suno` : '';
+    const cbUrl = process.env.SUNOAPI_ORG_CALLBACK_URL || defaultCb;
 
     const payload = {
       prompt: record.prompt,
