@@ -12,11 +12,6 @@ console.log(
 );
 
 /* ============================ CORS ============================ */
-/**
- * We keep CORS simple and correct:
- * - Allow only the origins you specify (plus safe fallbacks).
- * - Always answer OPTIONS quickly so browsers can POST.
- */
 const envOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
@@ -34,7 +29,6 @@ console.log('[CORS] Allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, cb) => {
-    // allow server-to-server/no-origin and allowed browser origins
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     return cb(new Error(`Blocked by CORS: ${origin}`));
   },
@@ -50,10 +44,8 @@ app.use(cors({
     'Pragma',
     'Expires',
   ],
-  maxAge: 86400, // 24h preflight cache
+  maxAge: 86400,
 }));
-
-// Make sure every path responds fast to OPTIONS
 app.options('*', cors());
 
 /* ============================ PARSERS ============================ */
@@ -61,15 +53,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 /* ============================ OPTIONAL APP SECRET ============================ */
-/**
- * Some templates add a lightweight gate for POST routes.
- * This middleware **never blocks** unless APP_SECRET is set.
- * That way, you don't accidentally 401 in production because
- * the frontend cannot safely keep a secret.
- */
 function optionalAppSecret(req, res, next) {
   const expected = process.env.APP_SECRET;
-  if (!expected) return next(); // no gate configured
+  if (!expected) return next();
   const got = req.get('x-app-secret');
   if (got === expected) return next();
   console.warn('[AUTH] Missing/incorrect x-app-secret');
@@ -77,47 +63,91 @@ function optionalAppSecret(req, res, next) {
 }
 
 /* ============================ SUNO CALLBACK ============================ */
+// Handles multiple payload shapes including snake_case and data.data[] arrays
 app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
   try {
-    console.log('[SUNO CALLBACK]', JSON.stringify(req.body));
-    const payload  = req.body || {};
-    const jobId    = payload.jobId || payload.taskId || payload.id || payload.data?.taskId || payload.data?.id || null;
-    const recordId = payload.recordId || payload.data?.recordId || payload.data?.id || null;
+    const p = req.body || {};
+    console.log('[SUNO CALLBACK RAW]', JSON.stringify(p).slice(0, 500));
 
-    if (jobId || recordId) {
-      const store = require('./lib/requestStore');
-      const all = await store.list();
-      const record = all.find(r =>
-        r.providerJobId === jobId ||
-        (recordId && r.providerRecordId === recordId)
-      );
+    // job / record IDs (support snake_case and nesting)
+    const jobId =
+      p.jobId ||
+      p.taskId ||
+      p.id ||
+      p.task_id ||
+      p.data?.taskId ||
+      p.data?.task_id ||
+      p.data?.id ||
+      null;
 
-      if (record) {
-        const audioUrl =
-          payload.audioUrl || payload.audio_url || payload.url ||
-          payload.data?.audioUrl || payload.data?.audio_url ||
-          payload.data?.audio?.url || (payload.data?.files?.[0]?.url) || null;
+    const recordId =
+      p.recordId ||
+      p.record_id ||
+      p.data?.recordId ||
+      p.data?.record_id ||
+      p.data?.id ||
+      null;
 
-        const status =
-          payload.status || payload.state || payload.jobStatus ||
-          payload.data?.status || (audioUrl ? 'completed' : 'processing');
+    // audio URL (support flat, nested, and array under data.data)
+    let audioUrl =
+      p.audioUrl ||
+      p.audio_url ||
+      p.url ||
+      p.data?.audioUrl ||
+      p.data?.audio_url ||
+      p.data?.audio?.url ||
+      (p.data?.files?.[0]?.url) ||
+      null;
 
-        const patch = { status, updatedAt: new Date().toISOString() };
-        if (recordId && !record.providerRecordId) patch.providerRecordId = recordId;
-        if (audioUrl) patch.audioUrl = audioUrl;
-
-        const storeMod = require('./lib/requestStore');
-        await storeMod.update(record.id, patch);
-        await storeMod.saveNow();
-        console.info('[CALLBACK] Updated %s -> %s (audio: %s)', record.id, status, audioUrl ? 'yes' : 'no');
-      } else {
-        console.warn('[CALLBACK] No matching record for jobId=%s recordId=%s', jobId, recordId);
-      }
+    // Some providers send an array in data.data
+    let arrayFirst = null;
+    if (!audioUrl && Array.isArray(p.data?.data) && p.data.data.length) {
+      arrayFirst = p.data.data[0] || {};
+      audioUrl = arrayFirst.audio_url || arrayFirst.audioUrl || arrayFirst.url || null;
     }
-    return res.status(200).json({ ok: true });
+
+    const statusRaw =
+      p.status ||
+      p.state ||
+      p.jobStatus ||
+      p.data?.status ||
+      (audioUrl ? 'completed' : 'processing');
+
+    // Find stored request
+    const store = require('./lib/requestStore');
+    const all = await store.list();
+    const rec = all.find(r =>
+      (jobId && String(r.providerJobId) === String(jobId)) ||
+      (recordId && String(r.providerRecordId) === String(recordId))
+    );
+
+    if (!rec) {
+      console.warn('[CALLBACK] No matching record for jobId=%s recordId=%s', jobId, recordId);
+      return res.status(200).json({ ok: true });
+    }
+
+    const patch = {
+      status: statusRaw,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // If array item had an id, we can treat it as providerRecordId
+    const discoveredRecordId = arrayFirst?.id || null;
+    if ((recordId || discoveredRecordId) && !rec.providerRecordId) {
+      patch.providerRecordId = String(recordId || discoveredRecordId);
+    }
+    if (audioUrl) {
+      patch.audioUrl = String(audioUrl);
+    }
+
+    await store.update(rec.id, patch);
+    await store.saveNow();
+
+    console.info('[CALLBACK] %s -> %s (audio=%s)', rec.id, statusRaw, audioUrl ? 'yes' : 'no');
+    return res.json({ ok: true });
   } catch (err) {
     console.error('[CALLBACK] Error:', err.message);
-    return res.status(200).json({ ok: true }); // never fail callbacks
+    return res.status(200).json({ ok: true }); // never fail provider
   }
 });
 
@@ -129,7 +159,6 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), env: process.env.NODE_ENV || 'development' });
 });
 
-// Helpful echo to see what the browser is actually sending (temporarily keep)
 app.post('/api/debug/echo', (req, res) => {
   res.json({
     headers: req.headers,
@@ -149,11 +178,10 @@ const debugRoutes    = require('./routes/debug');
 const statusRoutes   = require('./routes/status');
 const downloadRoutes = require('./routes/downloadRoutes');
 
-// Mount status first (no collisions)
 app.use('/api/status', statusRoutes);
 
 // Protect only if APP_SECRET is configured; otherwise no-op
-app.use('/api/song', optionalAppSecret); // ← applies to /api/song/* only if APP_SECRET is set
+app.use('/api/song', optionalAppSecret);
 
 // Mount the rest of API routes
 app.use('/api', songRoutes);
@@ -181,7 +209,6 @@ app.use((err, _req, res, _next) => {
   if (err?.type === 'entity.too.large' || err?.code === 'LIMIT_FILE_SIZE') {
     return res.status(413).json({ error: 'File too large', message: 'The uploaded file exceeds the maximum allowed size.' });
   }
-  // CORS error bubble (from our origin validator)
   if (String(err.message || '').startsWith('Blocked by CORS')) {
     return res.status(403).json({ error: 'CORS blocked', message: err.message });
   }
