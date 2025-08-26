@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { API_BASE } from '@/lib/api';
 
 type StatusResp = {
@@ -19,7 +18,6 @@ export default function SongStatusPage() {
   const searchParams = useSearchParams();
   const params = useParams();
 
-  // Accept both `/song-status/[songId]` and query params
   const initialSongId = (params?.songId as string) || searchParams.get('songId') || '';
   const initialJobId = searchParams.get('jobId') || '';
 
@@ -30,7 +28,7 @@ export default function SongStatusPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  const shouldAutoStart = !!songId || !!jobId;
+  const shouldAutoStart = !!songId;
 
   useEffect(() => {
     if (!shouldAutoStart) return;
@@ -103,7 +101,6 @@ export default function SongStatusPage() {
   return (
     <div className="min-h-screen bg-dark-900 text-white">
       <div className="container mx-auto px-4 py-12">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">
             {shouldAutoStart ? 'Creating your song…' : 'Song Status Checker'}
@@ -115,7 +112,6 @@ export default function SongStatusPage() {
           </p>
         </div>
 
-        {/* Status */}
         {shouldAutoStart && (
           <div className="max-w-3xl mx-auto">
             <p className="mb-4">Status: {status}</p>
@@ -152,7 +148,6 @@ export default function SongStatusPage() {
           </div>
         )}
 
-        {/* Manual Search */}
         {!shouldAutoStart && (
           <div className="max-w-2xl mx-auto">
             <form onSubmit={handleSearch} className="space-y-4">

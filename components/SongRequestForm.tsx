@@ -22,6 +22,7 @@ import { useSunoGuard } from '@/lib/useSunoGuard';
 import { useSunoStatus } from '@/lib/sunoStatusContext';
 import Toast from '@/components/ui/Toast';
 import { submitSongForm } from '@/lib/api';
+import SongGenerationModal from './SongGenerationModal';
 
 interface SongRequestFormData {
   name: string;
@@ -60,6 +61,8 @@ export default function SongRequestForm() {
     useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [songId, setSongId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [jobId, setJobId] = useState<string | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -106,8 +109,10 @@ export default function SongRequestForm() {
       const result = await submitSongForm(payload);
 
       setSongId(result.songId);
+      setJobId(result.jobId);
       setSubmitStatus('success');
 
+      // Reset form data
       setFormData({
         name: '',
         email: '',
@@ -122,9 +127,9 @@ export default function SongRequestForm() {
         instrumental: false,
       });
 
+      // Show the generation modal instead of redirecting
       if (result.songId) {
-        const jobIdParam = result.jobId ? `?jobId=${encodeURIComponent(result.jobId)}` : '';
-        window.location.href = `/song-status/${result.songId}${jobIdParam}`;
+        setIsModalOpen(true);
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'An unexpected error occurred');
@@ -420,15 +425,9 @@ export default function SongRequestForm() {
                       <strong>Request ID:</strong> {songId}
                     </p>
                   )}
-                  <div className="mt-4">
-                    <a
-                      href={`/song-status/${songId}`}
-                      className="inline-flex items-center space-x-2 text-primary-400 hover:text-primary-300 transition-colors duration-200"
-                    >
-                      <span>Check Song Status</span>
-                      <ArrowRight size={16} />
-                    </a>
-                  </div>
+                  <p className="text-green-300 text-sm mt-2">
+                    The generation modal will open automatically to track your song's progress.
+                  </p>
                 </motion.div>
               )}
 
@@ -484,6 +483,14 @@ export default function SongRequestForm() {
       {toastMessage && (
         <Toast message={toastMessage} type="error" onClose={clearToast} duration={5000} />
       )}
+
+      {/* Song Generation Modal */}
+      <SongGenerationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        songId={songId || ''}
+        jobId={jobId}
+      />
     </section>
   );
 }
