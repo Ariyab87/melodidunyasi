@@ -3,12 +3,13 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const BASE       = (process.env.SUNOAPI_ORG_BASE_URL || 'https://api.sunoapi.org/api/v1').replace(/\/$/, '');
-const GEN_PATH   = process.env.SUNOAPI_ORG_GENERATE_PATH   || '/generate';
-const INFO_PATH  = process.env.SUNOAPI_ORG_RECORDINFO_PATH || '/generate/record-info';
-const MODELS_PATH= process.env.SUNOAPI_ORG_MODELS_PATH     || '/models';
-const API_KEY    = process.env.SUNOAPI_ORG_API_KEY;
-const CALLBACK   = process.env.SUNOAPI_ORG_CALLBACK_URL || '';
+const BASE        = (process.env.SUNOAPI_ORG_BASE_URL || 'https://api.sunoapi.org/api/v1').replace(/\/$/, '');
+const GEN_PATH    = process.env.SUNOAPI_ORG_GENERATE_PATH    || '/generate';
+const INFO_PATH   = process.env.SUNOAPI_ORG_RECORDINFO_PATH  || '/generate/record-info';
+const MODELS_PATH = process.env.SUNOAPI_ORG_MODELS_PATH      || '/models';
+const API_KEY     = process.env.SUNOAPI_ORG_API_KEY;
+const CALLBACK    = process.env.SUNOAPI_ORG_CALLBACK_URL || '';
+const MODEL_ENV   = process.env.SUNOAPI_ORG_MODEL || 'V4_5';
 
 function requireKey() {
   if (!API_KEY) {
@@ -21,8 +22,8 @@ function requireKey() {
 function authHeaders() {
   requireKey();
   return {
-    Authorization: `Bearer ${API_KEY}`, // many providers accept Bearer …
-    'x-api-key': API_KEY,               // … and some expect x-api-key
+    Authorization: `Bearer ${API_KEY}`,
+    'x-api-key': API_KEY,
     'Content-Type': 'application/json',
   };
 }
@@ -33,11 +34,19 @@ const http = axios.create({
   validateStatus: () => true,
 });
 
-/**
- * Normalize provider result to a common shape
- */
+function providerErrorIfPresent(data) {
+  // Some providers return HTTP 200 with an error payload: { code: 400, msg: "...", data: null }
+  const code = typeof data?.code !== 'undefined' ? Number(data.code) : null;
+  const hasEmbeddedError = (code && code !== 200) || data?.error || data?.errors;
+  if (hasEmbeddedError) {
+    const e = new Error(data?.msg || data?.error?.message || 'suno_provider_error');
+    e.httpStatus = 502;
+    e.details = data;
+    throw e;
+  }
+}
+
 function normalizeGenerateResponse(resData) {
-  // Try to pull a job/record id from various shapes
   const jobId =
     resData?.jobId || resData?.taskId || resData?.id ||
     resData?.data?.jobId || resData?.data?.taskId || resData?.data?.id || null;
@@ -61,9 +70,6 @@ function normalizeGenerateResponse(resData) {
   };
 }
 
-/**
- * Start generation
- */
 async function generateSong(payload = {}) {
   const url = `${GEN_PATH.startsWith('/') ? GEN_PATH : `/${GEN_PATH}`}`;
 
@@ -77,7 +83,9 @@ async function generateSong(payload = {}) {
     instrumental: typeof payload.instrumental === 'boolean' ? payload.instrumental : false,
     language: payload.language || 'en',
     namesToInclude: payload.namesToInclude || undefined,
-    callbackUrl: CALLBACK || undefined, // if configured
+    model: payload.model || MODEL_ENV,
+    customMode: false,
+    callbackUrl: CALLBACK || undefined,
   };
 
   const res = await http.post(url, body, { headers: authHeaders() });
@@ -94,18 +102,14 @@ async function generateSong(payload = {}) {
     e.details = { status: res.status, data: res.data };
     throw e;
   }
+  providerErrorIfPresent(res.data);
 
   return normalizeGenerateResponse(res.data);
 }
 
-/**
- * Query status by job/record id
- */
 async function checkSongStatus({ jobId, recordId }) {
   const url = `${INFO_PATH.startsWith('/') ? INFO_PATH : `/${INFO_PATH}`}`;
   const params = {};
-
-  // Most providers accept record id here; if jobId is all we have, pass it along too.
   if (recordId) params.id = recordId;
   if (jobId) params.jobId = jobId;
 
@@ -123,10 +127,10 @@ async function checkSongStatus({ jobId, recordId }) {
     e.details = { status: res.status, data: res.data };
     throw e;
   }
+  providerErrorIfPresent(res.data);
 
   const data = res.data;
 
-  // Normalize possible shapes
   const audioUrl =
     data?.audioUrl || data?.audio_url || data?.url ||
     data?.data?.audioUrl || data?.data?.audio_url ||
@@ -153,31 +157,23 @@ async function checkSongStatus({ jobId, recordId }) {
   };
 }
 
-/**
- * Optional: list models (best-effort; falls back to minimal info)
- */
 async function getModels() {
   const url = `${MODELS_PATH.startsWith('/') ? MODELS_PATH : `/${MODELS_PATH}`}`;
   const res = await http.get(url, { headers: authHeaders(), timeout: 15000 });
   if (res.status >= 400) {
-    // fallback
-    return [
-      { id: 'default', name: 'Default Model', provider: 'sunoapi_org' }
-    ];
+    return [{ id: 'default', name: 'Default Model', provider: 'sunoapi_org' }];
   }
+  providerErrorIfPresent(res.data);
   return res.data;
 }
 
-/**
- * Download helper to save an audio file under /uploads/audio
- */
 async function downloadAudioFile(fileUrl, songId, baseName = 'song') {
   if (!fileUrl) throw new Error('downloadAudioFile: missing fileUrl');
 
   const dir = path.join(__dirname, '..', 'uploads', 'audio');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-  const safeBase = baseName.replace(/[^\w.-]+/g, '_').slice(0, 40);
+  const safeBase = String(baseName).replace(/[^\w.-]+/g, '_').slice(0, 40);
   const filename = `${safeBase}_${songId}.mp3`;
   const filePath = path.join(dir, filename);
 
