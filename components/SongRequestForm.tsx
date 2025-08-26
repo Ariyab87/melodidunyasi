@@ -2,12 +2,26 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Music, Heart, Calendar, User, FileText, Clock, Star, Mail, Phone, Users, CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import {
+  Music,
+  Heart,
+  Calendar,
+  User,
+  FileText,
+  Clock,
+  Star,
+  Mail,
+  Phone,
+  Users,
+  CheckCircle,
+  AlertTriangle,
+  ArrowRight,
+} from 'lucide-react';
 import { useLanguage } from '@/lib/languageContext';
 import { useSunoGuard } from '@/lib/useSunoGuard';
 import { useSunoStatus } from '@/lib/sunoStatusContext';
 import Toast from '@/components/ui/Toast';
-import { API_BASE } from '@/lib/api';
+import { submitSongForm } from '@/lib/api';
 
 interface SongRequestFormData {
   name: string;
@@ -25,9 +39,9 @@ interface SongRequestFormData {
 
 export default function SongRequestForm() {
   const { t } = useLanguage();
-  const { canGenerate, checkBeforeGenerate, showToast, toastMessage, clearToast } = useSunoGuard();
+  const { canGenerate, checkBeforeGenerate, toastMessage, clearToast } = useSunoGuard();
   const { status } = useSunoStatus();
-  
+
   const [formData, setFormData] = useState<SongRequestFormData>({
     name: '',
     email: '',
@@ -39,123 +53,125 @@ export default function SongRequestForm() {
     story: '',
     tempo: '',
     notes: '',
-    instrumental: false
+    instrumental: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] =
+    useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [songId, setSongId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: checked
+      [name]: checked,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check Suno status before proceeding
-    const canProceed = await checkBeforeGenerate();
-    if (!canProceed) {
-      return; // Toast message is already shown by the guard
-    }
-    
+
+    const proceed = await checkBeforeGenerate();
+    if (!proceed) return;
+
     setSubmitStatus('submitting');
     setErrorMessage('');
-    
+
     try {
-      // Send form data to backend API
-      const response = await fetch(`${API_BASE}/api/song/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          fullName: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          songStyle: formData.songStyle,
-          mood: formData.mood,
-          specialOccasion: formData.specialOccasion,
-          namesToInclude: formData.namesToInclude,
-          yourStory: formData.story,
-          tempo: formData.tempo,
-          additionalNotes: formData.notes
-        }),
+      const payload = {
+        fullName: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        songStyle: formData.songStyle,
+        mood: formData.mood,
+        specialOccasion: formData.specialOccasion,
+        namesToInclude: formData.namesToInclude || undefined,
+        yourStory: formData.story, // important: backend expects "yourStory"
+        tempo: formData.tempo,
+        additionalNotes: formData.notes || undefined,
+        instrumental: formData.instrumental,
+      };
+
+      const result = await submitSongForm(payload);
+
+      setSongId(result.songId);
+      setSubmitStatus('success');
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        songStyle: '',
+        mood: '',
+        specialOccasion: '',
+        namesToInclude: '',
+        story: '',
+        tempo: '',
+        notes: '',
+        instrumental: false,
       });
 
-      if (response.status === 429) {
-        setErrorMessage('You\'re submitting too quickly. Please wait a few seconds and try again.');
-        setSubmitStatus('error');
-        return;
+      if (result.songId) {
+        const jobIdParam = result.jobId ? `?jobId=${encodeURIComponent(result.jobId)}` : '';
+        window.location.href = `/song-status/${result.songId}${jobIdParam}`;
       }
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setSongId(result.songId); // Use the new songId field
-        setSubmitStatus('success');
-        // Reset form after successful submission
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          songStyle: '',
-          mood: '',
-          specialOccasion: '',
-          namesToInclude: '',
-          story: '',
-          tempo: '',
-          notes: '',
-          instrumental: false
-        });
-        
-        // Navigate to song status page with songId and jobId
-        if (result.songId) {
-          const jobIdParam = result.jobId ? `?jobId=${encodeURIComponent(result.jobId)}` : '';
-          window.location.href = `/song-status/${result.songId}${jobIdParam}`;
-        }
-      } else {
-        throw new Error(result.error || 'Failed to submit song request');
-        }
-      } catch (error) {
-        console.error('Error submitting song request:', error);
-        setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
-        setSubmitStatus('error');
-      }
-    };
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'An unexpected error occurred');
+      setSubmitStatus('error');
+    }
+  };
 
   const songStyles = [
-    'Pop', 'Rock', 'Jazz', 'Classical', 'Country', 'Hip Hop', 'Electronic', 'Folk', 'R&B', 'Blues'
+    'Pop',
+    'Rock',
+    'Jazz',
+    'Classical',
+    'Country',
+    'Hip Hop',
+    'Electronic',
+    'Folk',
+    'R&B',
+    'Blues',
   ];
 
   const moods = [
-    'Romantic', 'Happy', 'Melancholic', 'Energetic', 'Peaceful', 'Nostalgic', 'Uplifting', 'Intimate'
+    'Romantic',
+    'Happy',
+    'Melancholic',
+    'Energetic',
+    'Peaceful',
+    'Nostalgic',
+    'Uplifting',
+    'Intimate',
   ];
 
   const occasions = [
-    'Wedding', 'Anniversary', 'Proposal', 'Birthday', 'Valentine\'s Day', 'Graduation', 'Engagement', 'Other'
+    'Wedding',
+    'Anniversary',
+    'Proposal',
+    'Birthday',
+    "Valentine's Day",
+    'Graduation',
+    'Engagement',
+    'Other',
   ];
 
   const tempos = [
-    'Slow (60-80 BPM)', 'Medium (80-120 BPM)', 'Fast (120-160 BPM)', 'Very Fast (160+ BPM)'
+    'Slow (60-80 BPM)',
+    'Medium (80-120 BPM)',
+    'Fast (120-160 BPM)',
+    'Very Fast (160+ BPM)',
   ];
 
   return (
@@ -171,9 +187,7 @@ export default function SongRequestForm() {
           <h2 className="text-4xl font-bold mb-6">
             <span className="text-gradient">{t('songForm.title')}</span>
           </h2>
-          <p className="text-xl text-dark-300 max-w-2xl mx-auto">
-            {t('songForm.subtitle')}
-          </p>
+          <p className="text-xl text-dark-300 max-w-2xl mx-auto">{t('songForm.subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -184,7 +198,6 @@ export default function SongRequestForm() {
           className="max-w-4xl mx-auto"
         >
           <form onSubmit={handleSubmit} className="card space-y-8">
-            {/* Personal Information */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center space-x-2 text-white font-medium">
@@ -246,14 +259,15 @@ export default function SongRequestForm() {
                   className="input-field"
                 >
                   <option value="">{t('songForm.placeholders.selectOccasion')}</option>
-                  {occasions.map(occasion => (
-                    <option key={occasion} value={occasion}>{occasion}</option>
+                  {occasions.map((occasion) => (
+                    <option key={occasion} value={occasion}>
+                      {occasion}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {/* Song Details */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center space-x-2 text-white font-medium">
@@ -268,8 +282,10 @@ export default function SongRequestForm() {
                   className="input-field"
                 >
                   <option value="">{t('songForm.placeholders.chooseStyle')}</option>
-                  {songStyles.map(style => (
-                    <option key={style} value={style}>{style}</option>
+                  {songStyles.map((style) => (
+                    <option key={style} value={style}>
+                      {style}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -287,8 +303,10 @@ export default function SongRequestForm() {
                   className="input-field"
                 >
                   <option value="">{t('songForm.placeholders.selectMood')}</option>
-                  {moods.map(mood => (
-                    <option key={mood} value={mood}>{mood}</option>
+                  {moods.map((mood) => (
+                    <option key={mood} value={mood}>
+                      {mood}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -305,8 +323,10 @@ export default function SongRequestForm() {
                   className="input-field"
                 >
                   <option value="">{t('songForm.placeholders.chooseTempo')}</option>
-                  {tempos.map(tempo => (
-                    <option key={tempo} value={tempo}>{tempo}</option>
+                  {tempos.map((tempo) => (
+                    <option key={tempo} value={tempo}>
+                      {tempo}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -325,7 +345,9 @@ export default function SongRequestForm() {
                       onChange={handleCheckboxChange}
                       className="w-4 h-4 text-primary-600 bg-dark-600 border-dark-500 rounded focus:ring-primary-500 focus:ring-2"
                     />
-                    <span className="text-dark-300 text-sm">Create instrumental version (no vocals)</span>
+                    <span className="text-dark-300 text-sm">
+                      Create instrumental version (no vocals)
+                    </span>
                   </label>
                 </div>
               </div>
@@ -346,7 +368,6 @@ export default function SongRequestForm() {
               </div>
             </div>
 
-            {/* Story and Notes */}
             <div className="space-y-6">
               <div className="space-y-2">
                 <label className="flex items-center space-x-2 text-white font-medium">
@@ -380,9 +401,7 @@ export default function SongRequestForm() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="text-center pt-6">
-              {/* Success Message */}
               {submitStatus === 'success' && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -413,7 +432,6 @@ export default function SongRequestForm() {
                 </motion.div>
               )}
 
-              {/* Error Message */}
               {submitStatus === 'error' && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -435,7 +453,7 @@ export default function SongRequestForm() {
               >
                 {submitStatus === 'submitting' ? (
                   <div className="flex items-center space-x-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>Creating Your Song...</span>
                   </div>
                 ) : (
@@ -445,17 +463,15 @@ export default function SongRequestForm() {
               <p className="text-sm text-dark-400 mt-3">
                 {t('songForm.submitButton.reviewTime')}
               </p>
-              
-              {/* Suno Status Indicator */}
+
               {!canGenerate && (
                 <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
                   <div className="flex items-center justify-center space-x-2 text-red-400">
                     <AlertTriangle size={16} />
                     <span className="text-sm font-medium">
-                      {status?.code === 'REGION_BLOCK' 
+                      {status?.code === 'REGION_BLOCK'
                         ? 'Suno unavailable from server region. Try again later or switch region.'
-                        : 'Suno API is currently unavailable. Please try again later.'
-                      }
+                        : 'Suno API is currently unavailable. Please try again later.'}
                     </span>
                   </div>
                 </div>
@@ -465,14 +481,8 @@ export default function SongRequestForm() {
         </motion.div>
       </div>
 
-      {/* Toast Notification */}
       {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type="error"
-          onClose={clearToast}
-          duration={5000}
-        />
+        <Toast message={toastMessage} type="error" onClose={clearToast} duration={5000} />
       )}
     </section>
   );
