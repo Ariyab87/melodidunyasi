@@ -59,23 +59,66 @@ export default function SongGenerationModal({
 
       let processedResponse = { ...response };
 
-      // Try to extract audioUrl if missing
-      if (!processedResponse.audioUrl) {
-        if (response.audio_url) processedResponse.audioUrl = response.audio_url;
-        if (response.data && Array.isArray(response.data) && response.data[0]?.audio_url) {
-          processedResponse.audioUrl = response.data[0].audio_url;
-        }
+      // Always try to extract audioUrl to ensure we get it
+      console.log('🔍 Raw response:', response);
+      console.log('🔍 Response keys:', Object.keys(response));
+      console.log('🔍 Response status:', response.status);
+      
+      // Check for direct audioUrl first
+      if (response.audioUrl) {
+        processedResponse.audioUrl = response.audioUrl;
+        console.log('🔍 Found direct audioUrl:', response.audioUrl);
       }
+      
+      // Check for snake_case audio_url
+      if (response.audio_url) {
+        processedResponse.audioUrl = response.audio_url;
+        console.log('🔍 Found audio_url (snake_case):', response.audio_url);
+      }
+      
+      // Check for nested data structure: response.data[0].audio_url
+      if (response.data && Array.isArray(response.data) && response.data[0]?.audio_url) {
+        processedResponse.audioUrl = response.data[0].audio_url;
+        console.log('🔍 Found nested data[0].audio_url:', response.data[0].audio_url);
+      }
+      
+      // Check for deeply nested structure: response.data.data[0].audio_url (from logs)
+      if (response.data && response.data.data && Array.isArray(response.data.data) && response.data.data[0]?.audio_url) {
+        processedResponse.audioUrl = response.data.data[0].audio_url;
+        console.log('🔍 Found deeply nested data.data[0].audio_url:', response.data.data[0].audio_url);
+      }
+      
+      // Additional checks for other possible structures
+      if (response.data?.audioUrl) {
+        processedResponse.audioUrl = response.data.audioUrl;
+        console.log('🔍 Found data.audioUrl:', response.data.audioUrl);
+      }
+      
+      if (response.data?.audio_url) {
+        processedResponse.audioUrl = response.data.audio_url;
+        console.log('🔍 Found data.audio_url:', response.data.audio_url);
+      }
+      
+      console.log('🔍 Final processed audioUrl:', processedResponse.audioUrl);
+      console.log('🔍 Response status after processing:', processedResponse.status);
 
       setStatusData(processedResponse);
 
       const mappedStatus = mapBackendStatus(processedResponse.status);
-      setCurrentStatus(
-        processedResponse.audioUrl ? 'completed' : mappedStatus
-      );
+      console.log('🔍 Status mapping:', { 
+        originalStatus: processedResponse.status, 
+        mappedStatus, 
+        hasAudioUrl: !!processedResponse.audioUrl 
+      });
+      
+      // If we have an audio URL, force status to completed
+      const finalStatus = processedResponse.audioUrl ? 'completed' : mappedStatus;
+      console.log('🔍 Setting final status:', finalStatus);
+      setCurrentStatus(finalStatus);
 
       // ✅ stop polling if audioUrl exists or failed
       if (processedResponse.audioUrl || mappedStatus === 'failed') {
+        console.log('🔍 Stopping polling - audioUrl found or failed status');
         setIsPolling(false);
         return;
       }
@@ -90,7 +133,11 @@ export default function SongGenerationModal({
 
   // Start polling when modal opens
   useEffect(() => {
-    if (isOpen && songId) pollStatus();
+    console.log('🔍 Modal effect triggered:', { isOpen, songId, jobId });
+    if (isOpen && songId) {
+      console.log('🔍 Starting to poll for song:', songId);
+      pollStatus();
+    }
   }, [isOpen, songId, pollStatus]);
 
   // Continue polling until completed/failed
