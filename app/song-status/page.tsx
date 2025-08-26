@@ -18,7 +18,8 @@ export default function SongStatusPage() {
   const searchParams = useSearchParams();
   const params = useParams();
 
-  const initialSongId = (params?.songId as string) || searchParams.get('songId') || '';
+  const initialSongId =
+    (params?.songId as string) || searchParams.get('songId') || '';
   const initialJobId = searchParams.get('jobId') || '';
 
   const [songId, setSongId] = useState(initialSongId);
@@ -49,16 +50,23 @@ export default function SongStatusPage() {
 
         if (!alive) return;
         setStatus(j.status || 'pending');
-        if (j.audioUrl) setAudioUrl(j.audioUrl);
+
+        // ✅ If we got audioUrl, treat as completed
+        if (j.audioUrl) {
+          setAudioUrl(j.audioUrl);
+          setStatus('completed');
+          return; // stop polling
+        }
+
         if (j.jobId && !jobId) setJobId(j.jobId);
 
-        const done = (j.status || '').toLowerCase() === 'completed';
         const failed = (j.status || '').toLowerCase() === 'failed';
-        if (!done && !failed) {
+        if (!failed) {
           setTimeout(tick, delay);
           delay = Math.min(maxDelay, delay * 1.5);
+        } else {
+          setError(j.errorMessage || 'Generation failed. Please try again.');
         }
-        if (failed) setError(j.errorMessage || 'Generation failed. Please try again.');
       } catch (e: any) {
         if (!alive) return;
         setError(e.message || 'Status check failed');
@@ -89,7 +97,10 @@ export default function SongStatusPage() {
       const j: StatusResp = await res.json();
 
       setStatus(j.status || 'pending');
-      if (j.audioUrl) setAudioUrl(j.audioUrl);
+      if (j.audioUrl) {
+        setAudioUrl(j.audioUrl);
+        setStatus('completed');
+      }
       if (j.jobId && !jobId) setJobId(j.jobId);
     } catch (err: any) {
       setError(err.message || 'Status check failed');
