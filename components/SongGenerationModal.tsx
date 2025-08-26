@@ -187,20 +187,29 @@ export default function SongGenerationModal({
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-dark-700 rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto"
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="bg-gradient-to-br from-dark-700 via-dark-800 to-dark-900 rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-dark-600/50 backdrop-blur-sm"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">Creating Your Song</h2>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+                <Music size={20} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Creating Your Song</h2>
+                <p className="text-dark-300 text-sm">AI-powered music generation</p>
+              </div>
+            </div>
             <button
               onClick={onClose}
-              className="text-dark-300 hover:text-white transition-colors"
+              className="w-8 h-8 bg-dark-600 hover:bg-dark-500 rounded-lg flex items-center justify-center text-dark-300 hover:text-white transition-all duration-200 hover:scale-110"
             >
-              <X size={24} />
+              <X size={18} />
             </button>
           </div>
 
@@ -208,12 +217,12 @@ export default function SongGenerationModal({
           <div className="mb-8">
             <div className="relative">
               {/* Progress Bar */}
-              <div className="absolute top-4 left-0 w-full h-1 bg-dark-600 rounded-full">
+              <div className="absolute top-5 left-0 w-full h-2 bg-dark-600/50 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full"
+                  className="h-full bg-gradient-to-r from-primary-500 via-primary-400 to-primary-300 rounded-full shadow-lg"
                   initial={{ width: 0 }}
                   animate={{ width: `${getProgressPercentage()}%` }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
                 />
               </div>
 
@@ -223,142 +232,228 @@ export default function SongGenerationModal({
                 const isCurrent = index === getCurrentStepIndex();
                 
                 return (
-                  <div key={step.key} className="relative flex items-center mb-6 last:mb-0">
+                  <motion.div 
+                    key={step.key} 
+                    className="relative flex items-center mb-8 last:mb-0"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
                     {/* Step Circle */}
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 ${
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all duration-300 ${
                       isActive 
-                        ? 'bg-primary-500 text-white' 
-                        : 'bg-dark-600 text-dark-400'
+                        ? 'bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/25' 
+                        : 'bg-dark-600/50 text-dark-400'
                     }`}>
                       {isCurrent && currentStatus !== 'completed' ? (
-                        <Loader2 size={16} className="animate-spin" />
+                        <Loader2 size={18} className="animate-spin text-white" />
                       ) : isActive ? (
-                        <CheckCircle size={16} />
+                        <CheckCircle size={18} className="text-white" />
                       ) : (
                         <span className="text-sm font-medium">{index + 1}</span>
                       )}
                     </div>
 
                     {/* Step Content */}
-                    <div className="ml-4">
-                      <h3 className={`font-medium ${
+                    <div className="ml-5">
+                      <h3 className={`font-semibold text-lg transition-colors duration-300 ${
                         isActive ? 'text-white' : 'text-dark-400'
                       }`}>
                         {step.label}
                       </h3>
-                      <p className={`text-sm ${
+                      <p className={`text-sm transition-colors duration-300 ${
                         isActive ? 'text-dark-300' : 'text-dark-500'
                       }`}>
                         {step.description}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           </div>
 
           {/* Status Messages */}
-          <div className="mb-6">
+          <div className="mb-8">
             {currentStatus === 'queued' && (
-              <div className="text-center p-4 bg-dark-600 rounded-lg">
-                <Clock size={24} className="mx-auto mb-2 text-primary-400" />
-                <p className="text-white font-medium">Your song is queued</p>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center p-6 bg-gradient-to-br from-dark-600/80 to-dark-700/80 rounded-2xl border border-dark-500/30 backdrop-blur-sm"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock size={28} className="text-primary-400" />
+                </div>
+                <p className="text-white font-semibold text-lg mb-2">Your song is queued</p>
                 <p className="text-dark-300 text-sm">We'll start processing shortly...</p>
-              </div>
+              </motion.div>
             )}
 
             {currentStatus === 'processing' && (
-              <div className="text-center p-4 bg-dark-600 rounded-lg">
-                <Music size={24} className="mx-auto mb-2 text-primary-400 animate-pulse" />
-                <p className="text-white font-medium">AI is creating your song</p>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center p-6 bg-gradient-to-br from-dark-600/80 to-dark-700/80 rounded-2xl border border-dark-500/30 backdrop-blur-sm"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Music size={28} className="text-primary-400 animate-pulse" />
+                </div>
+                <p className="text-white font-semibold text-lg mb-2">AI is creating your song</p>
                 <p className="text-dark-300 text-sm">This usually takes 2-5 minutes</p>
-              </div>
+              </motion.div>
             )}
 
             {currentStatus === 'finalizing' && (
-              <div className="text-center p-4 bg-dark-600 rounded-lg">
-                <Loader2 size={24} className="mx-auto mb-2 text-primary-400 animate-spin" />
-                <p className="text-white font-medium">Adding final touches</p>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center p-6 bg-gradient-to-br from-dark-600/80 to-dark-700/80 rounded-2xl border border-dark-500/30 backdrop-blur-sm"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Loader2 size={28} className="text-primary-400 animate-spin" />
+                </div>
+                <p className="text-white font-semibold text-lg mb-2">Adding final touches</p>
                 <p className="text-dark-300 text-sm">Almost ready...</p>
-              </div>
+              </motion.div>
             )}
 
-            {currentStatus === 'completed' && statusData?.audioUrl && (
-              <div className="text-center p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
-                <CheckCircle size={24} className="mx-auto mb-2 text-green-400" />
-                <p className="text-white font-medium">Your song is ready!</p>
-                <p className="text-dark-300 text-sm">Listen, download, or copy the link below</p>
-              </div>
+            {currentStatus === 'completed' && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center p-6 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-2xl border border-green-500/40 backdrop-blur-sm"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle size={28} className="text-green-400" />
+                </div>
+                <p className="text-white font-semibold text-lg mb-2">Your song is ready!</p>
+                <p className="text-dark-300 text-sm">
+                  {statusData?.audioUrl 
+                    ? 'Listen, download, or copy the link below' 
+                    : 'Your song has been generated successfully!'}
+                </p>
+                {!statusData?.audioUrl && (
+                  <p className="text-yellow-300 text-sm mt-3 font-medium">
+                    Audio URL not yet available. Please check back in a few minutes.
+                  </p>
+                )}
+              </motion.div>
             )}
 
             {currentStatus === 'failed' && (
-              <div className="text-center p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
-                <AlertTriangle size={24} className="mx-auto mb-2 text-red-400" />
-                <p className="text-white font-medium">Generation failed</p>
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center p-6 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-2xl border border-red-500/40 backdrop-blur-sm"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle size={28} className="text-red-400" />
+                </div>
+                <p className="text-white font-semibold text-lg mb-2">Generation failed</p>
                 <p className="text-dark-300 text-sm">
                   {statusData?.errorMessage || 'Something went wrong. Please try again.'}
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
 
           {/* Audio Player & Actions (when completed) */}
           {currentStatus === 'completed' && statusData?.audioUrl && (
-            <div className="space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
               {/* Audio Player */}
-              <div className="bg-dark-600 rounded-lg p-4">
-                <div className="flex items-center justify-center space-x-4">
+              <div className="bg-gradient-to-br from-dark-600/80 to-dark-700/80 rounded-2xl p-6 border border-dark-500/30 backdrop-blur-sm">
+                <div className="flex items-center space-x-5">
                   <button
                     onClick={toggleAudio}
-                    className="w-12 h-12 bg-primary-500 hover:bg-primary-400 rounded-full flex items-center justify-center transition-colors"
+                    className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg shadow-primary-500/25"
                   >
-                    {isAudioPlaying ? <Pause size={20} /> : <Play size={20} />}
+                    {isAudioPlaying ? <Pause size={24} className="text-white" /> : <Play size={24} className="text-white" />}
                   </button>
                   <div className="flex-1">
-                    <p className="text-white font-medium">Your Generated Song</p>
-                    <p className="text-dark-300 text-sm">Click play to listen</p>
+                    <p className="text-white font-semibold text-lg mb-1">Your Generated Song</p>
+                    <p className="text-dark-300 text-sm">Click play to listen to your AI-generated masterpiece</p>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={downloadAudio}
-                  className="flex items-center justify-center space-x-2 bg-primary-500 hover:bg-primary-400 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  className="flex items-center justify-center space-x-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-primary-500/25"
                 >
-                  <Download size={16} />
-                  <span>Download</span>
+                  <Download size={18} />
+                  <span>Download MP3</span>
                 </button>
                 <button
                   onClick={copyAudioUrl}
-                  className="flex items-center justify-center space-x-2 bg-dark-600 hover:bg-dark-500 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  className="flex items-center justify-center space-x-3 bg-gradient-to-r from-dark-600 to-dark-700 hover:from-dark-500 hover:to-dark-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105 border border-dark-500/50"
                 >
-                  <Copy size={16} />
+                  <Copy size={18} />
                   <span>Copy Link</span>
                 </button>
               </div>
-            </div>
+            </motion.div>
+          )}
+
+          {/* Completed but no audio yet */}
+          {currentStatus === 'completed' && !statusData?.audioUrl && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center p-6 bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 rounded-2xl border border-yellow-500/30 backdrop-blur-sm"
+            >
+              <div className="w-16 h-16 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock size={28} className="text-yellow-400" />
+              </div>
+              <h3 className="text-yellow-300 font-semibold text-lg mb-3">Audio Processing</h3>
+              <p className="text-dark-300 text-sm mb-2">
+                Your song is complete but the audio is still being processed.
+              </p>
+              <p className="text-dark-300 text-sm mb-4">
+                This usually takes a few minutes. You can close this modal and check back later.
+              </p>
+              <button
+                onClick={onClose}
+                className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-primary-500/25"
+              >
+                Close Modal
+              </button>
+            </motion.div>
           )}
 
           {/* Error Actions */}
           {currentStatus === 'failed' && (
-            <div className="text-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+            >
               <button
                 onClick={onClose}
-                className="bg-red-500 hover:bg-red-400 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-red-500/25"
               >
                 Close & Try Again
               </button>
-            </div>
+            </motion.div>
           )}
 
           {/* Loading Indicator */}
           {isPolling && currentStatus !== 'completed' && currentStatus !== 'failed' && (
-            <div className="text-center text-dark-400 text-sm">
-              Checking status...
-            </div>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center p-4 bg-dark-600/50 rounded-xl border border-dark-500/30"
+            >
+              <div className="flex items-center justify-center space-x-3 text-dark-300">
+                <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-medium">Checking status...</span>
+              </div>
+            </motion.div>
           )}
         </motion.div>
       </motion.div>
