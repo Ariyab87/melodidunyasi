@@ -272,3 +272,37 @@ router.get('/suno-diagnose', async (req, res) => {
 });
 
 module.exports = router;
+// api/routes/debug.js
+const express = require('express');
+const axios = require('axios');
+const router = express.Router();
+
+// ...keep your existing debug routes...
+
+router.get('/suno-auth-check', async (_req, res) => {
+  const base = process.env.SUNOAPI_ORG_BASE_URL || '';
+  const gen  = process.env.SUNOAPI_ORG_GENERATE_PATH || '';
+  const url  = `${base}${gen}`;
+  try {
+    const r = await axios.post(
+      url,
+      { prompt: 'SongCreator connectivity test' },
+      {
+        headers: {
+          // send BOTH forms; harmless if one is ignored
+          Authorization: `Bearer ${process.env.SUNOAPI_ORG_API_KEY || ''}`,
+          'X-API-Key': process.env.SUNOAPI_ORG_API_KEY || '',
+          'Content-Type': 'application/json',
+        },
+        timeout: 10000,
+        validateStatus: () => true,
+      }
+    );
+    return res.json({ status: r.status, url, data: r.data });
+  } catch (e) {
+    return res.json({ status: 0, url, error: e.message });
+  }
+});
+
+module.exports = router;
+

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "serve -s out -l ${PORT:-3000}",
     "lint": "next lint",
     "build:static": "npm run build",
     "zip:front": "bash -c \"rm -f front.zip && cd out && zip -r ../front.zip .\"",
@@ -25,7 +25,8 @@
     "react-hook-form": "^7.47.0",
     "stripe": "^14.5.0",
     "tailwindcss": "^3.3.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "serve": "^14.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
