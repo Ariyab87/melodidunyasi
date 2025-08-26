@@ -43,30 +43,26 @@ type SongForm = {
     errorMessage?: string;
   };
   
-  const ORIGIN = (process.env.NEXT_PUBLIC_API_BASE ||
+  // Always default to Render backend if no env vars
+  export const API_ORIGIN =
+    process.env.NEXT_PUBLIC_API_BASE ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
-    'https://melodidunyasi.onrender.com'
-  ).replace(/\/$/, '');
+    'https://melodidunyasi.onrender.com';
   
-  export const API_BASE = `${ORIGIN}/api`;
+  export const API_BASE = `${API_ORIGIN.replace(/\/$/, '')}/api`;
   
-  async function jsonFetch<T>(
-    url: string,
-    opts: RequestInit = {}
-  ): Promise<T> {
+  async function jsonFetch<T>(url: string, opts: RequestInit = {}): Promise<T> {
     const res = await fetch(url, {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
       ...opts,
     });
   
-    // 202 is “accepted” for status polling; allow it through to JSON
     if (!res.ok && res.status !== 202) {
       const txt = await res.text().catch(() => '');
       throw new Error(`${res.status} ${res.statusText} ${txt}`);
     }
   
-    // Some 202 endpoints may not return JSON; guard it
     const text = await res.text();
     try {
       return JSON.parse(text) as T;
@@ -75,7 +71,7 @@ type SongForm = {
     }
   }
   
-  /* -------------------- Start generation (non-blocking) -------------------- */
+  /* -------------------- Start generation -------------------- */
   
   export async function submitSongForm(form: SongForm): Promise<StartResp> {
     const primary = `${API_BASE}/song/generate`;
