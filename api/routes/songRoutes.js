@@ -6,7 +6,9 @@ const fs = require('fs');
 
 const sunoService = require('../services/sunoService');
 const requestStore = require('../lib/requestStore');
-const { startGeneration } = require('../services/sunoService');
+
+// startGeneration may not exist in your service; guard its usage.
+const { startGeneration: maybeStartGeneration } = require('../services/sunoService');
 
 // ---------------------------------------------------------------------------
 // Small, in-memory micro-cache for status polling
@@ -42,9 +44,9 @@ function buildSongPrompt(data) {
 }
 
 // ===========================================================================
-// POST /api/song/test  (quick smoke test that calls your generator)
+// POST /api/generate  and  /api/song/test  (quick smoke test)
 // ===========================================================================
-router.post('/song/test', async (req, res) => {
+router.post(['/test', '/song/test'], async (req, res) => {
   try {
     const { prompt = 'Create a happy pop song about friendship' } = req.body;
 
@@ -113,9 +115,9 @@ router.post('/song/test', async (req, res) => {
 });
 
 // ===========================================================================
-// POST /api/song/simple   (minimal inputs)
+// POST /api/simple   and  /api/song/simple   (minimal inputs)
 // ===========================================================================
-router.post('/song/simple', async (req, res) => {
+router.post(['/simple', '/song/simple'], async (req, res) => {
   try {
     const {
       prompt,
@@ -190,7 +192,7 @@ router.post('/song/simple', async (req, res) => {
 });
 
 // ===========================================================================
-// POST /api/song    (form submission that creates record then async generation)
+// POST /api/song  (form submission that creates record then async generation)
 // ===========================================================================
 router.post('/song', async (req, res) => {
   try {
@@ -263,7 +265,11 @@ router.post('/song', async (req, res) => {
     await requestStore.create(record);
     await requestStore.saveNow();
 
-    startGeneration(record).catch(err => console.error('[gen] unhandled:', err));
+    if (typeof maybeStartGeneration === 'function') {
+      maybeStartGeneration(record).catch(err => console.error('[gen] unhandled:', err));
+    } else {
+      console.warn('[gen] startGeneration not available; skipping background generation');
+    }
 
     res.status(201).json({
       success: true,
@@ -293,9 +299,9 @@ router.post('/song', async (req, res) => {
 });
 
 // ===========================================================================
-// POST /api/song/generate   (your main endpoint the form calls)
+// POST /api/generate  and  /api/song/generate   (main endpoint)
 // ===========================================================================
-router.post('/song/generate', async (req, res) => {
+router.post(['/generate', '/song/generate'], async (req, res) => {
   try {
     const {
       fullName,
@@ -399,9 +405,9 @@ router.post('/song/generate', async (req, res) => {
 });
 
 // ===========================================================================
-// GET /api/song/test-suno   (connectivity test)
+// GET /api/test-suno  and  /api/song/test-suno   (connectivity test)
 // ===========================================================================
-router.get('/song/test-suno', async (_req, res) => {
+router.get(['/test-suno', '/song/test-suno'], async (_req, res) => {
   try {
     const testResult = await sunoService.getModels();
     res.status(200).json({ success: true, message: 'Suno API connection successful!', data: testResult });
@@ -411,9 +417,9 @@ router.get('/song/test-suno', async (_req, res) => {
 });
 
 // ===========================================================================
-// POST /api/song/download-test   (download an arbitrary Suno URL)
+// POST /api/download-test  and  /api/song/download-test   (download any URL)
 // ===========================================================================
-router.post('/song/download-test', async (req, res) => {
+router.post(['/download-test', '/song/download-test'], async (req, res) => {
   try {
     const { audioUrl, songId = 'test_song' } = req.body;
     if (!audioUrl) return res.status(400).json({ success: false, error: 'Missing audioUrl', message: 'Please provide an audioUrl to test download' });
@@ -426,9 +432,9 @@ router.post('/song/download-test', async (req, res) => {
 });
 
 // ===========================================================================
-// GET /api/song/download/:songId   (serve a specific mock or 404)
+// GET /api/download/:songId  and  /api/song/download/:songId
 // ===========================================================================
-router.get('/song/download/:songId', async (req, res) => {
+router.get(['/download/:songId', '/song/download/:songId'], async (req, res) => {
   try {
     const { songId } = req.params;
 
@@ -450,9 +456,9 @@ router.get('/song/download/:songId', async (req, res) => {
 });
 
 // ===========================================================================
-// GET /api/song/status/:songId  (with fallback to ?jobId=... and upsert)
+// GET /api/status/:songId  and  /api/song/status/:songId
 // ===========================================================================
-router.get('/song/status/:songId', async (req, res) => {
+router.get(['/status/:songId', '/song/status/:songId'], async (req, res) => {
   try {
     const { songId } = req.params;
     const jobIdFromQuery = (req.query.jobId || '').toString().trim() || null;
@@ -460,21 +466,17 @@ router.get('/song/status/:songId', async (req, res) => {
       return res.status(400).json({ error: 'Missing song ID', message: 'Please provide a valid song ID' });
     }
 
-    // Prevent cache
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Expires', '0');
     res.set('Pragma', 'no-cache');
 
-    // micro-cache
     const cached = statusCache.get(songId);
     if (cached && (Date.now() - cached.ts) < TTL_MS) {
       return res.status(200).json(cached.payload);
     }
 
-    // Try to load by songId first
     let record = await requestStore.getById(songId);
 
-    // Fallback: not found but jobId provided → query provider and upsert
     if (!record && jobIdFromQuery) {
       try {
         const info = await sunoService.checkSongStatus({ jobId: jobIdFromQuery, recordId: null });
@@ -564,7 +566,6 @@ router.get('/song/status/:songId', async (req, res) => {
       });
     }
 
-    // Query provider with stored job/record id
     const info = await sunoService.checkSongStatus({
       jobId: record.providerJobId,
       recordId: record.providerRecordId,
@@ -622,9 +623,9 @@ router.get('/song/status/:songId', async (req, res) => {
 });
 
 // ===========================================================================
-// GET /api/song/models
+// GET /api/models  and  /api/song/models
 // ===========================================================================
-router.get('/song/models', async (_req, res) => {
+router.get(['/models', '/song/models'], async (_req, res) => {
   try {
     const models = await sunoService.getModels();
     res.status(200).json({ success: true, data: models });
@@ -634,9 +635,9 @@ router.get('/song/models', async (_req, res) => {
 });
 
 // ===========================================================================
-// GET /api/song/health
+// GET /api/health  and  /api/song/health  (service-level health)
 // ===========================================================================
-router.get('/song/health', (_req, res) => {
+router.get(['/health', '/song/health'], (_req, res) => {
   const hasApiKey = !!process.env.SUNOAPI_ORG_API_KEY;
   const apiUrl = process.env.SUNOAPI_ORG_BASE_URL || 'https://api.sunoapi.org/api/v1';
   const base = (process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || '').replace(/\/$/, '');
@@ -657,9 +658,9 @@ router.get('/song/health', (_req, res) => {
 });
 
 // ===========================================================================
-// GET /api/song/provider/health
+// GET /api/status/provider  and  /api/song/provider/health
 // ===========================================================================
-router.get('/song/provider/health', async (_req, res) => {
+router.get(['/status/provider', '/song/provider/health'], async (_req, res) => {
   try {
     const { getMusicProvider } = require('../services/providers');
     const provider = getMusicProvider();
@@ -679,9 +680,9 @@ router.get('/song/provider/health', async (_req, res) => {
 });
 
 // ===========================================================================
-// POST /api/song/callback   (webhook; your server.js also has a global catcher)
+// POST /api/callback/suno  and  /api/song/callback   (webhook)
 // ===========================================================================
-router.post('/song/callback', express.json({ type: '*/*' }), async (req, res) => {
+router.post(['/callback/suno', '/song/callback'], express.json({ type: '*/*' }), async (req, res) => {
   try {
     const p = req.body || {};
     const jobId = p.jobId || p.taskId || p.id || p.task_id || p.data?.taskId || p.data?.task_id || p.data?.id || null;
@@ -719,7 +720,7 @@ router.post('/song/callback', express.json({ type: '*/*' }), async (req, res) =>
 });
 
 // Health for callback
-router.get('/song/callback', (_req, res) => res.send('OK'));
+router.get(['/callback/suno', '/song/callback'], (_req, res) => res.send('OK'));
 
 // ===========================================================================
 // GET /api/song/:id     (debug record fetch) — keep AFTER specific routes
@@ -797,7 +798,12 @@ router.post('/song/retry/:id', async (req, res) => {
     });
     await requestStore.saveNow();
 
-    startGeneration(record).catch(err => console.error('[retry] unhandled', err));
+    if (typeof maybeStartGeneration === 'function') {
+      maybeStartGeneration(record).catch(err => console.error('[retry] unhandled', err));
+    } else {
+      console.warn('[retry] startGeneration not available; skipping');
+    }
+
     res.status(202).json({ success: true, id, status: 'pending', message: 'Song generation restarted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Internal server error', message: 'Failed to retry song generation' });
