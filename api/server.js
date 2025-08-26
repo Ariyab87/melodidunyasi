@@ -27,14 +27,16 @@ const fallbackOrigins = [
 const allowedOrigins = [...new Set([...envOrigins, ...fallbackOrigins])];
 console.log('[CORS] Allowed origins:', allowedOrigins);
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, cb) => {
+    // allow server-to-server/no-origin AND approved browser origins
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     return cb(new Error(`Blocked by CORS: ${origin}`));
   },
-  credentials: false,
+  credentials: true, // <<< IMPORTANT for fetch(..., { credentials: "include" })
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
+    'Origin',
     'Content-Type',
     'Authorization',
     'X-Requested-With',
@@ -44,9 +46,12 @@ app.use(cors({
     'Pragma',
     'Expires',
   ],
-  maxAge: 86400,
-}));
-app.options('*', cors());
+  maxAge: 86400, // cache preflight for 24h
+};
+
+app.use(cors(corsOptions));
+// Ensure preflights include the same headers (esp. Allow-Credentials: true)
+app.options('*', cors(corsOptions));
 
 /* ============================ PARSERS ============================ */
 app.use(express.json({ limit: '10mb' }));
