@@ -29,11 +29,10 @@ console.log('[CORS] Allowed origins:', allowedOrigins);
 
 const corsOptions = {
   origin: (origin, cb) => {
-    // allow server-to-server/no-origin AND approved browser origins
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     return cb(new Error(`Blocked by CORS: ${origin}`));
   },
-  credentials: true, // <<< IMPORTANT for fetch(..., { credentials: "include" })
+  credentials: true, // required for fetch(..., { credentials: 'include' })
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Origin',
@@ -46,26 +45,16 @@ const corsOptions = {
     'Pragma',
     'Expires',
   ],
-  maxAge: 86400, // cache preflight for 24h
+  maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
-// Ensure preflights include the same headers (esp. Allow-Credentials: true)
+// make sure preflights include Allow-Credentials: true, too
 app.options('*', cors(corsOptions));
 
 /* ============================ PARSERS ============================ */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-/* ============================ OPTIONAL APP SECRET ============================ */
-function optionalAppSecret(req, res, next) {
-  const expected = process.env.APP_SECRET;
-  if (!expected) return next();
-  const got = req.get('x-app-secret');
-  if (got === expected) return next();
-  console.warn('[AUTH] Missing/incorrect x-app-secret');
-  return res.status(401).json({ error: 'unauthorized', message: 'x-app-secret required' });
-}
 
 /* ============================ SUNO CALLBACK ============================ */
 // Handles multiple payload shapes including snake_case and data.data[] arrays
@@ -185,8 +174,8 @@ const downloadRoutes = require('./routes/downloadRoutes');
 
 app.use('/api/status', statusRoutes);
 
-// Protect only if APP_SECRET is configured; otherwise no-op
-app.use('/api/song', optionalAppSecret);
+// ⛔️ Removed APP_SECRET gate from /api/song/* to avoid 401s
+// If you ever want to protect admin-only endpoints, apply a gate just there.
 
 // Mount the rest of API routes
 app.use('/api', songRoutes);
