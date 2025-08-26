@@ -64,9 +64,50 @@ export default function SongGenerationModal({
     setIsPolling(true);
     try {
       const response = await getSongStatus(songId, jobId);
-      setStatusData(response);
       
-      const mappedStatus = mapBackendStatus(response.status);
+      // Debug logging to see what we're receiving
+      console.log('🔍 Raw API Response:', response);
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response audioUrl:', response.audioUrl);
+      console.log('🔍 Response keys:', Object.keys(response));
+      
+      // Check if we need to extract audioUrl from nested structure
+      let processedResponse = { ...response };
+      
+      // If status is completed but no audioUrl, try to extract from nested data
+      if (response.status === 'completed' && !response.audioUrl) {
+        console.log('🔍 Status completed but no audioUrl, checking for nested data...');
+        
+        // Check if there's nested data structure like in the logs
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          const nestedData = response.data[0];
+          console.log('🔍 Found nested data:', nestedData);
+          
+          if (nestedData.audio_url) {
+            processedResponse.audioUrl = nestedData.audio_url;
+            console.log('🔍 Extracted audioUrl from nested data:', nestedData.audio_url);
+          }
+        }
+        
+        // Also check for other possible field names
+        if (response.audio_url) {
+          processedResponse.audioUrl = response.audio_url;
+          console.log('🔍 Found audio_url (snake_case):', response.audio_url);
+        }
+        
+        // Check the entire response for any audio-related fields
+        const allKeys = Object.keys(response);
+        const audioKeys = allKeys.filter(key => key.toLowerCase().includes('audio'));
+        console.log('🔍 All keys containing "audio":', audioKeys);
+        
+        // Log the full response structure for debugging
+        console.log('🔍 Full response structure:', JSON.stringify(response, null, 2));
+      }
+      
+      setStatusData(processedResponse);
+      
+      const mappedStatus = mapBackendStatus(processedResponse.status);
+      console.log('🔍 Mapped status:', mappedStatus, 'Final audioUrl:', processedResponse.audioUrl);
       setCurrentStatus(mappedStatus);
 
       // Stop polling if completed or failed
@@ -80,6 +121,7 @@ export default function SongGenerationModal({
         setIsPolling(false);
       }, 2500);
     } catch (err: any) {
+      console.error('❌ Status check error:', err);
       setError(err?.message || 'Failed to check status');
       setIsPolling(false);
     }

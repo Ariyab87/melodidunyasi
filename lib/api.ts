@@ -41,6 +41,10 @@ type SongForm = {
     updatedAt?: string | null;
     errorType?: string;
     errorMessage?: string;
+    // Additional fields that might be present in the actual API response
+    data?: any;
+    audio_url?: string | null;
+    [key: string]: any; // Allow additional properties
   };
   
   // Always default to Render backend if no env vars
