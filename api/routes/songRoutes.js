@@ -546,9 +546,11 @@ const statusHandler = async (req, res) => {
       });
     }
 
-    // First check if the database record already has the audio URL (from callback)
+    // 🔒 GUARANTEED AUDIO URL DELIVERY: First check if the database record already has the audio URL (from callback)
     if (record.audioUrl && record.status === 'completed') {
-      console.log('[STATUS] Using database record with existing audio URL for', songId);
+      console.log('[STATUS] 🎯 GUARANTEED: Using database record with existing audio URL for', songId);
+      console.log('[STATUS] Audio URL found:', record.audioUrl);
+      
       const normalized = {
         status: 'completed',
         audioUrl: record.audioUrl,
@@ -572,6 +574,8 @@ const statusHandler = async (req, res) => {
           size: downloadResult.size
         };
         
+        console.log('[STATUS] ✅ Download successful:', downloadInfo);
+        
         // Update the record with download info
         const patch = { 
           savedFilename: downloadResult.filename,
@@ -582,7 +586,7 @@ const statusHandler = async (req, res) => {
         await requestStore.update(songId, patch);
         await requestStore.saveNow();
       } catch (e) {
-        console.warn('[STATUS] Download failed for existing audio URL:', e.message);
+        console.warn('[STATUS] ⚠️ Download failed for existing audio URL:', e.message);
       }
 
       const payload = {
@@ -600,18 +604,64 @@ const statusHandler = async (req, res) => {
         })
       };
 
-      // Don't cache completed responses to ensure fresh data
-      console.log('[STATUS] Returning audio URL from database for', songId, 'without caching');
+      // 🔒 GUARANTEE: Don't cache completed responses to ensure fresh data
+      console.log('[STATUS] 🎯 GUARANTEED: Returning audio URL from database for', songId, 'without caching');
+      console.log('[STATUS] Final payload:', JSON.stringify(payload, null, 2));
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       return res.json(payload);
     }
 
-    // If no audio URL in database, query external API
-    console.log('[STATUS] Querying external API for', songId);
-    const info = await sunoService.checkSongStatus({
-      jobId: record.providerJobId,
-      recordId: record.providerRecordId,
-    });
+    // 🔒 FALLBACK: If no audio URL in database, query external API with RETRY mechanism
+    console.log('[STATUS] 🔄 FALLBACK: Querying external API for', songId, 'because no audio URL in database');
+    console.log('[STATUS] Current record status:', record.status, 'audioUrl:', record.audioUrl);
+    
+    let info = null;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries && (!info || !info.audioUrl)) {
+      try {
+        console.log('[STATUS] 🔄 Attempt', retryCount + 1, 'of', maxRetries, 'to get audio URL from external API');
+        info = await sunoService.checkSongStatus({
+          jobId: record.providerJobId,
+          recordId: record.providerRecordId,
+        });
+        
+        console.log('[STATUS] External API response:', {
+          status: info.status,
+          hasAudioUrl: !!info.audioUrl,
+          audioUrl: info.audioUrl,
+          retryCount: retryCount + 1
+        });
+        
+        if (info.audioUrl) {
+          console.log('[STATUS] ✅ SUCCESS: Got audio URL from external API on attempt', retryCount + 1);
+          break;
+        }
+        
+        retryCount++;
+        if (retryCount < maxRetries) {
+          console.log('[STATUS] ⏳ Waiting 2 seconds before retry...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      } catch (error) {
+        console.error('[STATUS] ❌ Error querying external API:', error.message);
+        retryCount++;
+        if (retryCount < maxRetries) {
+          console.log('[STATUS] ⏳ Waiting 2 seconds before retry...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    }
+    
+    if (!info) {
+      console.error('[STATUS] ❌ FAILED: Could not get status from external API after', maxRetries, 'attempts');
+      return res.status(500).json({
+        status: 'error',
+        error: 'Failed to get status from external API',
+        message: 'Could not retrieve song status after multiple attempts'
+      });
+    }
 
     if (info.recordId && !record.providerRecordId) {
       await requestStore.update(songId, { providerRecordId: info.recordId, updatedAt: new Date().toISOString() });
@@ -619,11 +669,43 @@ const statusHandler = async (req, res) => {
     }
 
     let finalStatus = info;
+    
+    // 🔒 GUARANTEED AUDIO URL UPDATE: If we got audio URL from external API, update database immediately
+    if (info.audioUrl && info.status === 'completed') {
+      console.log('[STATUS] 🎯 GUARANTEED: Got audio URL from external API, updating database immediately');
+      
+      try {
+        const updatePatch = {
+          status: 'completed',
+          audioUrl: info.audioUrl,
+          updatedAt: new Date().toISOString()
+        };
+        
+        await requestStore.update(songId, updatePatch);
+        await requestStore.saveNow();
+        
+        console.log('[STATUS] ✅ SUCCESS: Database updated with audio URL:', info.audioUrl);
+        
+        // Also clear cache to ensure fresh data
+        statusCache.delete(songId);
+        console.log('[STATUS] Cache cleared for fresh data');
+        
+      } catch (error) {
+        console.error('[STATUS] ❌ ERROR: Failed to update database with audio URL:', error.message);
+      }
+    }
+    
+    // Additional retry logic if still no audio URL
     if (info.status === 'completed' && !info.audioUrl) {
+      console.log('[STATUS] ⚠️ Status completed but no audio URL, attempting additional retries...');
       for (let i = 0; i < 3; i++) {
         await new Promise(r => setTimeout(r, 2000));
         const retry = await sunoService.checkSongStatus({ jobId: record.providerJobId, recordId: record.providerRecordId });
-        if (retry.audioUrl) { finalStatus = retry; break; }
+        if (retry.audioUrl) { 
+          finalStatus = retry; 
+          console.log('[STATUS] ✅ SUCCESS: Got audio URL on retry attempt', i + 1);
+          break; 
+        }
       }
     }
 
@@ -680,10 +762,21 @@ const statusHandler = async (req, res) => {
       await requestStore.saveNow();
     }
 
+    // 🔒 FINAL GUARANTEE: Ensure audio URL is always included if available
+    const finalAudioUrl = normalized.audioUrl || finalStatus.audioUrl || record.audioUrl;
+    const finalStatusValue = finalAudioUrl ? 'completed' : normalized.status;
+    
+    console.log('[STATUS] 🎯 FINAL GUARANTEE CHECK:');
+    console.log('[STATUS] - Normalized audioUrl:', normalized.audioUrl);
+    console.log('[STATUS] - FinalStatus audioUrl:', finalStatus.audioUrl);
+    console.log('[STATUS] - Record audioUrl:', record.audioUrl);
+    console.log('[STATUS] - Final audioUrl to send:', finalAudioUrl);
+    console.log('[STATUS] - Final status to send:', finalStatusValue);
+    
     const payload = {
-      status: normalized.status,
-      audioUrl: normalized.audioUrl,
-      progress: normalized.progress,
+      status: finalStatusValue,
+      audioUrl: finalAudioUrl, // 🔒 GUARANTEED: Always include if available
+      progress: finalStatusValue === 'completed' ? 100 : normalized.progress,
       etaSeconds: normalized.etaSeconds,
       startedAt: normalized.startedAt,
       updatedAt: normalized.updatedAt,
@@ -694,6 +787,17 @@ const statusHandler = async (req, res) => {
         fileSize: downloadInfo.size
       })
     };
+    
+    // 🔒 FINAL VALIDATION: Log the exact payload being sent
+    console.log('[STATUS] 🎯 FINAL PAYLOAD BEING SENT TO FRONTEND:');
+    console.log('[STATUS]', JSON.stringify(payload, null, 2));
+    
+    // 🔒 GUARANTEE: If we have audio URL, force status to completed
+    if (finalAudioUrl && payload.status !== 'completed') {
+      console.log('[STATUS] 🔒 FORCING: Status changed to completed because audio URL is available');
+      payload.status = 'completed';
+      payload.progress = 100;
+    }
 
     statusCache.set(songId, { ts: Date.now(), payload });
 
@@ -896,6 +1000,134 @@ router.post('/song/force-refresh/:id', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to force refresh', message: error.message });
+  }
+});
+
+// ===========================================================================
+// POST /api/song/simulate-complete-callback/:id
+// ===========================================================================
+router.post('/song/simulate-complete-callback/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ success: false, error: 'Missing song ID' });
+    
+    // Simulate a complete callback with audio URL
+    const mockCallback = {
+      data: {
+        callbackType: 'complete',
+        data: [{
+          audio_url: 'https://example.com/test-audio.mp3',
+          id: 'test-record-id'
+        }]
+      }
+    };
+    
+    // Process the mock callback
+    const store = require('../lib/requestStore');
+    const record = await store.getById(id);
+    if (!record) {
+      return res.status(404).json({ success: false, error: 'Song not found' });
+    }
+    
+    // Update the record as if callback was received
+    await store.update(id, {
+      status: 'completed',
+      audioUrl: 'https://example.com/test-audio.mp3',
+      updatedAt: new Date().toISOString()
+    });
+    await store.saveNow();
+    
+    // Clear cache
+    statusCache.delete(id);
+    
+    console.log('[SIMULATE-CALLBACK] Simulated complete callback for:', id);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Simulated complete callback',
+      songId: id,
+      audioUrl: 'https://example.com/test-audio.mp3',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to simulate callback', message: error.message });
+  }
+});
+
+// ===========================================================================
+// GET /api/song/guarantee-audio/:id
+// ===========================================================================
+router.get('/song/guarantee-audio/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ success: false, error: 'Missing song ID' });
+    
+    console.log('[GUARANTEE-AUDIO] 🔒 Testing guaranteed audio URL delivery for:', id);
+    
+    // Clear cache first
+    statusCache.delete(id);
+    
+    // Get the record
+    const record = await requestStore.getById(id);
+    if (!record) {
+      return res.status(404).json({ success: false, error: 'Song not found' });
+    }
+    
+    console.log('[GUARANTEE-AUDIO] Current record:', {
+      id: record.id,
+      status: record.status,
+      audioUrl: record.audioUrl,
+      providerJobId: record.providerJobId,
+      providerRecordId: record.providerRecordId
+    });
+    
+    // Force check external API if no audio URL
+    if (!record.audioUrl && record.providerJobId) {
+      console.log('[GUARANTEE-AUDIO] 🔄 No audio URL in database, checking external API...');
+      
+      try {
+        const sunoService = require('../services/sunoService');
+        const externalStatus = await sunoService.checkSongStatus({
+          jobId: record.providerJobId,
+          recordId: record.providerRecordId
+        });
+        
+        console.log('[GUARANTEE-AUDIO] External API response:', externalStatus);
+        
+        if (externalStatus.audioUrl) {
+          console.log('[GUARANTEE-AUDIO] ✅ Got audio URL from external API, updating database...');
+          
+          await requestStore.update(id, {
+            status: 'completed',
+            audioUrl: externalStatus.audioUrl,
+            updatedAt: new Date().toISOString()
+          });
+          await requestStore.saveNow();
+          
+          console.log('[GUARANTEE-AUDIO] ✅ Database updated successfully');
+        }
+      } catch (error) {
+        console.error('[GUARANTEE-AUDIO] ❌ Error checking external API:', error.message);
+      }
+    }
+    
+    // Get final record state
+    const finalRecord = await requestStore.getById(id);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Audio URL guarantee test completed',
+      songId: id,
+      record: {
+        status: finalRecord.status,
+        audioUrl: finalRecord.audioUrl,
+        hasAudioUrl: !!finalRecord.audioUrl,
+        updatedAt: finalRecord.updatedAt
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to guarantee audio', message: error.message });
   }
 });
 

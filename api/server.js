@@ -82,17 +82,58 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
       p.data?.id ||
       null;
 
-    // audio URL (support flat, nested, and array under data.data)
-    let audioUrl =
-      p.audioUrl ||
-      p.audio_url ||
-      p.url ||
-      p.data?.audioUrl ||
-      p.data?.audio_url ||
-      p.data?.audio?.url ||
-      (p.data?.files?.[0]?.url) ||
-      null;
-
+    // Check callback type to determine if this is a final callback
+    const callbackType = p.data?.callbackType || p.callbackType || 'unknown';
+    console.log('[CALLBACK] Callback type:', callbackType, 'for jobId:', jobId, 'recordId:', recordId);
+    
+    // COMPREHENSIVE audio URL extraction - check ALL possible locations
+    let audioUrl = null;
+    
+    // Method 1: Direct properties
+    audioUrl = p.audioUrl || p.audio_url || p.url || null;
+    
+    // Method 2: Nested data properties
+    if (!audioUrl) {
+      audioUrl = p.data?.audioUrl || p.data?.audio_url || p.data?.audio?.url || null;
+    }
+    
+    // Method 3: Files array
+    if (!audioUrl && p.data?.files && Array.isArray(p.data.files)) {
+      audioUrl = p.data.files[0]?.url || p.data.files[0]?.audio_url || null;
+    }
+    
+    // Method 4: Data array (most common Suno format)
+    if (!audioUrl && Array.isArray(p.data?.data) && p.data.data.length > 0) {
+      const firstItem = p.data.data[0];
+      audioUrl = firstItem.audio_url || firstItem.audioUrl || firstItem.url || firstItem.audioUrl || null;
+      
+      // Also check nested audio properties
+      if (!audioUrl && firstItem.audio) {
+        audioUrl = firstItem.audio.url || firstItem.audio.audio_url || null;
+      }
+    }
+    
+    // Method 5: Deep nested search
+    if (!audioUrl) {
+      const deepSearch = (obj, depth = 0) => {
+        if (depth > 3) return null; // Prevent infinite recursion
+        if (!obj || typeof obj !== 'object') return null;
+        
+        for (const [key, value] of Object.entries(obj)) {
+          if (key.includes('audio') && key.includes('url') && value && typeof value === 'string') {
+            return value;
+          }
+          if (typeof value === 'object' && value !== null) {
+            const found = deepSearch(value, depth + 1);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      
+      audioUrl = deepSearch(p);
+    }
+    
     // Some providers send an array in data.data
     let arrayFirst = null;
     if (!audioUrl && Array.isArray(p.data?.data) && p.data.data.length) {
@@ -100,12 +141,25 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
       audioUrl = arrayFirst.audio_url || arrayFirst.audioUrl || arrayFirst.url || null;
     }
 
+    // VALIDATION: Only treat as completed if we have a valid audio URL (not empty string)
+    const hasValidAudioUrl = audioUrl && audioUrl.trim() !== '' && audioUrl !== 'null' && audioUrl !== 'undefined';
+    console.log('[CALLBACK] 🔍 COMPREHENSIVE AUDIO URL SEARCH:');
+    console.log('[CALLBACK] - Raw audioUrl found:', audioUrl);
+    console.log('[CALLBACK] - Is valid URL:', hasValidAudioUrl);
+    console.log('[CALLBACK] - Callback type:', callbackType);
+    console.log('[CALLBACK] - Full payload keys:', Object.keys(p));
+    if (p.data) console.log('[CALLBACK] - Data keys:', Object.keys(p.data));
+    if (p.data?.data && Array.isArray(p.data.data)) {
+      console.log('[CALLBACK] - Data array length:', p.data.data.length);
+      console.log('[CALLBACK] - First item keys:', Object.keys(p.data.data[0] || {}));
+    }
+
     const statusRaw =
       p.status ||
       p.state ||
       p.jobStatus ||
       p.data?.status ||
-      (audioUrl ? 'completed' : 'processing');
+      (hasValidAudioUrl ? 'completed' : 'processing');
 
     // Find stored request
     const store = require('./lib/requestStore');
@@ -125,13 +179,22 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
+    // For "first" callbacks, don't update status to completed unless we have audio
+    if (callbackType === 'first' && !hasValidAudioUrl) {
+      console.log('[CALLBACK] First callback without audio - keeping status as processing');
+      patch.status = 'processing'; // Override to keep as processing
+    }
+
     // If array item had an id, we can treat it as providerRecordId
     const discoveredRecordId = arrayFirst?.id || null;
     if ((recordId || discoveredRecordId) && !rec.providerRecordId) {
       patch.providerRecordId = String(recordId || discoveredRecordId);
     }
-    if (audioUrl) {
+    if (hasValidAudioUrl) {
       patch.audioUrl = String(audioUrl);
+      console.log('[CALLBACK] Setting audioUrl in patch:', audioUrl);
+    } else {
+      console.log('[CALLBACK] No valid audio URL, keeping existing audioUrl');
     }
 
     await store.update(rec.id, patch);
@@ -151,8 +214,15 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
       });
     }
 
-    console.info('[CALLBACK] %s -> %s (audio=%s) - Record updated successfully', rec.id, statusRaw, audioUrl ? 'yes' : 'no');
-    console.log('[CALLBACK] Updated record:', { id: rec.id, status: statusRaw, audioUrl, updatedAt: patch.updatedAt });
+    console.info('[CALLBACK] %s -> %s (audio=%s, type=%s) - Record updated successfully', 
+      rec.id, statusRaw, hasValidAudioUrl ? 'yes' : 'no', callbackType);
+    console.log('[CALLBACK] Updated record:', { 
+      id: rec.id, 
+      status: statusRaw, 
+      audioUrl: hasValidAudioUrl ? audioUrl : 'not set', 
+      callbackType,
+      updatedAt: patch.updatedAt 
+    });
     return res.json({ ok: true });
   } catch (err) {
     console.error('[CALLBACK] Error:', err.message);
@@ -174,6 +244,22 @@ app.post('/api/debug/echo', (req, res) => {
     bodyKeys: Object.keys(req.body || {}),
     body: req.body,
     originSeen: req.headers.origin || null,
+  });
+});
+
+app.post('/api/debug/callback-test', (req, res) => {
+  const p = req.body || {};
+  const callbackType = p.data?.callbackType || p.callbackType || 'unknown';
+  const audioUrl = p.data?.data?.[0]?.audio_url || p.audio_url || null;
+  const hasValidAudioUrl = audioUrl && audioUrl.trim() !== '';
+  
+  res.json({
+    callbackType,
+    audioUrl,
+    hasValidAudioUrl,
+    status: hasValidAudioUrl ? 'completed' : 'processing',
+    timestamp: new Date().toISOString(),
+    rawBody: req.body
   });
 });
 
