@@ -249,7 +249,7 @@ export default function SongGenerationModal({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-200"
+          className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto border border-gray-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Enhanced Header */}
@@ -274,9 +274,9 @@ export default function SongGenerationModal({
           </div>
 
           {/* Enhanced Content */}
-          <div className="p-8 space-y-8">
+          <div className="p-10 space-y-10">
             {/* Enhanced Status Steps */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Progress</h3>
                 <div className="flex items-center space-x-2">
@@ -351,7 +351,7 @@ export default function SongGenerationModal({
 
             {/* Enhanced Current Status */}
             <motion.div 
-              className="text-center"
+              className="text-center py-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -427,7 +427,7 @@ export default function SongGenerationModal({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="space-y-6 p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-200 shadow-lg"
+                className="space-y-8 p-8 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-200 shadow-lg"
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
@@ -437,17 +437,17 @@ export default function SongGenerationModal({
                 </div>
                 
                 {/* Enhanced Audio Player */}
-                <div className="flex items-center space-x-4 p-4 bg-white rounded-xl shadow-md">
+                <div className="flex items-center space-x-6 p-6 bg-white rounded-xl shadow-md">
                   <motion.button
                     onClick={toggleAudio}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-16 h-16 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="w-20 h-20 bg-gradient-to-br from-primary-500 to-blue-600 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     {isAudioPlaying ? (
-                      <Pause className="w-7 h-7" />
+                      <Pause className="w-8 h-8" />
                     ) : (
-                      <Play className="w-7 h-7 ml-1" />
+                      <Play className="w-8 h-8 ml-1" />
                     )}
                   </motion.button>
                   <div className="flex-1">
@@ -457,7 +457,7 @@ export default function SongGenerationModal({
                 </div>
 
                 {/* Enhanced Action Buttons */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
                   {/* Use downloadUrl if available, otherwise fall back to direct audioUrl */}
                   {statusData.downloadUrl ? (
                     <motion.a
@@ -465,7 +465,7 @@ export default function SongGenerationModal({
                       download={statusData.savedFilename || `song-${songId}.mp3`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex items-center justify-center space-x-3 bg-gradient-to-r from-primary-500 to-blue-600 text-white px-6 py-4 rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
+                      className="flex items-center justify-center space-x-3 bg-gradient-to-r from-primary-500 to-blue-600 text-white px-8 py-5 rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
                     >
                       <Download className="w-5 h-5" />
                       <span>Download MP3</span>
@@ -475,7 +475,7 @@ export default function SongGenerationModal({
                       onClick={downloadAudio}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex items-center justify-center space-x-3 bg-gradient-to-r from-primary-500 to-blue-600 text-white px-6 py-4 rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
+                      className="flex items-center justify-center space-x-3 bg-gradient-to-r from-primary-500 to-blue-600 text-white px-8 py-5 rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
                     >
                       <Download className="w-5 h-5" />
                       <span>Download</span>
@@ -485,7 +485,7 @@ export default function SongGenerationModal({
                     onClick={copyAudioUrl}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex items-center justify-center space-x-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-4 rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
+                    className="flex items-center justify-center space-x-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-5 rounded-xl hover:shadow-lg transition-all duration-200 font-medium"
                   >
                     <Copy className="w-5 h-5" />
                     <span>Copy URL</span>
@@ -494,7 +494,7 @@ export default function SongGenerationModal({
 
                 {/* Enhanced File Info Display */}
                 {statusData.downloadUrl && (
-                  <div className="p-4 bg-white rounded-xl border border-gray-200">
+                  <div className="p-6 bg-white rounded-xl border border-gray-200">
                     <h5 className="font-medium text-gray-900 mb-3">File Information</h5>
                     <div className="space-y-2 text-sm text-gray-600">
                       {statusData.savedFilename && (
@@ -545,7 +545,7 @@ export default function SongGenerationModal({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="p-4 bg-gray-50 rounded-xl border border-gray-200"
+                className="p-6 bg-gray-50 rounded-xl border border-gray-200"
               >
                 <div className="flex items-center justify-between mb-3">
                   <h5 className="font-medium text-gray-900">Status Details</h5>
@@ -572,7 +572,7 @@ export default function SongGenerationModal({
                 </div>
                 
                 {/* Debug Info */}
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h6 className="font-medium text-blue-900 mb-2">Debug Info</h6>
                   <div className="text-xs text-blue-700 space-y-1">
                     <div><strong>Song ID:</strong> {songId}</div>
@@ -592,7 +592,7 @@ export default function SongGenerationModal({
           </div>
 
           {/* Enhanced Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+          <div className="p-8 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-600">
                 {currentStatus === 'completed' 
