@@ -432,16 +432,19 @@ const statusHandler = async (req, res) => {
 
     let record = await requestStore.getById(songId);
 
-    // Check cache but invalidate if record has been updated recently
+    // Check cache but invalidate if record has been updated recently OR if record has audio URL
     const cached = statusCache.get(songId);
     if (cached && (Date.now() - cached.ts) < TTL_MS) {
       // If we have a record, check if it's been updated since cache
       if (record) {
         const recordUpdatedAt = new Date(record.updatedAt).getTime();
-        if (cached.ts < recordUpdatedAt) {
-          // Record was updated after cache, invalidate it
+        const hasAudioUrl = record.audioUrl && record.status === 'completed';
+        
+        if (cached.ts < recordUpdatedAt || hasAudioUrl) {
+          // Record was updated after cache OR has audio URL, invalidate it
           statusCache.delete(songId);
-          console.log('[STATUS] Cache invalidated for', songId, 'record updated at', record.updatedAt);
+          console.log('[STATUS] Cache invalidated for', songId, 
+            hasAudioUrl ? 'due to audio URL presence' : 'record updated at ' + record.updatedAt);
         } else {
           // Cache is still valid
           console.log('[STATUS] Using cached response for', songId);
@@ -597,8 +600,9 @@ const statusHandler = async (req, res) => {
         })
       };
 
-      statusCache.set(songId, { ts: Date.now(), payload });
-      res.set('Cache-Control', 'no-store');
+      // Don't cache completed responses to ensure fresh data
+      console.log('[STATUS] Returning audio URL from database for', songId, 'without caching');
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       return res.json(payload);
     }
 
@@ -849,13 +853,49 @@ router.post('/song/cache/invalidate/:id', async (req, res) => {
     console.log('[CACHE] Manually invalidated cache for:', id);
     
     res.status(200).json({ 
-      success: false, 
+      success: true, 
       message: 'Cache invalidated',
       songId: id,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to invalidate cache', message: error.message });
+  }
+});
+
+// ===========================================================================
+// POST /api/song/force-refresh/:id
+// ===========================================================================
+router.post('/song/force-refresh/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ success: false, error: 'Missing song ID' });
+    
+    // Clear cache
+    statusCache.delete(id);
+    
+    // Force re-query the record
+    const record = await requestStore.getById(id);
+    if (!record) {
+      return res.status(404).json({ success: false, error: 'Song not found' });
+    }
+    
+    console.log('[FORCE-REFRESH] Forced refresh for:', id, 'record:', record);
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Force refresh completed',
+      songId: id,
+      record: {
+        status: record.status,
+        audioUrl: record.audioUrl,
+        updatedAt: record.updatedAt,
+        hasAudioUrl: !!record.audioUrl
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to force refresh', message: error.message });
   }
 });
 

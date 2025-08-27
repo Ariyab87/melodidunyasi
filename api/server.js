@@ -137,10 +137,18 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
     await store.update(rec.id, patch);
     await store.saveNow();
 
-    // Invalidate status cache to ensure frontend gets updated status immediately
+    // Aggressively invalidate status cache to ensure frontend gets updated status immediately
     if (statusCache && typeof statusCache.delete === 'function') {
       statusCache.delete(rec.id);
       console.log('[CALLBACK] Invalidated status cache for:', rec.id);
+      
+      // Also clear any related caches to be extra sure
+      const allKeys = Array.from(statusCache.keys());
+      const relatedKeys = allKeys.filter(key => key.includes(rec.id) || key.includes(rec.providerJobId));
+      relatedKeys.forEach(key => {
+        statusCache.delete(key);
+        console.log('[CALLBACK] Also invalidated related cache key:', key);
+      });
     }
 
     console.info('[CALLBACK] %s -> %s (audio=%s) - Record updated successfully', rec.id, statusRaw, audioUrl ? 'yes' : 'no');

@@ -104,13 +104,17 @@ type SongForm = {
   /* -------------------- Status helpers -------------------- */
   
   export async function getSongStatus(
-    songId: string,
-    jobId?: string | null
-  ): Promise<StatusResp> {
-    const q = jobId ? `?jobId=${encodeURIComponent(jobId)}` : '';
-    const url = `${API_BASE}/song/status/${encodeURIComponent(songId)}${q}`;
-    return jsonFetch<StatusResp>(url, { cache: 'no-store' as RequestCache });
+  songId: string,
+  jobId?: string | null,
+  cacheBuster?: number
+): Promise<StatusResp> {
+  let q = jobId ? `?jobId=${encodeURIComponent(jobId)}` : '';
+  if (cacheBuster) {
+    q += q ? `&_t=${cacheBuster}` : `?_t=${cacheBuster}`;
   }
+  const url = `${API_BASE}/song/status/${encodeURIComponent(songId)}${q}`;
+  return jsonFetch<StatusResp>(url, { cache: 'no-store' as RequestCache });
+}
   
   export async function pollSongStatus(
     songId: string,

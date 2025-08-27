@@ -55,7 +55,9 @@ export default function SongGenerationModal({
 
     setIsPolling(true);
     try {
-      const response = await getSongStatus(songId, jobId);
+      // Add cache-busting parameter to ensure fresh data
+      const cacheBuster = Date.now();
+      const response = await getSongStatus(songId, jobId, cacheBuster);
 
       let processedResponse = { ...response };
 
@@ -545,7 +547,17 @@ export default function SongGenerationModal({
                 transition={{ delay: 0.4 }}
                 className="p-4 bg-gray-50 rounded-xl border border-gray-200"
               >
-                <h5 className="font-medium text-gray-900 mb-3">Status Details</h5>
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="font-medium text-gray-900">Status Details</h5>
+                  <motion.button
+                    onClick={() => pollStatus()}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-3 py-1 bg-primary-600 text-white text-xs rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    🔄 Refresh
+                  </motion.button>
+                </div>
                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                   <div><strong>Status:</strong> {statusData.status}</div>
                   {statusData.progress !== undefined && (
