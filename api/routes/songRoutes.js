@@ -556,10 +556,47 @@ const statusHandler = async (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    const patch = { status: normalized.status, updatedAt: normalized.updatedAt };
-    if (finalStatus.audioUrl) patch.audioUrl = finalStatus.audioUrl;
-    await requestStore.update(songId, patch);
-    await requestStore.saveNow();
+    // If song is completed and we have an audio URL, download it and provide download info
+    let downloadInfo = null;
+    if (finalStatus.status === 'completed' && finalStatus.audioUrl) {
+      try {
+        const downloadResult = await sunoService.downloadAudioFile(
+          finalStatus.audioUrl,
+          songId,
+          `Song_${record.songStyle || 'Pop'}_${record.mood || 'Happy'}`
+        );
+        downloadInfo = {
+          savedFilename: downloadResult.filename,
+          downloadUrl: `${process.env.PUBLIC_API_BASE || process.env.BACKEND_PUBLIC_URL || "http://localhost:5001"}/api/download/${downloadResult.filename}`,
+          size: downloadResult.size
+        };
+        
+        // Update the record with download info
+        const patch = { 
+          status: normalized.status, 
+          updatedAt: normalized.updatedAt,
+          savedFilename: downloadResult.filename,
+          downloadUrl: downloadInfo.downloadUrl,
+          fileSize: downloadResult.size
+        };
+        if (finalStatus.audioUrl) patch.audioUrl = finalStatus.audioUrl;
+        await requestStore.update(songId, patch);
+        await requestStore.saveNow();
+      } catch (e) {
+        console.warn('MAIN: download failed:', e.message);
+        // Still update the record with basic info
+        const patch = { status: normalized.status, updatedAt: normalized.updatedAt };
+        if (finalStatus.audioUrl) patch.audioUrl = finalStatus.audioUrl;
+        await requestStore.update(songId, patch);
+        await requestStore.saveNow();
+      }
+    } else {
+      // Update the record with basic info
+      const patch = { status: normalized.status, updatedAt: normalized.updatedAt };
+      if (finalStatus.audioUrl) patch.audioUrl = finalStatus.audioUrl;
+      await requestStore.update(songId, patch);
+      await requestStore.saveNow();
+    }
 
     const payload = {
       status: normalized.status,
@@ -567,7 +604,13 @@ const statusHandler = async (req, res) => {
       progress: normalized.progress,
       etaSeconds: normalized.etaSeconds,
       startedAt: normalized.startedAt,
-      updatedAt: normalized.updatedAt
+      updatedAt: normalized.updatedAt,
+      // Include download info if available
+      ...(downloadInfo && {
+        savedFilename: downloadInfo.savedFilename,
+        downloadUrl: downloadInfo.downloadUrl,
+        fileSize: downloadInfo.size
+      })
     };
 
     statusCache.set(songId, { ts: Date.now(), payload });

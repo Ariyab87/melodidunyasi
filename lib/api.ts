@@ -25,27 +25,31 @@ type SongForm = {
   };
   
   export type StatusResp = {
-    status:
-      | 'queued'
-      | 'pending'
-      | 'processing'
-      | 'completed'
-      | 'failed'
-      | 'initializing'
-      | 'error'
-      | string;
-    audioUrl: string | null;
-    progress?: number;
-    etaSeconds?: number | null;
-    startedAt?: string | null;
-    updatedAt?: string | null;
-    errorType?: string;
-    errorMessage?: string;
-    // Additional fields that might be present in the actual API response
-    data?: any;
-    audio_url?: string | null;
-    [key: string]: any; // Allow additional properties
-  };
+  status:
+    | 'queued'
+    | 'pending'
+    | 'processing'
+    | 'completed'
+    | 'failed'
+    | 'initializing'
+    | 'error'
+    | string;
+  audioUrl: string | null;
+  progress?: number;
+  etaSeconds?: number | null;
+  startedAt?: string | null;
+  updatedAt?: string | null;
+  errorType?: string;
+  errorMessage?: string;
+  // Download fields
+  downloadUrl?: string | null;
+  savedFilename?: string | null;
+  fileSize?: number | null;
+  // Additional fields that might be present in the actual API response
+  data?: any;
+  audio_url?: string | null;
+  [key: string]: any; // Allow additional properties
+};
   
   // Always default to Render backend if no env vars
   export const API_ORIGIN =
