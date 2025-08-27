@@ -64,10 +64,7 @@ export default function SongRequestForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
 
-  // Debug modal state changes
-  useEffect(() => {
-    console.log('🔍 Modal state changed:', { isModalOpen, songId, jobId });
-  }, [isModalOpen, songId, jobId]);
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -469,19 +466,7 @@ export default function SongRequestForm() {
                 {t('songForm.submitButton.reviewTime')}
               </p>
               
-              {/* Debug button for testing modal */}
-              <button
-                type="button"
-                onClick={() => {
-                  console.log('🔍 Manual modal open test');
-                  setSongId('test-song-id');
-                  setJobId('test-job-id');
-                  setIsModalOpen(true);
-                }}
-                className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-              >
-                Test Modal (Debug)
-              </button>
+
 
               {!canGenerate && (
                 <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">

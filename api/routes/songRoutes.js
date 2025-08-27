@@ -430,12 +430,29 @@ const statusHandler = async (req, res) => {
     res.set('Expires', '0');
     res.set('Pragma', 'no-cache');
 
+    let record = await requestStore.getById(songId);
+
+    // Check cache but invalidate if record has been updated recently
     const cached = statusCache.get(songId);
     if (cached && (Date.now() - cached.ts) < TTL_MS) {
-      return res.status(200).json(cached.payload);
+      // If we have a record, check if it's been updated since cache
+      if (record) {
+        const recordUpdatedAt = new Date(record.updatedAt).getTime();
+        if (cached.ts < recordUpdatedAt) {
+          // Record was updated after cache, invalidate it
+          statusCache.delete(songId);
+          console.log('[STATUS] Cache invalidated for', songId, 'record updated at', record.updatedAt);
+        } else {
+          // Cache is still valid
+          console.log('[STATUS] Using cached response for', songId);
+          return res.status(200).json(cached.payload);
+        }
+      } else {
+        // No record yet, use cache
+        console.log('[STATUS] Using cached response for', songId, '(no record)');
+        return res.status(200).json(cached.payload);
+      }
     }
-
-    let record = await requestStore.getById(songId);
 
     if (!record && jobIdFromQuery) {
       try {
@@ -526,6 +543,67 @@ const statusHandler = async (req, res) => {
       });
     }
 
+    // First check if the database record already has the audio URL (from callback)
+    if (record.audioUrl && record.status === 'completed') {
+      console.log('[STATUS] Using database record with existing audio URL for', songId);
+      const normalized = {
+        status: 'completed',
+        audioUrl: record.audioUrl,
+        progress: 100,
+        etaSeconds: null,
+        startedAt: record.createdAt,
+        updatedAt: record.updatedAt
+      };
+
+      // If we have an audio URL, try to download it and provide download info
+      let downloadInfo = null;
+      try {
+        const downloadResult = await sunoService.downloadAudioFile(
+          record.audioUrl,
+          songId,
+          `Song_${record.songStyle || 'Pop'}_${record.mood || 'Happy'}`
+        );
+        downloadInfo = {
+          savedFilename: downloadResult.filename,
+          downloadUrl: `${process.env.PUBLIC_API_BASE || process.env.BACKEND_PUBLIC_URL || "http://localhost:5001"}/api/download/${downloadResult.filename}`,
+          size: downloadResult.size
+        };
+        
+        // Update the record with download info
+        const patch = { 
+          savedFilename: downloadResult.filename,
+          downloadUrl: downloadInfo.downloadUrl,
+          fileSize: downloadResult.size,
+          updatedAt: new Date().toISOString()
+        };
+        await requestStore.update(songId, patch);
+        await requestStore.saveNow();
+      } catch (e) {
+        console.warn('[STATUS] Download failed for existing audio URL:', e.message);
+      }
+
+      const payload = {
+        status: normalized.status,
+        audioUrl: normalized.audioUrl,
+        progress: normalized.progress,
+        etaSeconds: normalized.etaSeconds,
+        startedAt: normalized.startedAt,
+        updatedAt: normalized.updatedAt,
+        // Include download info if available
+        ...(downloadInfo && {
+          savedFilename: downloadInfo.savedFilename,
+          downloadUrl: downloadInfo.downloadUrl,
+          fileSize: downloadInfo.size
+        })
+      };
+
+      statusCache.set(songId, { ts: Date.now(), payload });
+      res.set('Cache-Control', 'no-store');
+      return res.json(payload);
+    }
+
+    // If no audio URL in database, query external API
+    console.log('[STATUS] Querying external API for', songId);
     const info = await sunoService.checkSongStatus({
       jobId: record.providerJobId,
       recordId: record.providerRecordId,
@@ -760,6 +838,118 @@ router.get('/song/:id', async (req, res) => {
 });
 
 // ===========================================================================
+// POST /api/song/cache/invalidate/:id
+// ===========================================================================
+router.post('/song/cache/invalidate/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ success: false, error: 'Missing song ID' });
+    
+    statusCache.delete(id);
+    console.log('[CACHE] Manually invalidated cache for:', id);
+    
+    res.status(200).json({ 
+      success: false, 
+      message: 'Cache invalidated',
+      songId: id,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to invalidate cache', message: error.message });
+  }
+});
+
+// ===========================================================================
+// GET /api/song/cache/status/:id
+// ===========================================================================
+router.get('/song/cache/status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ success: false, error: 'Missing song ID' });
+    
+    const cached = statusCache.get(id);
+    const record = await requestStore.getById(id);
+    
+    res.status(200).json({ 
+      success: true,
+      songId: id,
+      cache: cached ? {
+        exists: true,
+        timestamp: cached.ts,
+        age: Date.now() - cached.ts,
+        payload: cached.payload
+      } : {
+        exists: false
+      },
+      record: record ? {
+        status: record.status,
+        audioUrl: record.audioUrl,
+        updatedAt: record.updatedAt,
+        providerJobId: record.providerJobId,
+        providerRecordId: record.providerRecordId,
+        savedFilename: record.savedFilename,
+        downloadUrl: record.downloadUrl,
+        fileSize: record.fileSize
+      } : null,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to check cache status', message: error.message });
+  }
+});
+
+// ===========================================================================
+// GET /api/song/debug/status/:id
+// ===========================================================================
+router.get('/song/debug/status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ success: false, error: 'Missing song ID' });
+    
+    const record = await requestStore.getById(id);
+    if (!record) {
+      return res.status(404).json({ success: false, error: 'Song not found' });
+    }
+
+    // Force check external API status
+    let externalStatus = null;
+    try {
+      if (record.providerJobId) {
+        const { getMusicProvider } = require('../services/providers');
+        const provider = getMusicProvider();
+        if (provider && typeof provider.checkSongStatus === 'function') {
+          externalStatus = await provider.checkSongStatus({
+            jobId: record.providerJobId,
+            recordId: record.providerRecordId
+          });
+        }
+      }
+    } catch (e) {
+      externalStatus = { error: e.message };
+    }
+    
+    res.status(200).json({ 
+      success: true,
+      songId: id,
+      database: {
+        status: record.status,
+        audioUrl: record.audioUrl,
+        updatedAt: record.updatedAt,
+        providerJobId: record.providerJobId,
+        providerRecordId: record.providerRecordId,
+        savedFilename: record.savedFilename,
+        downloadUrl: record.downloadUrl,
+        fileSize: record.fileSize
+      },
+      external: externalStatus,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to check debug status', message: error.message });
+  }
+});
+
+// ===========================================================================
 // GET /api/song/debug/stats
 // ===========================================================================
 router.get('/song/debug/stats', async (_req, res) => {
@@ -805,4 +995,5 @@ router.post('/song/retry/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+// Export statusCache for external access (e.g., callback invalidation)
+module.exports = { router, statusCache };

@@ -137,7 +137,14 @@ app.post(['/callback/suno', '/api/callback/suno'], async (req, res) => {
     await store.update(rec.id, patch);
     await store.saveNow();
 
-    console.info('[CALLBACK] %s -> %s (audio=%s)', rec.id, statusRaw, audioUrl ? 'yes' : 'no');
+    // Invalidate status cache to ensure frontend gets updated status immediately
+    if (statusCache && typeof statusCache.delete === 'function') {
+      statusCache.delete(rec.id);
+      console.log('[CALLBACK] Invalidated status cache for:', rec.id);
+    }
+
+    console.info('[CALLBACK] %s -> %s (audio=%s) - Record updated successfully', rec.id, statusRaw, audioUrl ? 'yes' : 'no');
+    console.log('[CALLBACK] Updated record:', { id: rec.id, status: statusRaw, audioUrl, updatedAt: patch.updatedAt });
     return res.json({ ok: true });
   } catch (err) {
     console.error('[CALLBACK] Error:', err.message);
@@ -163,7 +170,7 @@ app.post('/api/debug/echo', (req, res) => {
 });
 
 /* ============================ ROUTES ============================ */
-const songRoutes     = require('./routes/songRoutes');
+const { router: songRoutes, statusCache } = require('./routes/songRoutes');
 const voiceRoutes    = require('./routes/voiceRoutes');
 const videoRoutes    = require('./routes/videoRoutes');
 const uploadRoutes   = require('./routes/uploadRoutes');
