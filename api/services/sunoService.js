@@ -189,9 +189,82 @@ async function downloadAudioFile(fileUrl, songId, baseName = 'song') {
   return { filename, path: filePath, size };
 }
 
+/**
+ * Start asynchronous song generation process
+ * This function handles the generation flow and updates the record accordingly
+ */
+async function startGeneration(record) {
+  try {
+    console.log('[START_GENERATION] Starting generation for record:', record.id);
+    
+    // Build the prompt from the record data
+    const prompt = `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
+      `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
+      `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
+
+    // Generate the song using the sunoService
+    const songResult = await generateSong({
+      prompt,
+      songStyle: record.songStyle,
+      mood: record.mood,
+      tempo: record.tempo,
+      fullName: record.name,
+      email: record.email,
+      phone: record.phone,
+      duration: 30,
+      instrumental: record.instrumental || false,
+      language: 'en'
+    });
+
+    console.log('[START_GENERATION] Song generation initiated:', songResult);
+
+    // Update the record with the job ID and status
+    const requestStore = require('../lib/requestStore');
+    const updateData = {
+      status: 'queued',
+      updatedAt: new Date().toISOString()
+    };
+
+    if (songResult.metadata?.jobId) {
+      updateData.providerJobId = songResult.metadata.jobId;
+      console.log('[START_GENERATION] Updated record with jobId:', songResult.metadata.jobId);
+    }
+
+    if (songResult.metadata?.recordId) {
+      updateData.providerRecordId = songResult.metadata.recordId;
+      console.log('[START_GENERATION] Updated record with recordId:', songResult.metadata.recordId);
+    }
+
+    await requestStore.update(record.id, updateData);
+    await requestStore.saveNow();
+
+    console.log('[START_GENERATION] Record updated successfully for:', record.id);
+    
+    return songResult;
+  } catch (error) {
+    console.error('[START_GENERATION] Error starting generation for record:', record.id, error);
+    
+    // Update record with error status
+    try {
+      const requestStore = require('../lib/requestStore');
+      await requestStore.update(record.id, {
+        status: 'failed',
+        error: error.message,
+        updatedAt: new Date().toISOString()
+      });
+      await requestStore.saveNow();
+    } catch (updateError) {
+      console.error('[START_GENERATION] Failed to update record with error status:', updateError);
+    }
+    
+    throw error;
+  }
+}
+
 module.exports = {
   generateSong,
   checkSongStatus,
   getModels,
   downloadAudioFile,
+  startGeneration,
 };
