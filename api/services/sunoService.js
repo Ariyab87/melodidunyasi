@@ -197,11 +197,13 @@ async function startGeneration(record) {
   try {
     console.log('[START_GENERATION] Starting generation for record:', record.id);
     
-    // Build the prompt from the record data
-    const prompt = `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
-      `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
-      `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}. ` +
-      `IMPORTANT: Generate this song in TURKISH language with Turkish lyrics.`;
+    // Detect language from user input
+    const detectedLanguage = detectLanguage(record.story || record.prompt || '');
+    console.log('[START_GENERATION] Detected language:', detectedLanguage);
+    
+    // Build the prompt for exact lyrics mode
+    const prompt = buildExactLyricsPrompt(record, detectedLanguage);
+    console.log('[START_GENERATION] Generated prompt:', prompt.substring(0, 200) + '...');
 
     // Use the musicProvider instead of the old sunoService
     const musicProvider = require('./musicProvider');
@@ -210,7 +212,8 @@ async function startGeneration(record) {
       duration: record.duration || 30,
       style: record.songStyle || 'pop',
       mood: record.mood || 'happy',
-      debugSmall: false
+      debugSmall: false,
+      instrumental: record.instrumental || false
     });
     
     const songResult = await musicProvider.generateSong(
@@ -218,7 +221,8 @@ async function startGeneration(record) {
       record.duration || 30,
       record.songStyle || 'pop',
       record.mood || 'happy',
-      false // debugSmall
+      false, // debugSmall
+      record.instrumental || false // instrumental mode
     );
 
     console.log('[START_GENERATION] Song generation initiated:', songResult);
@@ -227,7 +231,9 @@ async function startGeneration(record) {
     const requestStore = require('../lib/requestStore');
     const updateData = {
       status: 'queued',
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      detectedLanguage: detectedLanguage,
+      instrumental: record.instrumental || false
     };
 
     console.log('[START_GENERATION] Analyzing provider response for IDs...');
@@ -301,6 +307,87 @@ async function startGeneration(record) {
     
     throw error;
   }
+}
+
+/**
+ * Detect language from text input
+ * @param {string} text - Input text to analyze
+ * @returns {string} - Detected language code
+ */
+function detectLanguage(text) {
+  if (!text) return 'unknown';
+  
+  // Simple language detection based on character sets
+  const turkishChars = /[çğıöşüÇĞIİÖŞÜ]/;
+  const russianChars = /[а-яёА-ЯЁ]/;
+  const arabicChars = /[ء-ي]/;
+  const persianChars = /[آ-ی]/;
+  const chineseChars = /[\u4e00-\u9fff]/;
+  const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
+  const koreanChars = /[\uac00-\ud7af]/;
+  
+  if (turkishChars.test(text)) return 'tr';
+  if (russianChars.test(text)) return 'ru';
+  if (arabicChars.test(text)) return 'ar';
+  if (persianChars.test(text)) return 'fa';
+  if (chineseChars.test(text)) return 'zh';
+  if (japaneseChars.test(text)) return 'ja';
+  if (koreanChars.test(text)) return 'ko';
+  
+  // Default to English if no specific characters detected
+  return 'en';
+}
+
+/**
+ * Build exact lyrics prompt with language locking
+ * @param {Object} record - Song record data
+ * @param {string} language - Detected language code
+ * @returns {string} - Formatted prompt for exact lyrics
+ */
+function buildExactLyricsPrompt(record, language) {
+  const isInstrumental = record.instrumental || false;
+  const useExactLyrics = record.exactLyrics || false;
+  
+  if (isInstrumental) {
+    // Instrumental mode - ignore lyrics, focus on style/mood/tempo
+    return `Create an instrumental ${record.songStyle || 'pop'} song. ` +
+           `Style: ${record.songStyle || 'pop'}. ` +
+           `Mood: ${record.mood || 'neutral'}. ` +
+           `Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
+           `Duration: ${record.duration || 30} seconds. ` +
+           `NO VOCALS - instrumental only.`;
+  }
+  
+  if (useExactLyrics) {
+    // Exact lyrics mode - use user's text verbatim
+    const userText = record.story || record.prompt || '';
+    const languageNames = {
+      'tr': 'Turkish',
+      'ru': 'Russian', 
+      'ar': 'Arabic',
+      'fa': 'Persian',
+      'zh': 'Chinese',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+      'en': 'English'
+    };
+    
+    const languageName = languageNames[language] || 'the input language';
+    
+    return `Create a ${record.songStyle || 'pop'} song with EXACT lyrics. ` +
+           `Style: ${record.songStyle || 'pop'}. ` +
+           `Mood: ${record.mood || 'neutral'}. ` +
+           `Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
+           `Duration: ${record.duration || 30} seconds. ` +
+           `LANGUAGE LOCK: Must sing ONLY in ${languageName}. ` +
+           `NO TRANSLATION. NO ENGLISH DRIFT. ` +
+           `EXACT LYRICS TO SING: "${userText}"`;
+  }
+  
+  // Free-form mode (default) - traditional prompt generation
+  return `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
+         `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
+         `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
 }
 
 module.exports = {

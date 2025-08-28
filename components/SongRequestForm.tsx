@@ -36,6 +36,7 @@ interface SongRequestFormData {
   tempo: string;
   notes: string;
   instrumental: boolean;
+  exactLyrics: boolean; // New field for exact lyrics mode
 }
 
 export default function SongRequestForm() {
@@ -55,6 +56,7 @@ export default function SongRequestForm() {
     tempo: '',
     notes: '',
     instrumental: false,
+    exactLyrics: false, // Initialize new field
   });
 
   const [submitStatus, setSubmitStatus] =
@@ -106,6 +108,7 @@ export default function SongRequestForm() {
         tempo: formData.tempo,
         additionalNotes: formData.notes || undefined,
         instrumental: formData.instrumental,
+        exactLyrics: formData.exactLyrics, // Include new field in payload
       };
 
       const result = await submitSongForm(payload);
@@ -127,6 +130,7 @@ export default function SongRequestForm() {
         tempo: '',
         notes: '',
         instrumental: false,
+        exactLyrics: false, // Reset new field
       });
 
       // Show the generation modal instead of redirecting
@@ -358,6 +362,32 @@ export default function SongRequestForm() {
                     </span>
                   </label>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2 text-white font-medium">
+                  <FileText size={20} className="text-primary-500" />
+                  <span>Exact Lyrics Mode</span>
+                </label>
+                <div className="flex items-center space-x-3">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="exactLyrics"
+                      checked={formData.exactLyrics}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-primary-600 bg-dark-600 border-dark-500 rounded focus:ring-primary-500 focus:ring-2"
+                    />
+                    <span className="text-dark-300 text-sm">
+                      Use my text as exact lyrics (preserves language & formatting)
+                    </span>
+                  </label>
+                </div>
+                {formData.exactLyrics && (
+                  <p className="text-primary-400 text-xs mt-1">
+                    💡 Your text will be used verbatim as song lyrics. Perfect for multilingual songs!
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

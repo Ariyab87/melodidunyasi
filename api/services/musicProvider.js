@@ -127,13 +127,13 @@ class MusicProviderService {
 
   /**
    * Keep the same signature your routes expect.
-   * Provider implementations should accept (prompt, duration, style, mood, debugSmall).
+   * Provider implementations should accept (prompt, duration, style, mood, debugSmall, instrumental).
    */
-  async generateSong(prompt, duration, style, mood, debugSmall) {
+  async generateSong(prompt, duration, style, mood, debugSmall, instrumental = false) {
     if (!this.provider) throw new Error('Music provider not initialized');
 
     try {
-      return await this.provider.generateSong(prompt, duration, style, mood, debugSmall);
+      return await this.provider.generateSong(prompt, duration, style, mood, debugSmall, instrumental);
     } catch (error) {
       // Improve logs for common Suno mistakes
       if (this.currentProvider === 'sunoapi_org') {

@@ -36,7 +36,7 @@ async function health() {
   }
 }
 
-async function generateSong(prompt, duration, style, mood, debugSmall) {
+async function generateSong(prompt, duration, style, mood, debugSmall, instrumental = false) {
   const body = {
     prompt: prompt || 'SongCreator test',
     title: 'SongCreator',
@@ -46,9 +46,11 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
     mood,
     debugSmall,
     // Add model version to match playground
-    model: process.env.SUNOAPI_ORG_MODEL || 'V4',
+    model: 'V4', // Temporarily hardcoded to match playground exactly
     // Add custom mode support
-    customMode: false
+    customMode: false,
+    // Add instrumental mode
+    instrumental: !!instrumental
   };
 
   // Get callback URL from env or construct from backend URL

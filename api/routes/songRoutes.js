@@ -7,6 +7,7 @@ const fs = require('fs');
 const sunoService = require('../services/sunoService');
 const requestStore = require('../lib/requestStore');
 const { startGeneration } = require('../services/sunoService');
+const { detectLanguage } = require('../services/sunoService');
 
 // ---------------------------------------------------------------------------
 // Small, in-memory micro-cache for status polling
@@ -138,7 +139,9 @@ router.post('/song/simple', async (req, res) => {
       style = 'pop',
       duration = 30,
       userEmail = 'test@example.com',
-      debugSmall = false
+      debugSmall = false,
+      instrumental = false,
+      exactLyrics = false
     } = req.body;
 
     if (!prompt) {
@@ -151,15 +154,19 @@ router.post('/song/simple', async (req, res) => {
 
     const songId = `simple_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    // Detect language from prompt
+    const detectedLanguage = detectLanguage(prompt);
+    
     const songData = {
       prompt,
       style,
       mood: 'Happy',
       tempo: 'Medium (80-120 BPM)',
       duration,
-      instrumental: false,
-      language: 'en',
-      debugSmall
+      instrumental: !!instrumental,
+      language: detectedLanguage,
+      debugSmall,
+      exactLyrics: !!exactLyrics
     };
 
     const songResult = await sunoService.generateSong(songData);
@@ -222,10 +229,12 @@ router.post('/song', async (req, res) => {
       tempo,
       notes,
       timestamp,
-      instrumental
+      instrumental,
+      exactLyrics
     } = req.body;
 
     const instrumentalValue = typeof instrumental === 'boolean' ? instrumental : false;
+    const exactLyricsValue = typeof exactLyrics === 'boolean' ? exactLyrics : false;
 
     if (!name || !email || !specialOccasion || !songStyle || !mood || !tempo || !story) {
       return res.status(400).json({
@@ -267,6 +276,7 @@ router.post('/song', async (req, res) => {
       timestamp,
       prompt,
       instrumental: instrumentalValue,
+      exactLyrics: exactLyricsValue,
       provider: 'sunoapi_org',
       providerApiKey: (process.env.ALLOW_BYOK === 'true') ? req.body.providerApiKey || null : null,
       providerJobId: null,
