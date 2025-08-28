@@ -45,6 +45,12 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
     style,
     mood,
     debugSmall,
+    // Add model version to match playground
+    model: process.env.SUNOAPI_ORG_MODEL || 'V4',
+    // Add language support parameters
+    language: 'auto', // Let Suno detect language from prompt
+    // Add custom mode support
+    customMode: false
   };
 
   // Get callback URL from env or construct from backend URL
