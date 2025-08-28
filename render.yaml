@@ -15,7 +15,7 @@ services:
       - key: CORS_ORIGINS
         value: https://melodidunyasi.com,https://www.melodidunyasi.com
       - key: BACKEND_PUBLIC_URL
-        value: https://melodidunyasi.com
+        value: https://melodidunyasi.onrender.com
       - key: FRONTEND_URL
         value: https://melodidunyasi.com
       - key: MUSIC_PROVIDER
