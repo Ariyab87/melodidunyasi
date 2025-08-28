@@ -47,6 +47,26 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
     debugSmall,
   };
 
+  // Get callback URL from env or construct from backend URL
+  const base = (process.env.BACKEND_PUBLIC_URL || process.env.FRONTEND_URL || '').replace(/\/$/, '');
+  const defaultCb = base ? `${base}/callback/suno` : '';
+  const cb = process.env.SUNOAPI_ORG_CALLBACK_URL || defaultCb;
+
+  if (!cb) {
+    console.warn('[sunoapi_org] ⚠️ WARNING: No callback URL configured!');
+    console.warn('[sunoapi_org] This means Suno cannot notify your system when the song is ready.');
+    console.warn('[sunoapi_org] You will need to manually check the status or set these environment variables:');
+    console.warn('[sunoapi_org] - BACKEND_PUBLIC_URL=https://your-domain.com');
+    console.warn('[sunoapi_org] - SUNOAPI_ORG_CALLBACK_URL=https://your-domain.com/callback/suno');
+  } else {
+    console.log('[sunoapi_org] Using callback URL:', cb);
+    // Add callback URL to the request body if the API supports it
+    if (cb) {
+      body.callbackUrl = cb;
+      body.callBackUrl = cb; // Some APIs use different casing
+    }
+  }
+
   let r;
   try {
     console.log('[SUNO_API_ORG] Sending generation request:', { prompt: prompt.substring(0, 100) + '...', style, mood, duration });
@@ -80,13 +100,46 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
   const responseData = r.data;
   console.log('[SUNO_API_ORG] Raw response:', JSON.stringify(responseData, null, 2));
   
-  const jobId = responseData.jobId || responseData.taskId || responseData.id || responseData.data?.jobId || responseData.data?.taskId || responseData.data?.id;
-  const recordId = responseData.recordId || responseData.data?.recordId;
+  // Try multiple possible field names for jobId and recordId
+  const jobId = responseData.jobId || responseData.taskId || responseData.id || 
+                responseData.data?.jobId || responseData.data?.taskId || responseData.data?.id ||
+                responseData.job_id || responseData.task_id || responseData.record_id ||
+                responseData.data?.job_id || responseData.data?.task_id || responseData.data?.record_id;
+                
+  const recordId = responseData.recordId || responseData.data?.recordId || 
+                   responseData.record_id || responseData.data?.record_id ||
+                   responseData.recordId || responseData.data?.recordId ||
+                   responseData.id || responseData.data?.id; // Sometimes the main ID is the record ID
   
-  console.log('[SUNO_API_ORG] Extracted IDs - jobId:', jobId, 'recordId:', recordId);
+  console.log('[SUNO_API_ORG] All possible ID fields found:');
+  console.log('[SUNO_API_ORG] - jobId fields:', {
+    jobId: responseData.jobId,
+    taskId: responseData.taskId,
+    id: responseData.id,
+    'data.jobId': responseData.data?.jobId,
+    'data.taskId': responseData.data?.taskId,
+    'data.id': responseData.data?.id,
+    job_id: responseData.job_id,
+    task_id: responseData.task_id,
+    record_id: responseData.record_id
+  });
+  console.log('[SUNO_API_ORG] - recordId fields:', {
+    recordId: responseData.recordId,
+    'data.recordId': responseData.data?.recordId,
+    record_id: responseData.record_id,
+    'data.record_id': responseData.data?.record_id,
+    id: responseData.id,
+    'data.id': responseData.data?.id
+  });
+  
+  console.log('[SUNO_API_ORG] Final extracted IDs - jobId:', jobId, 'recordId:', recordId);
   
   if (!jobId) {
     console.error('[SUNO_API_ORG] No jobId found in response');
+    console.error('[SUNO_API_ORG] Available top-level keys:', Object.keys(responseData));
+    if (responseData.data) {
+      console.error('[SUNO_API_ORG] Available data keys:', Object.keys(responseData.data));
+    }
     throw new Error('No job ID returned from Suno API');
   }
   

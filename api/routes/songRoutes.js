@@ -279,7 +279,28 @@ router.post('/song', async (req, res) => {
     await requestStore.create(record);
     await requestStore.saveNow();
 
-    startGeneration(record).catch(err => console.error('[gen] unhandled:', err));
+    console.log('[ROUTE] Starting generation for record:', record.id);
+    
+    // Wait for startGeneration to complete and handle any errors
+    try {
+      const generationResult = await startGeneration(record);
+      console.log('[ROUTE] Generation started successfully:', generationResult);
+    } catch (generationError) {
+      console.error('[ROUTE] Failed to start generation:', generationError);
+      // Update record with error status
+      await requestStore.update(record.id, {
+        status: 'failed',
+        error: generationError.message,
+        updatedAt: new Date().toISOString()
+      });
+      await requestStore.saveNow();
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to start song generation',
+        message: generationError.message
+      });
+    }
 
     res.status(201).json({
       success: true,
