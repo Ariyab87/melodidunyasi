@@ -204,6 +204,14 @@ async function startGeneration(record) {
 
     // Use the musicProvider instead of the old sunoService
     const musicProvider = require('./musicProvider');
+    console.log('[START_GENERATION] Calling musicProvider.generateSong with:', {
+      prompt: prompt.substring(0, 100) + '...',
+      duration: record.duration || 30,
+      style: record.songStyle || 'pop',
+      mood: record.mood || 'happy',
+      debugSmall: false
+    });
+    
     const songResult = await musicProvider.generateSong(
       prompt,
       record.duration || 30,
@@ -221,26 +229,50 @@ async function startGeneration(record) {
       updatedAt: new Date().toISOString()
     };
 
+    console.log('[START_GENERATION] Analyzing provider response for IDs...');
+    console.log('[START_GENERATION] Raw songResult:', JSON.stringify(songResult, null, 2));
+
     // Extract jobId and recordId from the provider response
     if (songResult.jobId) {
       updateData.providerJobId = songResult.jobId;
-      console.log('[START_GENERATION] Updated record with jobId:', songResult.jobId);
+      console.log('[START_GENERATION] ✅ Found jobId:', songResult.jobId);
+    } else {
+      console.log('[START_GENERATION] ❌ No jobId found in songResult');
     }
 
     if (songResult.recordId) {
       updateData.providerRecordId = songResult.recordId;
-      console.log('[START_GENERATION] Updated record with recordId:', songResult.recordId);
+      console.log('[START_GENERATION] ✅ Found recordId:', songResult.recordId);
+    } else {
+      console.log('[START_GENERATION] ❌ No recordId found in songResult');
     }
 
     // If the provider response has a different structure, try to extract from metadata
     if (!updateData.providerJobId && songResult.metadata?.jobId) {
       updateData.providerJobId = songResult.metadata.jobId;
-      console.log('[START_GENERATION] Updated record with jobId from metadata:', songResult.metadata.jobId);
+      console.log('[START_GENERATION] ✅ Found jobId in metadata:', songResult.metadata.jobId);
     }
 
     if (!updateData.providerRecordId && songResult.metadata?.recordId) {
       updateData.providerRecordId = songResult.metadata.recordId;
-      console.log('[START_GENERATION] Updated record with recordId from metadata:', songResult.metadata.recordId);
+      console.log('[START_GENERATION] ✅ Found recordId in metadata:', songResult.metadata.recordId);
+    }
+
+    // Try to find any ID-like fields
+    if (!updateData.providerRecordId) {
+      const possibleRecordIds = [
+        songResult.id,
+        songResult.record_id,
+        songResult.recordId,
+        songResult.data?.id,
+        songResult.data?.recordId,
+        songResult.data?.record_id
+      ].filter(Boolean);
+      
+      if (possibleRecordIds.length > 0) {
+        updateData.providerRecordId = possibleRecordIds[0];
+        console.log('[START_GENERATION] 🔍 Found possible recordId from other fields:', possibleRecordIds[0]);
+      }
     }
 
     await requestStore.update(record.id, updateData);
