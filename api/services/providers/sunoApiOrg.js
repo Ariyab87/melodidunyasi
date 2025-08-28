@@ -40,7 +40,7 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
   const body = {
     prompt: prompt || 'SongCreator test',
     title: 'SongCreator',
-    // include if your provider supports them (they’ll be ignored otherwise)
+    // include if your provider supports them (they'll be ignored otherwise)
     duration,
     style,
     mood,
@@ -49,6 +49,7 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
 
   let r;
   try {
+    console.log('[SUNO_API_ORG] Sending generation request:', { prompt: prompt.substring(0, 100) + '...', style, mood, duration });
     r = await axios.post(GEN_URL, body, {
       headers: sunoHeaders(),
       timeout: 30000,
@@ -75,12 +76,32 @@ async function generateSong(prompt, duration, style, mood, debugSmall) {
     throw err;
   }
 
-  return r.data; // should contain job/record info
+  // Extract jobId and recordId from the response
+  const responseData = r.data;
+  console.log('[SUNO_API_ORG] Raw response:', JSON.stringify(responseData, null, 2));
+  
+  const jobId = responseData.jobId || responseData.taskId || responseData.id || responseData.data?.jobId || responseData.data?.taskId || responseData.data?.id;
+  const recordId = responseData.recordId || responseData.data?.recordId;
+  
+  console.log('[SUNO_API_ORG] Extracted IDs - jobId:', jobId, 'recordId:', recordId);
+  
+  if (!jobId) {
+    console.error('[SUNO_API_ORG] No jobId found in response');
+    throw new Error('No job ID returned from Suno API');
+  }
+  
+  return {
+    jobId,
+    recordId,
+    raw: responseData,
+    status: responseData.status || 'queued'
+  };
 }
 
 async function getRecordInfo(recordId) {
   let r;
   try {
+    console.log('[SUNO_API_ORG] Checking record info for:', recordId);
     r = await axios.get(INFO_URL, {
       headers: sunoHeaders(),
       params: { id: recordId }, // adjust if your API uses a different param
@@ -101,7 +122,32 @@ async function getRecordInfo(recordId) {
     throw err;
   }
 
-  return r.data;
+  const responseData = r.data;
+  console.log('[SUNO_API_ORG] Record info response:', JSON.stringify(responseData, null, 2));
+  
+  // Extract audio URL from various possible locations
+  const audioUrl = responseData.audioUrl || responseData.audio_url || responseData.url || 
+                   responseData.data?.audioUrl || responseData.data?.audio_url || 
+                   responseData.data?.url || null;
+  
+  // Extract status from various possible locations
+  const status = responseData.status || responseData.state || responseData.jobStatus || 
+                 (audioUrl ? 'completed' : 'processing');
+  
+  // Extract progress
+  const progress = typeof responseData.progress === 'number' 
+    ? responseData.progress 
+    : (status === 'completed' ? 100 : status === 'queued' ? 0 : 50);
+  
+  console.log('[SUNO_API_ORG] Extracted info - status:', status, 'audioUrl:', audioUrl, 'progress:', progress);
+  
+  return {
+    status,
+    audioUrl,
+    progress,
+    recordId,
+    raw: responseData
+  };
 }
 
 module.exports = class SunoApiOrgProvider {

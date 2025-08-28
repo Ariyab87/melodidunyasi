@@ -202,19 +202,15 @@ async function startGeneration(record) {
       `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
       `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
 
-    // Generate the song using the sunoService
-    const songResult = await generateSong({
+    // Use the musicProvider instead of the old sunoService
+    const musicProvider = require('./musicProvider');
+    const songResult = await musicProvider.generateSong(
       prompt,
-      songStyle: record.songStyle,
-      mood: record.mood,
-      tempo: record.tempo,
-      fullName: record.name,
-      email: record.email,
-      phone: record.phone,
-      duration: 30,
-      instrumental: record.instrumental || false,
-      language: 'en'
-    });
+      record.duration || 30,
+      record.songStyle || 'pop',
+      record.mood || 'happy',
+      false // debugSmall
+    );
 
     console.log('[START_GENERATION] Song generation initiated:', songResult);
 
@@ -225,20 +221,33 @@ async function startGeneration(record) {
       updatedAt: new Date().toISOString()
     };
 
-    if (songResult.metadata?.jobId) {
-      updateData.providerJobId = songResult.metadata.jobId;
-      console.log('[START_GENERATION] Updated record with jobId:', songResult.metadata.jobId);
+    // Extract jobId and recordId from the provider response
+    if (songResult.jobId) {
+      updateData.providerJobId = songResult.jobId;
+      console.log('[START_GENERATION] Updated record with jobId:', songResult.jobId);
     }
 
-    if (songResult.metadata?.recordId) {
+    if (songResult.recordId) {
+      updateData.providerRecordId = songResult.recordId;
+      console.log('[START_GENERATION] Updated record with recordId:', songResult.recordId);
+    }
+
+    // If the provider response has a different structure, try to extract from metadata
+    if (!updateData.providerJobId && songResult.metadata?.jobId) {
+      updateData.providerJobId = songResult.metadata.jobId;
+      console.log('[START_GENERATION] Updated record with jobId from metadata:', songResult.metadata.jobId);
+    }
+
+    if (!updateData.providerRecordId && songResult.metadata?.recordId) {
       updateData.providerRecordId = songResult.metadata.recordId;
-      console.log('[START_GENERATION] Updated record with recordId:', songResult.metadata.recordId);
+      console.log('[START_GENERATION] Updated record with recordId from metadata:', songResult.metadata.recordId);
     }
 
     await requestStore.update(record.id, updateData);
     await requestStore.saveNow();
 
     console.log('[START_GENERATION] Record updated successfully for:', record.id);
+    console.log('[START_GENERATION] Final update data:', updateData);
     
     return songResult;
   } catch (error) {
