@@ -200,7 +200,8 @@ async function startGeneration(record) {
     // Build the prompt from the record data
     const prompt = `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
       `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
-      `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
+      `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}. ` +
+      `IMPORTANT: Generate this song in TURKISH language with Turkish lyrics.`;
 
     // Use the musicProvider instead of the old sunoService
     const musicProvider = require('./musicProvider');
