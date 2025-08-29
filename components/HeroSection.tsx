@@ -38,27 +38,27 @@ export default function HeroSection() {
     <section id="hero" className="min-h-screen bg-dark-800 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-dark-800 via-dark-700 to-dark-800"></div>
       
-      <div className="relative z-10 container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-10 items-center min-h-[60vh]">
             {/* Text Content - Left Side */}
-            <div className="space-y-8 text-center lg:text-left">
-              <div className="space-y-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+            <div className="space-y-6 text-center lg:text-left">
+              <div className="space-y-4">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight">
                   <span className="text-gradient">
                     {getTitle()}
                   </span>
                 </h1>
-                <p className="text-base md:text-lg lg:text-xl text-dark-300 leading-relaxed max-w-xl lg:max-w-none">
+                <p className="text-sm md:text-base lg:text-lg text-dark-300 leading-relaxed max-w-lg lg:max-w-none">
                   {t('hero.subtitle')}
                 </p>
               </div>
               
-              <div className="space-y-4">
-                <button onClick={() => scrollToSection('song-request')} className="btn-primary text-base md:text-lg px-8 py-4 text-lg transform hover:scale-105 transition-transform duration-300">
+              <div className="space-y-3">
+                <button onClick={() => scrollToSection('song-request')} className="btn-primary text-sm md:text-base px-6 py-3 text-base transform hover:scale-105 transition-transform duration-300">
                   {t('hero.button')}
                 </button>
-                <p className="text-sm md:text-base text-dark-400">
+                <p className="text-xs md:text-sm text-dark-400">
                   {t('hero.process')}
                 </p>
               </div>
@@ -66,7 +66,7 @@ export default function HeroSection() {
 
             {/* Image - Right Side */}
             <div className="relative">
-              <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden shadow-xl">
+              <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden shadow-lg">
                 <Image
                   src={currentSlideData.image}
                   alt={currentSlideData.alt}
@@ -74,16 +74,16 @@ export default function HeroSection() {
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-dark-800/30 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-dark-800/20 to-transparent"></div>
               </div>
               
               {/* Slide Indicators */}
-              <div className="flex justify-center mt-6 space-x-3">
+              <div className="flex justify-center mt-4 space-x-2">
                 {slides.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       index === currentSlide 
                         ? 'bg-primary-500 scale-125' 
                         : 'bg-dark-600 hover:bg-dark-500'
