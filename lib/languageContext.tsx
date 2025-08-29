@@ -14,7 +14,7 @@ const translations = {
   tr: {
     // Hero Section
     'hero.subtitle': 'Özel anlarınız için kişiselleştirilmiş şarkılar yaratın. Düğünlerden doğum günlerine kadar, her kutlamayı unutulmaz kılın.',
-    'hero.button': 'Ücretsiz Başla',
+    'hero.button': 'Şarkı Oluştur',
     'hero.process': 'Basit: Prompt → Oluştur → Öde → Keyfet',
     
     // Navigation
@@ -27,18 +27,18 @@ const translations = {
     
     // Services
     'services.title': 'Hizmetlerimiz ve Fiyatlandırma',
-    'services.subtitle': 'Ücretsiz başlayın! 3 ücretsiz şarkı oluşturma hakkı kazanın, sonra kullanım başına ödeme yapın.',
-    'services.freeTier.title': 'Ücretsiz Şarkı Oluşturma',
-    'services.freeTier.description': 'Her yeni kullanıcı, AI destekli platformumuzu deneyimlemek için 3 ÜCRETSİZ şarkı oluşturma hakkı kazanır.',
-    'services.freeTier.step1': 'İlk şarkınızı oluşturun',
-    'services.freeTier.step2': 'Mükemmelleştirin ve geliştirin',
-    'services.freeTier.step3': 'Yaratımınızı mükemmelleştirin',
+    'services.subtitle': 'Prompt gönderdiğinizde ödeme yapılır. Memnun kalmazsanız 2 yeniden oluşturma hakkı dahildir.',
+    'services.paymentInfo.title': 'Ödeme Bilgileri',
+    'services.paymentInfo.description': 'Prompt gönderdiğinizde ödeme yapılır. Memnun kalmazsanız 2 yeniden oluşturma hakkı dahildir.',
+    'services.paymentInfo.step1': 'Prompt gönderin',
+    'services.paymentInfo.step2': 'Ödeme yapın',
+    'services.paymentInfo.step3': 'Şarkınızı alın',
     
     // Service Details
     'services.songCreation.title': 'Özel Şarkı Oluşturma',
     'services.songCreation.description': 'Özel anlarınız için AI destekli kişiselleştirilmiş şarkılar',
-    'services.songCreation.price': 'Ücretsiz',
-    'services.songCreation.priceNote': 'İlk 3 şarkı',
+    'services.songCreation.price': '500 TL',
+    'services.songCreation.priceNote': 'şarkı başına',
     'services.songCreation.feature1': 'Özel sözler ve melodi',
     'services.songCreation.feature2': 'Çoklu tür seçenekleri',
     'services.songCreation.feature3': 'Şarkı başına 3 revizyon',
@@ -69,30 +69,19 @@ const translations = {
     'services.videoAnimation.feature6': '10 gün içinde teslimat',
     
     // Pricing
-    'pricing.freeTier.name': 'Ücretsiz Paket',
-    'pricing.freeTier.price': 'Ücretsiz',
-    'pricing.freeTier.description': 'Hizmetimizi denemek için mükemmel',
-    'pricing.freeTier.feature1': '3 ücretsiz şarkı oluşturma',
-    'pricing.freeTier.feature2': 'Temel özelleştirme seçenekleri',
-    'pricing.freeTier.feature3': 'Standart kalite çıktısı',
-    'pricing.freeTier.feature4': 'E-posta desteği',
-    'pricing.freeTier.feature5': '7 günlük teslimat',
-    'pricing.freeTier.button': 'Ücretsiz Oluşturmaya Başla',
-    
     'pricing.payPerUse.name': 'Kullanım Başına Ödeme',
-    'pricing.payPerUse.price': 'Değişken',
-    'pricing.payPerUse.description': 'Sadece ihtiyacınız olan için ödeyin',
-    'pricing.payPerUse.feature1': 'Ek şarkılar: her biri 500 TL',
-    'pricing.payPerUse.feature2': 'Ses klonlama: her biri 250 TL',
-    'pricing.payPerUse.feature3': 'Video animasyonu: her biri 500 TL',
+    'pricing.payPerUse.price': '500 TL',
+    'pricing.payPerUse.description': 'Prompt gönderdiğinizde ödeme yapın. 2 yeniden oluşturma hakkı dahildir.',
+    'pricing.payPerUse.feature1': 'Şarkı oluşturma: 500 TL',
+    'pricing.payPerUse.feature2': 'Ses klonlama: 250 TL',
+    'pricing.payPerUse.feature3': 'Video animasyonu: 500 TL',
     'pricing.payPerUse.feature4': 'Premium kalite çıktısı',
-    'pricing.payPerUse.feature5': 'Standart destek',
-    'pricing.payPerUse.feature6': '7 günlük teslimat',
-    'pricing.payPerUse.button': 'Kullanım Başına Öde',
+    'pricing.payPerUse.feature5': '2 yeniden oluşturma hakkı',
+    'pricing.payPerUse.button': 'Şarkı Oluşturmaya Başla',
     
     // Payment Information
     'payment.title': 'Ödeme Bilgileri',
-    'payment.description': 'Ödeme, ilk üç ücretsiz adım tamamlandıktan sonra alınır. Türk Lirası (TL) ile ödeme kabul ediyoruz.',
+    'payment.description': 'Prompt gönderdiğinizde ödeme yapılır. Memnun kalmazsanız 2 yeniden oluşturma hakkı dahildir. Türk Lirası (TL) ile ödeme kabul ediyoruz.',
     'payment.pricing.title': 'Hizmet Fiyatlandırması (TL)',
     'payment.songGeneration': 'Şarkı Oluşturma: 500 TL',
     'payment.voiceCloning': 'Ses Klonlama: 250 TL',
@@ -124,7 +113,7 @@ const translations = {
     'howItWorks.learnMore': 'Daha Fazla Bilgi',
     'howItWorks.cta.title': 'Hemen Başlayın',
     'howItWorks.cta.description': 'Özel anlarınızı unutulmaz kılmaya hazır mısınız?',
-    'howItWorks.cta.button': 'Ücretsiz Oluşturmaya Başla',
+    'howItWorks.cta.button': 'Şarkı Oluşturmaya Başla',
     
     // Footer
     'footer.description': 'Özel anlarınızı unutulmaz kılan kişiselleştirilmiş şarkılar ve videolar oluşturuyoruz. Suno API, KITS AI ve RunwayML dahil en son AI teknolojisi ile desteklenmektedir.',
@@ -260,7 +249,7 @@ const translations = {
   en: {
     // Hero Section
     'hero.subtitle': 'Create personalized songs for your special moments. From weddings to birthdays, make every celebration unforgettable with your own unique soundtrack.',
-    'hero.button': 'Start Free',
+    'hero.button': 'Create Song',
     'hero.process': 'It\'s simple: Prompt → Generate → Pay → Enjoy',
     
     // Navigation
@@ -273,18 +262,18 @@ const translations = {
     
     // Services
     'services.title': 'Our Services & Pricing',
-    'services.subtitle': 'Start creating for free! Get 3 free song creations, then pay per use.',
-    'services.freeTier.title': 'Free Song Creation',
-    'services.freeTier.description': 'Every new user gets 3 FREE song creations to experience our AI-powered platform.',
-    'services.freeTier.step1': 'Create your first song',
-    'services.freeTier.step2': 'Refine and improve',
-    'services.freeTier.step3': 'Perfect your creation',
+    'services.subtitle': 'Payment happens when you submit your prompt. Includes up to 2 re-generations if you\'re not satisfied.',
+    'services.paymentInfo.title': 'Payment Information',
+    'services.paymentInfo.description': 'Payment happens when you submit your prompt. Includes up to 2 re-generations if you\'re not satisfied.',
+    'services.paymentInfo.step1': 'Submit your prompt',
+    'services.paymentInfo.step2': 'Make payment',
+    'services.paymentInfo.step3': 'Get your song',
     
     // Service Details
     'services.songCreation.title': 'Custom Song Creation',
     'services.songCreation.description': 'AI-powered personalized songs for your special moments',
-    'services.songCreation.price': 'Free',
-    'services.songCreation.priceNote': 'First 3 songs',
+    'services.songCreation.price': '500 TL',
+    'services.songCreation.priceNote': 'per song',
     'services.songCreation.feature1': 'Custom lyrics and melody',
     'services.songCreation.feature2': 'Multiple genre options',
     'services.songCreation.feature3': 'Up to 3 revisions per song',
@@ -315,30 +304,19 @@ const translations = {
     'services.videoAnimation.feature6': 'Delivery within 10 days',
     
     // Pricing
-    'pricing.freeTier.name': 'Free Tier',
-    'pricing.freeTier.price': 'Free',
-    'pricing.freeTier.description': 'Perfect for trying out our service',
-    'pricing.freeTier.feature1': '3 free song creations',
-    'pricing.freeTier.feature2': 'Basic customization options',
-    'pricing.freeTier.feature3': 'Standard quality output',
-    'pricing.freeTier.feature4': 'Email support',
-    'pricing.freeTier.feature5': '7-day delivery',
-    'pricing.freeTier.button': 'Start Creating Free',
-    
     'pricing.payPerUse.name': 'Pay Per Use',
-    'pricing.payPerUse.price': 'Variable',
-    'pricing.payPerUse.description': 'Pay only for what you need',
-    'pricing.payPerUse.feature1': 'Additional songs: 500 TL each',
-    'pricing.payPerUse.feature2': 'Voice cloning: 250 TL each',
-    'pricing.payPerUse.feature3': 'Video animation: 500 TL each',
+    'pricing.payPerUse.price': '500 TL',
+    'pricing.payPerUse.description': 'Payment happens when you submit your prompt. Includes up to 2 re-generations if you\'re not satisfied.',
+    'pricing.payPerUse.feature1': 'Song creation: 500 TL',
+    'pricing.payPerUse.feature2': 'Voice cloning: 250 TL',
+    'pricing.payPerUse.feature3': 'Video animation: 500 TL',
     'pricing.payPerUse.feature4': 'Premium quality output',
-    'pricing.payPerUse.feature5': 'Standard support',
-    'pricing.payPerUse.feature6': '7-day delivery',
-    'pricing.payPerUse.button': 'Pay Per Use',
+    'pricing.payPerUse.feature5': '2 re-generation rights',
+    'pricing.payPerUse.button': 'Start Creating Song',
     
     // Payment Information
     'payment.title': 'Payment Information',
-    'payment.description': 'Payment is received after the first three free steps are completed. We accept payments in Turkish Lira (TL).',
+    'payment.description': 'Payment happens when you submit your prompt. Includes up to 2 re-generations if you\'re not satisfied. We accept payments in Turkish Lira (TL).',
     'payment.pricing.title': 'Service Pricing (TL)',
     'payment.songGeneration': 'Song Generation: 500 TL',
     'payment.voiceCloning': 'Voice Cloning: 250 TL',
@@ -370,7 +348,7 @@ const translations = {
     'howItWorks.learnMore': 'Learn More',
     'howItWorks.cta.title': 'Get Started Now',
     'howItWorks.cta.description': 'Ready to make your special moments unforgettable?',
-    'howItWorks.cta.button': 'Start Creating Free',
+    'howItWorks.cta.button': 'Start Creating Song',
     
     // Footer
     'footer.description': 'We create personalized songs and videos that make your special moments unforgettable. Powered by the latest AI technologies including Suno API, KITS AI, and RunwayML.',
@@ -506,7 +484,7 @@ const translations = {
   nl: {
     // Hero Section
     'hero.subtitle': 'Maak gepersonaliseerde liedjes voor je speciale momenten. Van bruiloften tot verjaardagen, maak elke viering onvergetelijk.',
-    'hero.button': 'Gratis Beginnen',
+    'hero.button': 'Liedje Maken',
     'hero.process': 'Eenvoudig: Prompt → Genereer → Betaal → Geniet',
     
     // Navigation
@@ -519,18 +497,18 @@ const translations = {
     
     // Services
     'services.title': 'Onze Diensten en Prijzen',
-    'services.subtitle': 'Begin gratis met creëren! Krijg 3 gratis liedjes, betaal dan per gebruik.',
-    'services.freeTier.title': 'Gratis Liedjes Creëren',
-    'services.freeTier.description': 'Elke nieuwe gebruiker krijgt 3 GRATIS liedjes om ons AI-platform te ervaren.',
-    'services.freeTier.step1': 'Maak je eerste liedje',
-    'services.freeTier.step2': 'Verfijn en verbeter',
-    'services.freeTier.step3': 'Perfectioneer je creatie',
+    'services.subtitle': 'Betaling gebeurt wanneer je je prompt indient. Inclusief tot 2 hergeneraties als je niet tevreden bent.',
+    'services.paymentInfo.title': 'Betalingsinformatie',
+    'services.paymentInfo.description': 'Betaling gebeurt wanneer je je prompt indient. Inclusief tot 2 hergeneraties als je niet tevreden bent.',
+    'services.paymentInfo.step1': 'Dien je prompt in',
+    'services.paymentInfo.step2': 'Doe betaling',
+    'services.paymentInfo.step3': 'Krijg je liedje',
     
     // Service Details
     'services.songCreation.title': 'Aangepaste Liedjes Maken',
     'services.songCreation.description': 'AI-aangedreven gepersonaliseerde liedjes voor je speciale momenten',
-    'services.songCreation.price': 'Gratis',
-    'services.songCreation.priceNote': 'Eerste 3 liedjes',
+    'services.songCreation.price': '500 TL',
+    'services.songCreation.priceNote': 'per liedje',
     'services.songCreation.feature1': 'Aangepaste teksten en melodie',
     'services.songCreation.feature2': 'Meerdere genre-opties',
     'services.songCreation.feature3': 'Tot 3 revisies per liedje',
@@ -561,30 +539,19 @@ const translations = {
     'services.videoAnimation.feature6': 'Levering binnen 10 dagen',
     
     // Pricing
-    'pricing.freeTier.name': 'Gratis Pakket',
-    'pricing.freeTier.price': 'Gratis',
-    'pricing.freeTier.description': 'Perfect om onze dienst uit te proberen',
-    'pricing.freeTier.feature1': '3 gratis liedjes maken',
-    'pricing.freeTier.feature2': 'Basis aanpassingsopties',
-    'pricing.freeTier.feature3': 'Standaard kwaliteit output',
-    'pricing.freeTier.feature4': 'E-mail ondersteuning',
-    'pricing.freeTier.feature5': '7-daagse levering',
-    'pricing.freeTier.button': 'Gratis Beginnen',
-    
     'pricing.payPerUse.name': 'Per Gebruik Betalen',
-    'pricing.payPerUse.price': 'Variabel',
-    'pricing.payPerUse.description': 'Betaal alleen voor wat je nodig hebt',
-    'pricing.payPerUse.feature1': 'Extra liedjes: elk 500 TL',
-    'pricing.payPerUse.feature2': 'Stem klonen: elk 250 TL',
-    'pricing.payPerUse.feature3': 'Video animatie: elk 500 TL',
+    'pricing.payPerUse.price': '500 TL',
+    'pricing.payPerUse.description': 'Betaling gebeurt wanneer je je prompt indient. Inclusief tot 2 hergeneraties als je niet tevreden bent.',
+    'pricing.payPerUse.feature1': 'Liedje maken: 500 TL',
+    'pricing.payPerUse.feature2': 'Stem klonen: 250 TL',
+    'pricing.payPerUse.feature3': 'Video animatie: 500 TL',
     'pricing.payPerUse.feature4': 'Premium kwaliteit output',
-    'pricing.payPerUse.feature5': 'Standaard ondersteuning',
-    'pricing.payPerUse.feature6': '7-daagse levering',
-    'pricing.payPerUse.button': 'Per Gebruik Betalen',
+    'pricing.payPerUse.feature5': '2 hergeneratie rechten',
+    'pricing.payPerUse.button': 'Begin met Liedje Maken',
     
     // Payment Information
     'payment.title': 'Betalingsinformatie',
-    'payment.description': 'Betaling wordt ontvangen nadat de eerste drie gratis stappen zijn voltooid. We accepteren betalingen in Turkse Lira (TL).',
+    'payment.description': 'Betaling gebeurt wanneer je je prompt indient. Inclusief tot 2 hergeneraties als je niet tevreden bent. We accepteren betalingen in Turkse Lira (TL).',
     'payment.pricing.title': 'Serviceprijzen (TL)',
     'payment.songGeneration': 'Liedjes Genereren: 500 TL',
     'payment.voiceCloning': 'Stem Klonen: 250 TL',
@@ -616,7 +583,7 @@ const translations = {
     'howItWorks.learnMore': 'Meer Informatie',
     'howItWorks.cta.title': 'Begin Nu',
     'howItWorks.cta.description': 'Klaar om je speciale momenten onvergetelijk te maken?',
-    'howItWorks.cta.button': 'Gratis Beginnen met Creëren',
+    'howItWorks.cta.button': 'Begin met Liedje Maken',
     
     // Footer
     'footer.description': 'We create personalized songs and videos that make your special moments unforgettable. Powered by the latest AI technologies including Suno API, KITS AI, and RunwayML.',

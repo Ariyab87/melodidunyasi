@@ -352,22 +352,23 @@ router.get('/gdpr-logs', async (req, res) => {
 
 /**
  * GET /api/admin/pricing
+ * Note: Admin users get free access to all services
  */
 router.get('/pricing', async (_req, res) => {
   try {
     const pricing = {
       song: {
-        basePrice: 0,
+        basePrice: 0, // Free for admin users
         currency: 'TL',
-        features: ['3 free songs', 'Custom lyrics', 'Style selection', 'Mood customization', 'Standard quality output'],
+        features: ['Custom lyrics', 'Style selection', 'Mood customization', 'Premium quality output', '2 re-generations included'],
         addons: {
-          additionalSong: { price: 500, description: 'Additional song (after 3 free)' },
+          additionalSong: { price: 500, description: 'Additional song' },
           premiumQuality: { price: 100, description: 'Premium quality upgrade' },
           fastDelivery: { price: 150, description: '3-day delivery (instead of 7-day)' },
         },
       },
       voice: {
-        basePrice: 250,
+        basePrice: 0, // Free for admin users
         currency: 'TL',
         features: ['Voice cloning', 'High quality output', 'Multiple languages', 'Custom training', 'Standard support'],
         addons: {
@@ -377,7 +378,7 @@ router.get('/pricing', async (_req, res) => {
         },
       },
       video: {
-        basePrice: 500,
+        basePrice: 0, // Free for admin users
         currency: 'TL',
         features: ['Video animation', 'Custom prompts', 'High resolution', 'Multiple formats', 'Premium quality output'],
         addons: {

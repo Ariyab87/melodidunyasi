@@ -1,13 +1,13 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Music, Mic, Video, Star, Check, Gift, Lock, CreditCard } from 'lucide-react';
+import { Music, Mic, Video, Star, Check, CreditCard, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/lib/languageContext';
 
 export default function ServicesSection() {
   const { t } = useLanguage();
 
   const services = [
-    { icon: Music, title: t('services.songCreation.title'), description: t('services.songCreation.description'), price: t('services.songCreation.price'), priceNote: t('services.songCreation.priceNote'), features: [t('services.songCreation.feature1'), t('services.songCreation.feature2'), t('services.songCreation.feature3'), t('services.songCreation.feature4'), t('services.songCreation.feature5'), t('services.songCreation.feature6')], popular: true, isFree: true },
+    { icon: Music, title: t('services.songCreation.title'), description: t('services.songCreation.description'), price: t('services.songCreation.price'), priceNote: t('services.songCreation.priceNote'), features: [t('services.songCreation.feature1'), t('services.songCreation.feature2'), t('services.songCreation.feature3'), t('services.songCreation.feature4'), t('services.songCreation.feature5'), t('services.songCreation.feature6')], popular: true, isFree: false },
     { icon: Mic, title: t('services.voiceCloning.title'), description: t('services.voiceCloning.description'), price: t('services.voiceCloning.price'), priceNote: t('services.voiceCloning.priceNote'), features: [t('services.voiceCloning.feature1'), t('services.voiceCloning.feature2'), t('services.voiceCloning.feature3'), t('services.voiceCloning.feature4'), t('services.voiceCloning.feature5'), t('services.voiceCloning.feature6')], popular: false, isFree: false },
     { icon: Video, title: t('services.videoAnimation.title'), description: t('services.videoAnimation.description'), price: t('services.videoAnimation.price'), priceNote: t('services.videoAnimation.priceNote'), features: [t('services.videoAnimation.feature1'), t('services.videoAnimation.feature2'), t('services.videoAnimation.feature3'), t('services.videoAnimation.feature4'), t('services.videoAnimation.feature5'), t('services.videoAnimation.feature6')], popular: false, isFree: false }
   ];
@@ -18,8 +18,7 @@ export default function ServicesSection() {
   };
 
   const pricingTiers = [
-    { name: t('pricing.freeTier.name'), price: t('pricing.freeTier.price'), description: t('pricing.freeTier.description'), features: [t('pricing.freeTier.feature1'), t('pricing.freeTier.feature2'), t('pricing.freeTier.feature3'), t('pricing.freeTier.feature4'), t('pricing.freeTier.feature5')], buttonText: t('pricing.freeTier.button'), buttonStyle: 'btn-primary' },
-    { name: t('pricing.payPerUse.name'), price: t('pricing.payPerUse.price'), description: t('pricing.payPerUse.description'), features: [t('pricing.payPerUse.feature1'), t('pricing.payPerUse.feature2'), t('pricing.payPerUse.feature3'), t('pricing.payPerUse.feature4'), t('pricing.payPerUse.feature5'), t('pricing.payPerUse.feature6')], buttonText: t('pricing.payPerUse.button'), buttonStyle: 'btn-secondary' }
+    { name: t('pricing.payPerUse.name'), price: t('pricing.payPerUse.price'), description: t('pricing.payPerUse.description'), features: [t('pricing.payPerUse.feature1'), t('pricing.payPerUse.feature2'), t('pricing.payPerUse.feature3'), t('pricing.payPerUse.feature4'), t('pricing.payPerUse.feature5'), t('pricing.payPerUse.feature6')], buttonText: t('pricing.payPerUse.button'), buttonStyle: 'btn-primary' }
   ];
 
   return (
@@ -33,41 +32,41 @@ export default function ServicesSection() {
         </p>
       </motion.div>
 
-      {/* Free Tier Highlight */}
+      {/* Payment Information Highlight */}
       <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }} className="text-center mb-16">
         <div className="card max-w-4xl mx-auto border-2 border-primary-500 bg-gradient-to-r from-primary-500/10 to-primary-600/10">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <Gift size={32} className="text-primary-500" />
-            <h3 className="text-2xl font-bold text-white">{t('services.freeTier.title')}</h3>
+            <CreditCard size={32} className="text-primary-500" />
+            <h3 className="text-2xl font-bold text-white">{t('services.paymentInfo.title')}</h3>
           </div>
           <p className="text-lg text-dark-300 mb-6">
-            {t('services.freeTier.description')}
+            {t('services.paymentInfo.description')}
           </p>
           <div className="grid md:grid-cols-3 gap-6 text-left">
             <div className="text-center">
               <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl font-bold text-white">1</span>
               </div>
-              <p className="text-dark-300">{t('services.freeTier.step1')}</p>
+              <p className="text-dark-300">{t('services.paymentInfo.step1')}</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl font-bold text-white">2</span>
               </div>
-              <p className="text-dark-300">{t('services.freeTier.step2')}</p>
+              <p className="text-dark-300">{t('services.paymentInfo.step2')}</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
-              <p className="text-dark-300">{t('services.freeTier.step3')}</p>
+              <p className="text-dark-300">{t('services.paymentInfo.step3')}</p>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Pricing Tiers - Only 2 now */}
-      <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
+      {/* Pricing Tier - Single tier now */}
+      <div className="max-w-3xl mx-auto mb-16">
         {pricingTiers.map((tier, index) => (
           <motion.div key={tier.name} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: index * 0.2 }} className="relative">
             <div className="card h-full">
@@ -105,8 +104,8 @@ export default function ServicesSection() {
               {service.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
-                    <Gift size={16} />
-                    <span>Free Tier</span>
+                    <RefreshCw size={16} />
+                    <span>2 Re-generations</span>
                   </div>
                 </div>
               )}
@@ -130,8 +129,8 @@ export default function ServicesSection() {
                     </li>
                   ))}
                 </ul>
-                <button className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 ${ service.isFree ? 'bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105' : 'bg-dark-700 hover:bg-dark-600 text-white border border-dark-600' }`} onClick={() => {
-                  if (service.isFree) {
+                <button className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 ${ service.popular ? 'bg-primary-600 hover:bg-primary-700 text-white transform hover:scale-105' : 'bg-dark-700 hover:bg-dark-600 text-white border border-dark-600' }`} onClick={() => {
+                  if (service.popular) {
                     scrollToSection('song-request');
                   } else if (service.title === t('services.videoAnimation.title')) {
                     scrollToSection('video-request');
@@ -141,7 +140,7 @@ export default function ServicesSection() {
                     scrollToSection('song-request');
                   }
                 }}>
-                  {service.isFree ? 'Start Free' : 'Get Started'}
+                  {service.popular ? 'Start Creating' : 'Get Started'}
                 </button>
               </div>
             </motion.div>

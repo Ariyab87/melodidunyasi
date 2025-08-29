@@ -10,6 +10,25 @@ const { startGeneration } = require('../services/sunoService');
 const { detectLanguage } = require('../services/sunoService');
 
 // ---------------------------------------------------------------------------
+// Admin auth middleware (same as adminRoutes.js)
+// ---------------------------------------------------------------------------
+const adminAuth = (req, res, next) => {
+  const required = process.env.ADMIN_SECRET_KEY;
+  if (!required) return next(); // no key configured → don't block
+
+  const provided = req.headers['x-admin-key'];
+  if (provided && provided === required) {
+    // Mark request as admin for free access
+    req.isAdmin = true;
+    return next();
+  }
+  return next(); // Continue for non-admin users (they'll need to pay)
+};
+
+// Apply admin auth middleware to all routes
+router.use(adminAuth);
+
+// ---------------------------------------------------------------------------
 // Small, in-memory micro-cache for status polling
 // ---------------------------------------------------------------------------
 const statusCache = new Map(); // id -> { ts, payload }
@@ -214,6 +233,7 @@ router.post('/song/simple', async (req, res) => {
 
 // ===========================================================================
 // POST /api/song   (kept for admin/manual requests)
+// Note: Admin users (with valid x-admin-key header) get free access
 // ===========================================================================
 router.post('/song', async (req, res) => {
   try {

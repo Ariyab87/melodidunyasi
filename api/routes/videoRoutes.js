@@ -4,10 +4,29 @@ const runwayService = require('../services/runwayService');
 const { mediaUpload } = require('../middleware/uploadMiddleware');
 const path = require('path');
 
+// ---------------------------------------------------------------------------
+// Admin auth middleware (same as adminRoutes.js)
+// ---------------------------------------------------------------------------
+const adminAuth = (req, res, next) => {
+  const required = process.env.ADMIN_SECRET_KEY;
+  if (!required) return next(); // no key configured → don't block
+
+  const provided = req.headers['x-admin-key'];
+  if (provided && provided === required) {
+    // Mark request as admin for free access
+    req.isAdmin = true;
+    return next();
+  }
+  return next(); // Continue for non-admin users (they'll need to pay)
+};
+
+// Apply admin auth middleware to all routes
+router.use(adminAuth);
+
 /**
  * @route POST /api/video/generate
  * @desc Generate video animation using RunwayML Gen-3 with media uploads
- * @access Public
+ * @access Public (Admin users get free access with x-admin-key header)
  */
 router.post('/generate', mediaUpload, async (req, res) => {
   try {

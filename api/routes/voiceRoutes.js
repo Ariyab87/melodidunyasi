@@ -4,10 +4,29 @@ const kitsService = require('../services/kitsService');
 const { audioUpload } = require('../middleware/uploadMiddleware');
 const path = require('path');
 
+// ---------------------------------------------------------------------------
+// Admin auth middleware (same as adminRoutes.js)
+// ---------------------------------------------------------------------------
+const adminAuth = (req, res, next) => {
+  const required = process.env.ADMIN_SECRET_KEY;
+  if (!required) return next(); // no key configured → don't block
+
+  const provided = req.headers['x-admin-key'];
+  if (provided && provided === required) {
+    // Mark request as admin for free access
+    req.isAdmin = true;
+    return next();
+  }
+  return next(); // Continue for non-admin users (they'll need to pay)
+};
+
+// Apply admin auth middleware to all routes
+router.use(adminAuth);
+
 /**
  * @route POST /api/voice/clone
  * @desc Clone a voice using KITS AI API with audio upload
- * @access Public
+ * @access Public (Admin users get free access with x-admin-key header)
  */
 router.post('/clone', audioUpload, async (req, res) => {
   try {
