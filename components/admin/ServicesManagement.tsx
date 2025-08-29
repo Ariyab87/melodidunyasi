@@ -45,7 +45,7 @@ export default function ServicesManagement({ adminKey }: AdminDashboardProps) {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/services`, {
+      const response = await fetch(`${API_BASE}/admin/services`, {
         headers: {
           'x-admin-key': adminKey,
         },
@@ -89,7 +89,7 @@ export default function ServicesManagement({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (serviceKey: string) => {
     try {
-      const response = await fetch(`${API_BASE}/api/admin/services/update`, {
+      const response = await fetch(`${API_BASE}/admin/services/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function ServicesManagement({ adminKey }: AdminDashboardProps) {
 
   const handleToggleService = async (serviceKey: string, enabled: boolean) => {
     try {
-      const response = await fetch(`${API_BASE}/api/admin/services/toggle`, {
+      const response = await fetch(`${API_BASE}/admin/services/toggle`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

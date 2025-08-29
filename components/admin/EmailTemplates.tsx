@@ -42,7 +42,7 @@ export default function EmailTemplates({ adminKey }: AdminDashboardProps) {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/email-templates`, {
+      const response = await fetch(`${API_BASE}/admin/email-templates`, {
         headers: {
           'x-admin-key': adminKey,
         },
@@ -89,7 +89,7 @@ export default function EmailTemplates({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (templateKey: string) => {
     try {
-      const response = await fetch(`${API_BASE}/api/admin/email-templates/update`, {
+      const response = await fetch(`${API_BASE}/admin/email-templates/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

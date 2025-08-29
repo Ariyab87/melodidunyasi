@@ -68,7 +68,7 @@ export default function ContentManagement({ adminKey }: AdminDashboardProps) {
   const fetchContent = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/content`, {
+      const response = await fetch(`${API_BASE}/admin/content`, {
         headers: {
           'x-admin-key': adminKey,
         },
@@ -105,7 +105,7 @@ export default function ContentManagement({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (section: string) => {
     try {
-      const response = await fetch(`${API_BASE}/api/admin/content/update`, {
+      const response = await fetch(`${API_BASE}/admin/content/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -40,6 +40,7 @@ const corsOptions = {
     'Authorization',
     'X-Requested-With',
     'x-app-secret',
+    'x-admin-key',
     'Accept',
     'Cache-Control',
     'Pragma',

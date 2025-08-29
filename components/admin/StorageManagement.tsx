@@ -50,7 +50,7 @@ export default function StorageManagement({ adminKey }: AdminDashboardProps) {
   const fetchStorageInfo = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/storage`, {
+      const response = await fetch(`${API_BASE}/admin/storage`, {
         headers: {
           'x-admin-key': adminKey,
         },
@@ -78,7 +78,7 @@ export default function StorageManagement({ adminKey }: AdminDashboardProps) {
   const handleCleanup = async () => {
     try {
       setCleanupLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/storage/cleanup`, {
+      const response = await fetch(`${API_BASE}/admin/storage/cleanup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

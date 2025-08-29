@@ -113,7 +113,7 @@ export default function OrderTracking({ adminKey }: AdminDashboardProps) {
         ...(filters.type && { type: filters.type }),
       });
 
-      const response = await fetch(`${API_BASE}/api/admin/orders?${params}`, {
+      const response = await fetch(`${API_BASE}/admin/orders?${params}`, {
         headers: {
           'x-admin-key': adminKey,
         },
@@ -141,7 +141,7 @@ export default function OrderTracking({ adminKey }: AdminDashboardProps) {
         offset: pagination.offset.toString(),
       });
 
-      const response = await fetch(`${API_BASE}/api/admin/gdpr-logs?${params}`, {
+      const response = await fetch(`${API_BASE}/admin/gdpr-logs?${params}`, {
         headers: {
           'x-admin-key': adminKey,
         },

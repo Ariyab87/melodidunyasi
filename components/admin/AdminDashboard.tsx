@@ -54,7 +54,7 @@ export default function AdminDashboard({ adminKey }: AdminDashboardProps) {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/dashboard`, {
+      const response = await fetch(`${API_BASE}/admin/dashboard`, {
         headers: {
           'x-admin-key': adminKey,
         },

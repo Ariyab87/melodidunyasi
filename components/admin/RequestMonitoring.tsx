@@ -67,7 +67,7 @@ export default function RequestMonitoring({ adminKey }: AdminDashboardProps) {
         ...(filters.service && { service: filters.service }),
       });
 
-      const response = await fetch(`${API_BASE}/api/admin/requests?${params}&t=${Date.now()}`, {
+      const response = await fetch(`${API_BASE}/admin/requests?${params}&t=${Date.now()}`, {
         headers: {
           'x-admin-key': adminKey,
           'Cache-Control': 'no-cache',
