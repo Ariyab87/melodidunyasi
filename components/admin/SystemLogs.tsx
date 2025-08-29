@@ -55,7 +55,7 @@ export default function SystemLogs({ adminKey }: AdminDashboardProps) {
         ...(filters.service && { service: filters.service }),
       });
 
-      const response = await fetch(`${API_BASE}/admin/logs?${params}`, {
+              const response = await fetch(`${API_BASE}/logs?${params}`, {
         headers: {
           'x-admin-key': adminKey,
         },

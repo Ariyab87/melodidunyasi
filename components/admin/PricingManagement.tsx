@@ -54,7 +54,7 @@ export default function PricingManagement({ adminKey }: AdminDashboardProps) {
   const fetchPricing = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/admin/pricing`, {
+              const response = await fetch(`${API_BASE}/pricing`, {
         headers: {
           'x-admin-key': adminKey,
         },
@@ -101,7 +101,7 @@ export default function PricingManagement({ adminKey }: AdminDashboardProps) {
 
   const handleSave = async (serviceKey: string) => {
     try {
-      const response = await fetch(`${API_BASE}/admin/pricing/update`, {
+              const response = await fetch(`${API_BASE}/pricing/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
