@@ -47,7 +47,7 @@ export default function AdminPage() {
     
     try {
       // Test the admin key by making a request to the dashboard endpoint
-      const response = await fetch(`${API_BASE}/admin/dashboard`, {
+              const response = await fetch(`${API_BASE}/dashboard`, {
         headers: {
           'x-admin-key': adminKey.trim(),
         },
