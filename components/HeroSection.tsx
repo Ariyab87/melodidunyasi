@@ -38,9 +38,9 @@ export default function HeroSection() {
     <section id="hero" className="min-h-screen bg-dark-800 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-dark-800 via-dark-700 to-dark-800"></div>
       
-      <div className="relative z-10 container mx-auto px-4 py-12">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-10 items-center min-h-[60vh]">
+      <div className="relative z-10 container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 items-center min-h-[50vh]">
             {/* Text Content - Left Side */}
             <div className="space-y-6 text-center lg:text-left">
               <div className="space-y-4">
@@ -66,7 +66,7 @@ export default function HeroSection() {
 
             {/* Image - Right Side */}
             <div className="relative">
-              <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden shadow-lg">
+              <div className="relative w-full h-[250px] md:h-[300px] lg:h-[400px] rounded-lg overflow-hidden shadow-md">
                 <Image
                   src={currentSlideData.image}
                   alt={currentSlideData.alt}
@@ -78,7 +78,7 @@ export default function HeroSection() {
               </div>
               
               {/* Slide Indicators */}
-              <div className="flex justify-center mt-4 space-x-2">
+              <div className="flex justify-center mt-3 space-x-2">
                 {slides.map((_, index) => (
                   <button
                     key={index}
