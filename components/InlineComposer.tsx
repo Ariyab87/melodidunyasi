@@ -316,7 +316,7 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
         className="w-full bg-white rounded-3xl shadow-premium border-2 border-accent-100 overflow-hidden"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-accent-50 to-accent-100 p-6 border-b-2 border-accent-200">
+        <div className="bg-gradient-to-r from-accent-50 to-accent-100 p-6 border-b-2 border-accent-200 relative z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-accent-600 rounded-2xl flex items-center justify-center">
@@ -329,7 +329,7 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
             </div>
             
             {user && (
-              <div className="text-right">
+              <div className="text-right relative z-30">
                 {user.isAdmin ? (
                   <div className="space-y-2">
                     <div className="flex justify-end">

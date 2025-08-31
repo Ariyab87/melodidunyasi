@@ -73,20 +73,21 @@ export default function HowItWorksSection() {
                 }}
               />
               
-              {/* Step number */}
+              {/* Step number - Fixed positioning and z-index */}
               <motion.div
-                className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg"
+                className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg z-20"
                 initial={{ scale: 0, rotate: -180 }}
                 whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.3, type: "spring" }}
                 whileHover={{ scale: 1.2, rotate: 360 }}
+                style={{ zIndex: 20 }}
               >
                 {index + 1}
               </motion.div>
 
               {/* Main card */}
-              <div className="relative bg-white/90 backdrop-blur-md rounded-3xl p-8 border-2 border-white/60 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:border-violet-200">
+              <div className="relative bg-white/90 backdrop-blur-md rounded-3xl p-8 border-2 border-white/60 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:border-violet-200" style={{ zIndex: 10 }}>
                 <motion.div
                   className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-lg`}
                   whileHover={{ 

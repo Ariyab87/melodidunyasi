@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
         <motion.div
           className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-br from-violet-500/10 to-purple-600/10 rounded-full blur-3xl"
           animate={{
@@ -21,6 +21,7 @@ export default function Footer() {
             repeat: Infinity,
             ease: "linear"
           }}
+          style={{ zIndex: 2 }}
         />
         <motion.div
           className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-full blur-3xl"
@@ -34,6 +35,7 @@ export default function Footer() {
             repeat: Infinity,
             ease: "linear"
           }}
+          style={{ zIndex: 2 }}
         />
       </div>
 

@@ -110,7 +110,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
         </div>
         
         {/* Floating musical notes with special colors */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 5 }}>
           <motion.div 
             className="absolute top-32 left-1/4 text-violet-400 text-7xl animate-bounce-gentle shadow-glow-violet"
             animate={{ 
@@ -123,6 +123,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               repeat: Infinity,
               ease: "easeInOut"
             }}
+            style={{ zIndex: 6 }}
           >
             ♪
           </motion.div>
@@ -139,6 +140,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               ease: "easeInOut",
               delay: 1
             }}
+            style={{ zIndex: 6 }}
           >
             ♫
           </motion.div>
@@ -155,6 +157,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               ease: "easeInOut",
               delay: 2
             }}
+            style={{ zIndex: 6 }}
           >
             ♬
           </motion.div>
@@ -171,13 +174,14 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               ease: "easeInOut",
               delay: 1
             }}
+            style={{ zIndex: 6 }}
           >
             ♩
           </motion.div>
         </div>
 
         {/* Creative geometric shapes */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 4 }}>
           <motion.div 
             className="absolute top-1/4 left-1/6 w-16 h-16 bg-gradient-to-br from-violet-300/30 to-purple-400/30 rounded-full"
             animate={{ 
@@ -190,6 +194,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               repeat: Infinity,
               ease: "linear"
             }}
+            style={{ zIndex: 5 }}
           />
           <motion.div 
             className="absolute bottom-1/4 right-1/6 w-20 h-20 bg-gradient-to-br from-pink-300/30 to-red-400/30 rounded-full"
@@ -203,6 +208,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               repeat: Infinity,
               ease: "linear"
             }}
+            style={{ zIndex: 5 }}
           />
           <motion.div 
             className="absolute top-1/2 left-1/2 w-12 h-12 bg-gradient-to-br from-blue-300/30 to-indigo-400/30 rounded-full"
@@ -216,18 +222,20 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               repeat: Infinity,
               ease: "linear"
             }}
+            style={{ zIndex: 5 }}
           />
         </div>
 
         {/* Animated sparkles */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 7 }}>
           {[...Array(8)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-yellow-400 rounded-full"
               style={{
                 left: `${20 + (i * 10)}%`,
-                top: `${15 + (i * 8)}%`
+                top: `${15 + (i * 8)}%`,
+                zIndex: 8
               }}
               animate={{
                 scale: [0, 1, 0],

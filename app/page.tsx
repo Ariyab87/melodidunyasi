@@ -33,14 +33,15 @@ export default function Home() {
         <SunoStatusProvider>
           <main className="min-h-screen bg-special-gradient relative overflow-hidden">
             {/* Animated background particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
               {[...Array(20)].map((_, i) => (
                 <motion.div
                   key={i}
                   className="absolute w-1 h-1 bg-violet-400/30 rounded-full"
                   style={{
                     left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`
+                    top: `${Math.random() * 100}%`,
+                    zIndex: 2
                   }}
                   animate={{
                     y: [0, -100, 0],
@@ -246,7 +247,7 @@ export default function Home() {
               transition={{ duration: 1 }}
             >
               {/* Decorative elements */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
                 <motion.div
                   className="absolute bottom-20 left-20 w-48 h-48 bg-gradient-to-br from-indigo-200/20 to-purple-300/20 rounded-full blur-3xl"
                   animate={{
@@ -259,6 +260,7 @@ export default function Home() {
                     ease: "easeInOut",
                     delay: 2
                   }}
+                  style={{ zIndex: 2 }}
                 />
               </div>
 
