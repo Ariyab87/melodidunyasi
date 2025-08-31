@@ -17,7 +17,7 @@ export default function Home() {
 
   const expandComposer = () => {
     setIsComposerExpanded(true);
-    // Scroll to composer section
+    // Scroll to composer section after a short delay to ensure it's rendered
     setTimeout(() => {
       const element = document.getElementById('composer');
       if (element) {
@@ -30,13 +30,13 @@ export default function Home() {
     <AuthProvider>
       <PaymentProvider>
         <SunoStatusProvider>
-          <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-            <Navigation />
+          <main className="min-h-screen bg-special-gradient">
+            <Navigation onCreateSong={expandComposer} />
             
-            <HeroSection />
+            <HeroSection onCreateSong={expandComposer} />
             
             {/* Inline Composer Section */}
-            <section id="composer" className="section-padding bg-gradient-to-b from-transparent to-white/60">
+            <section id="composer" className="section-padding bg-gradient-to-b from-transparent to-white/70">
               <div className="container-custom">
                 <InlineComposer 
                   isExpanded={isComposerExpanded} 
@@ -46,14 +46,14 @@ export default function Home() {
             </section>
 
             {/* How It Works Section */}
-            <section id="how-it-works" className="section-padding bg-gradient-to-b from-white/60 to-slate-50/80">
+            <section id="how-it-works" className="section-padding bg-gradient-to-b from-white/70 to-violet-50/80">
               <div className="container-custom">
                 <HowItWorksSection />
               </div>
             </section>
 
             {/* FAQ Section */}
-            <section id="faq" className="section-padding bg-gradient-to-b from-slate-50/80 to-blue-100/60">
+            <section id="faq" className="section-padding bg-gradient-to-b from-violet-50/80 to-purple-100/60">
               <div className="container-custom">
                 <FAQSection />
               </div>

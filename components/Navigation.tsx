@@ -5,11 +5,39 @@ import { Menu, X, Globe, Moon, Sun, User, LogOut, Heart } from 'lucide-react';
 import { useLanguage } from '@/lib/languageContext';
 import { useAuth } from '@/lib/authContext';
 
-export default function Navigation() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+interface NavigationProps {
+  onCreateSong?: () => void;
+}
+
+export default function Navigation({ onCreateSong }: NavigationProps) {
   const { language, changeLanguage, t } = useLanguage();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const handleCreateSong = () => {
+    if (onCreateSong) {
+      onCreateSong();
+    } else {
+      // Fallback: scroll to composer
+      const element = document.getElementById('composer');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  const handleLanguageChange = (langCode: string) => {
+    if (changeLanguage) {
+      changeLanguage(langCode);
+    }
+    setIsLanguageOpen(false);
+  };
 
   const languages = [
     { code: 'tr', name: 'Türkçe' },
@@ -38,17 +66,10 @@ export default function Navigation() {
         block: 'start'
       });
     }
-    setIsOpen(false);
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // Add dark mode toggle logic here
   };
 
   const handleLogout = () => {
     logout();
-    setIsOpen(false);
   };
 
   return (
@@ -62,7 +83,7 @@ export default function Navigation() {
             className="flex items-center space-x-3 cursor-pointer"
             onClick={() => scrollToSection('hero')}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center">
               <Heart className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-bold text-gray-900">MelodiDunyasi</span>
@@ -77,7 +98,7 @@ export default function Navigation() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="text-gray-600 hover:text-accent-600 transition-colors duration-300 font-medium"
+                className="text-gray-600 hover:text-violet-600 transition-colors duration-300 font-medium"
               >
                 {getLocalizedName(item)}
               </motion.button>
@@ -89,14 +110,14 @@ export default function Navigation() {
             {/* Dark mode toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 text-gray-400 hover:text-accent-600 transition-colors duration-300 rounded-xl hover:bg-gray-50"
+              className="p-2 text-gray-400 hover:text-violet-600 transition-colors duration-300 rounded-xl hover:bg-gray-50"
             >
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             
             {/* Language Dropdown */}
             <div className="relative group">
-              <button className="flex items-center space-x-2 text-gray-600 hover:text-accent-600 transition-colors duration-300 p-2 rounded-xl hover:bg-gray-50">
+              <button className="flex items-center space-x-2 text-gray-600 hover:text-violet-600 transition-colors duration-300 p-2 rounded-xl hover:bg-gray-50">
                 <Globe size={20} />
                 <span className="font-medium">{languages.find(l => l.code === language)?.name}</span>
               </button>
@@ -104,9 +125,9 @@ export default function Navigation() {
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
-                    onClick={() => changeLanguage(lang.code)}
+                    onClick={() => handleLanguageChange(lang.code)}
                     className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-200 rounded-2xl ${
-                      language === lang.code ? 'text-accent-600 bg-accent-50' : 'text-gray-600'
+                      language === lang.code ? 'text-violet-600 bg-violet-50' : 'text-gray-600'
                     }`}
                   >
                     {lang.name}
@@ -118,9 +139,9 @@ export default function Navigation() {
             {/* User menu or auth buttons */}
             {isAuthenticated ? (
               <div className="relative group">
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-accent-600 transition-colors duration-300 p-2 rounded-xl hover:bg-gray-50">
-                  <div className="w-8 h-8 bg-accent-100 rounded-xl flex items-center justify-center">
-                    <User size={16} className="text-accent-600" />
+                <button className="flex items-center space-x-2 text-gray-600 hover:text-violet-600 transition-colors duration-300 p-2 rounded-xl hover:bg-gray-50">
+                  <div className="w-8 h-8 bg-violet-100 rounded-xl flex items-center justify-center">
+                    <User size={16} className="text-violet-600" />
                   </div>
                   <span className="font-medium">{user?.name}</span>
                 </button>
@@ -131,7 +152,7 @@ export default function Navigation() {
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-3 py-2 text-gray-600 hover:text-accent-600 hover:bg-accent-50 transition-colors duration-200 rounded-xl flex items-center space-x-2"
+                      className="w-full text-left px-3 py-2 text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors duration-200 rounded-xl flex items-center space-x-2"
                     >
                       <LogOut size={16} />
                       <span>Sign Out</span>
@@ -141,7 +162,7 @@ export default function Navigation() {
               </div>
             ) : (
               <div className="flex items-center space-x-3">
-                <button className="text-accent-600 hover:text-accent-700 font-medium transition-colors duration-300">
+                <button className="text-violet-600 hover:text-violet-700 font-medium transition-colors duration-300">
                   Sign In
                 </button>
                 <button className="btn-outline text-sm py-2 px-4">
@@ -153,7 +174,7 @@ export default function Navigation() {
             {/* Primary CTA */}
             <button 
               className="btn-primary"
-              onClick={() => scrollToSection('composer')}
+              onClick={handleCreateSong}
             >
               Create Song
             </button>
@@ -162,7 +183,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-gray-600 p-2 hover:text-accent-600 transition-colors"
+            className="md:hidden text-gray-600 p-2 hover:text-violet-600 transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -181,7 +202,7 @@ export default function Navigation() {
                 <button
                   key={item.name}
                   onClick={() => scrollToSection(item.id)}
-                  className="block w-full text-left px-4 py-3 text-gray-600 hover:text-accent-600 hover:bg-accent-50 transition-colors duration-300 rounded-xl"
+                  className="block w-full text-left px-4 py-3 text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors duration-300 rounded-xl"
                 >
                   {getLocalizedName(item)}
                 </button>
@@ -202,9 +223,9 @@ export default function Navigation() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <button className="w-full text-accent-600 hover:text-accent-700 font-medium transition-colors duration-300 text-left px-3 py-2">
-                      Sign In
-                    </button>
+                                    <button className="w-full text-violet-600 hover:text-violet-700 font-medium transition-colors duration-300 text-left px-3 py-2">
+                  Sign In
+                </button>
                     <button className="w-full btn-outline text-sm py-2 px-4">
                       Sign Up
                     </button>
@@ -213,7 +234,7 @@ export default function Navigation() {
                 
                 <button 
                   className="w-full btn-primary mt-3"
-                  onClick={() => scrollToSection('composer')}
+                  onClick={handleCreateSong}
                 >
                   Create Song
                 </button>

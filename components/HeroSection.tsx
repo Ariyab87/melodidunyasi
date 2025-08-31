@@ -6,7 +6,11 @@ import Image from 'next/image';
 import { Heart, Sparkles, Music, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/lib/languageContext';
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onCreateSong?: () => void;
+}
+
+export default function HeroSection({ onCreateSong }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { language, t } = useLanguage();
 
@@ -17,8 +21,7 @@ export default function HeroSection() {
       alt: 'Wedding couple dancing',
       title: 'Make Your First Dance Truly Yours',
       subtitle: 'Create a personalized song that captures the magic of your special moment. From first dances to wedding proposals, make every celebration unforgettable.',
-      cta: 'Create Song',
-      secondaryCta: 'See Examples'
+      cta: 'Create Song'
     },
     {
       id: 2,
@@ -26,8 +29,7 @@ export default function HeroSection() {
       alt: 'Birthday celebration',
       title: 'Every Birthday Deserves a Theme Song',
       subtitle: 'Turn your birthday into a musical celebration with a custom song that tells your story. Perfect for milestone birthdays and special celebrations.',
-      cta: 'Create Song',
-      secondaryCta: 'See Examples'
+      cta: 'Create Song'
     },
     {
       id: 3,
@@ -35,8 +37,7 @@ export default function HeroSection() {
       alt: 'Anniversary celebration',
       title: 'Celebrate Your Love Story in Song',
       subtitle: 'Mark your anniversary with a beautiful, personalized song that captures your journey together. Every year deserves its own melody.',
-      cta: 'Create Song',
-      secondaryCta: 'See Examples'
+      cta: 'Create Song'
     }
   ];
 
@@ -50,6 +51,18 @@ export default function HeroSection() {
 
   const currentSlideData = slides[currentSlide];
 
+  const handleCreateSong = () => {
+    if (onCreateSong) {
+      onCreateSong();
+    } else {
+      // Fallback: scroll to composer
+      const element = document.getElementById('composer');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -62,30 +75,30 @@ export default function HeroSection() {
       {/* Enhanced Background with Multiple Layers */}
       <div className="absolute inset-0">
         {/* Special gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50"></div>
+        <div className="absolute inset-0 bg-hero-special"></div>
         
         {/* Animated geometric patterns */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-200 to-indigo-300 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full blur-3xl animate-float animation-delay-1000"></div>
-          <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full blur-3xl animate-float animation-delay-2000"></div>
-          <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-gradient-to-br from-pink-200 to-red-300 rounded-full blur-3xl animate-float animation-delay-1000"></div>
+        <div className="absolute inset-0 opacity-25">
+          <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-br from-violet-300 to-purple-400 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute top-40 right-20 w-32 h-32 bg-gradient-to-br from-purple-300 to-pink-400 rounded-full blur-3xl animate-float animation-delay-1000"></div>
+          <div className="absolute bottom-40 left-1/4 w-48 h-48 bg-gradient-to-br from-pink-300 to-red-400 rounded-full blur-3xl animate-float animation-delay-2000"></div>
+          <div className="absolute top-1/2 right-1/3 w-24 h-24 bg-gradient-to-br from-red-300 to-orange-400 rounded-full blur-3xl animate-float animation-delay-1000"></div>
         </div>
         
         {/* Special grid pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-15">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.4) 1px, transparent 0)`,
-            backgroundSize: '60px 60px'
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(139, 92, 246, 0.4) 1px, transparent 0)`,
+            backgroundSize: '80px 80px'
           }}></div>
         </div>
         
         {/* Floating musical notes with special colors */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-32 left-1/4 text-blue-400 text-6xl animate-bounce-gentle">♪</div>
-          <div className="absolute top-64 right-1/4 text-indigo-400 text-4xl animate-bounce-gentle animation-delay-1000">♫</div>
-          <div className="absolute bottom-32 left-1/3 text-purple-400 text-5xl animate-bounce-gentle animation-delay-2000">♬</div>
-          <div className="absolute top-1/3 right-1/3 text-pink-400 text-3xl animate-bounce-gentle animation-delay-1000">♩</div>
+          <div className="absolute top-32 left-1/4 text-violet-400 text-7xl animate-bounce-gentle shadow-glow-violet">♪</div>
+          <div className="absolute top-64 right-1/4 text-purple-400 text-5xl animate-bounce-gentle animation-delay-1000 shadow-glow-violet">♫</div>
+          <div className="absolute bottom-32 left-1/3 text-pink-400 text-6xl animate-bounce-gentle animation-delay-2000 shadow-glow-violet">♬</div>
+          <div className="absolute top-1/3 right-1/3 text-indigo-400 text-4xl animate-bounce-gentle animation-delay-1000 shadow-glow-violet">♩</div>
         </div>
       </div>
       
@@ -100,7 +113,7 @@ export default function HeroSection() {
               transition={{ duration: 0.8 }}
             >
               <div className="space-y-6">
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-accent-100 to-blue-100 text-accent-700 px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg border border-accent-200">
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-xl border-2 border-violet-200">
                   <Sparkles className="w-5 h-5" />
                   <span>AI-Powered Music Creation</span>
                 </div>
@@ -119,7 +132,7 @@ export default function HeroSection() {
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <button 
-                    onClick={() => scrollToSection('composer')} 
+                    onClick={handleCreateSong} 
                     className="btn-primary text-lg px-8 py-5 transform hover:scale-105 transition-transform duration-300 flex items-center justify-center space-x-2 shadow-wedding hover:shadow-xl"
                   >
                     <Heart className="w-6 h-6" />
