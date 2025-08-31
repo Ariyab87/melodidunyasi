@@ -38,6 +38,22 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
       title: 'Celebrate Your Love Story in Song',
       subtitle: 'Mark your anniversary with a beautiful, personalized song that captures your journey together. Every year deserves its own melody.',
       cta: 'Create Song'
+    },
+    {
+      id: 4,
+      image: '/images/pexels-karolina-grabowska-5882547.jpg',
+      alt: 'Proposal celebration',
+      title: 'Make Your Proposal Unforgettable',
+      subtitle: 'Set the perfect mood for your special moment with a custom song that captures your love story. Create memories that last forever.',
+      cta: 'Create Song'
+    },
+    {
+      id: 5,
+      image: '/images/pexels-obviouslyarthur-1439261.jpg',
+      alt: 'Graduation celebration',
+      title: 'Celebrate Your Achievements in Song',
+      subtitle: 'Mark your graduation, promotion, or any milestone with a personalized anthem that celebrates your success and journey.',
+      cta: 'Create Song'
     }
   ];
 
