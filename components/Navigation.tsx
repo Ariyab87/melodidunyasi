@@ -20,7 +20,6 @@ export default function Navigation() {
   const navItems = [
     { name: 'howItWorks', id: 'how-it-works', tr: 'Nasıl Çalışır', nl: 'Hoe het werkt' },
     { name: 'examples', id: 'examples', tr: 'Örnekler', nl: 'Voorbeelden' },
-    { name: 'pricing', id: 'pricing', tr: 'Fiyatlandırma', nl: 'Prijzen' },
     { name: 'faq', id: 'faq', tr: 'SSS', nl: 'FAQ' }
   ];
 

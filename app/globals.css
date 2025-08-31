@@ -11,7 +11,8 @@
   }
   
   body {
-    @apply bg-white text-gray-900 font-body;
+    @apply bg-gradient-to-br from-gray-50 via-white to-accent-50 text-gray-900 font-body;
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -33,11 +34,11 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-accent-600 hover:bg-accent-700 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-wedding hover:shadow-lg;
+    @apply bg-gradient-to-r from-accent-600 to-accent-700 hover:from-accent-700 hover:to-accent-800 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-wedding hover:shadow-xl;
   }
   
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-2xl border-2 border-gray-200 hover:border-accent-300 transition-all duration-300 shadow-soft hover:shadow-premium;
+    @apply bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-2xl border-2 border-gray-200 hover:border-accent-300 transition-all duration-300 shadow-soft hover:shadow-premium backdrop-blur-sm;
   }
 
   .btn-outline {
@@ -45,19 +46,19 @@
   }
   
   .card {
-    @apply bg-white rounded-2xl p-8 border border-gray-100 shadow-soft hover:shadow-premium transition-all duration-300;
+    @apply bg-white/90 backdrop-blur-md rounded-2xl p-8 border border-white/50 shadow-soft hover:shadow-premium transition-all duration-300;
   }
 
   .card-premium {
-    @apply bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 border border-gray-100 shadow-premium hover:shadow-wedding transition-all duration-500;
+    @apply bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-md rounded-3xl p-8 border border-white/60 shadow-premium hover:shadow-wedding transition-all duration-500;
   }
   
   .input-field {
-    @apply w-full bg-gray-50 border-2 border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-300;
+    @apply w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-300;
   }
 
   .input-field:focus {
-    @apply bg-white;
+    @apply bg-white shadow-lg;
   }
 
   .section-padding {
@@ -81,7 +82,7 @@
   }
 
   .hero-gradient {
-    @apply bg-gradient-to-br from-white via-gray-50 to-accent-50;
+    @apply bg-gradient-to-br from-accent-50 via-white to-blue-50;
   }
 
   .accent-border {
@@ -98,6 +99,38 @@
 
   .floating-element-delayed {
     @apply absolute w-32 h-32 bg-accent-200 rounded-full opacity-15 animate-float animation-delay-1000;
+  }
+
+  /* Enhanced background patterns */
+  .bg-pattern-dots {
+    background-image: radial-gradient(circle at 1px 1px, rgba(239, 68, 68, 0.1) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  .bg-pattern-grid {
+    background-image: 
+      linear-gradient(rgba(239, 68, 68, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(239, 68, 68, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-pattern-waves {
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.1) 0%, transparent 50%);
+    background-size: 100px 100px;
+  }
+
+  /* Enhanced shadows and effects */
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+
+  .shadow-glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+
+  .backdrop-blur-strong {
+    backdrop-filter: blur(20px);
   }
 }
 
@@ -122,31 +155,44 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Enhanced animations */
+  .animate-float-slow {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animate-pulse-gentle {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-gentle {
+    animation: bounceGentle 3s ease-in-out infinite;
+  }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body {
-    @apply bg-gray-900 text-white;
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white;
   }
 
   .card {
-    @apply bg-gray-800 border-gray-700;
+    @apply bg-gray-800/90 border-gray-700/50;
   }
 
   .card-premium {
-    @apply bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700;
+    @apply bg-gradient-to-br from-gray-800/95 to-gray-900/95 border-gray-700/60;
   }
 
   .input-field {
-    @apply bg-gray-800 border-gray-700 text-white placeholder-gray-400;
+    @apply bg-gray-800/80 border-gray-700 text-white placeholder-gray-400;
   }
 
   .input-field:focus {
-    @apply bg-gray-700;
+    @apply bg-gray-700 shadow-lg;
   }
 
   .btn-secondary {
-    @apply bg-gray-800 hover:bg-gray-700 text-white border-gray-600 hover:border-accent-400;
+    @apply bg-gray-800/90 hover:bg-gray-700/90 text-white border-gray-600 hover:border-accent-400;
   }
 }

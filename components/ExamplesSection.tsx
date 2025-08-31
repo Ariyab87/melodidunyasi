@@ -179,14 +179,20 @@ export default function ExamplesSection() {
         transition={{ duration: 0.8, delay: 0.4 }}
         className="mt-16 text-center"
       >
-        <div className="bg-gradient-to-r from-accent-50 to-accent-100 rounded-3xl p-8 border-2 border-accent-200">
+        <div className="bg-gradient-to-r from-accent-50 to-blue-50 rounded-3xl p-8 border-2 border-accent-200">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
             Ready to Create Your Own Song?
           </h3>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
             Join thousands of happy customers who have created personalized songs for their special moments. Start your musical journey today.
           </p>
-          <button className="btn-primary text-lg px-8 py-4">
+          <button 
+            onClick={() => {
+              const el = document.getElementById('composer');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="btn-primary text-lg px-8 py-4"
+          >
             <div className="flex items-center space-x-2">
               <Sparkles className="w-5 h-5" />
               <span>Start Creating Now</span>

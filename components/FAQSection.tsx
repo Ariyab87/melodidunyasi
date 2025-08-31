@@ -9,20 +9,12 @@ export default function FAQSection() {
 
   const faqs = [
     {
-      question: 'How does the "pay-once = 3 tries" system work?',
-      answer: 'When you make a payment, you get 3 total generations for the same prompt. The first generation creates your initial song, and you can regenerate up to 2 more times to get it exactly right. Each regeneration uses 1 of your 3 tries.'
+      question: 'How does the song creation process work?',
+      answer: 'Simply describe your vision, choose your preferred style and language, and our AI will create a personalized song for you. The process takes just a few minutes and you\'ll get a studio-quality result.'
     },
     {
-      question: 'What happens if I\'m not satisfied with my first song?',
-      answer: 'That\'s exactly why we give you 3 tries! If you\'re not happy with the first result, simply click "Regenerate" to create a new version. You can change the style or model each time while keeping the same prompt.'
-    },
-    {
-      question: 'Can I use different prompts for each regeneration?',
-      answer: 'No, regenerations use the same original prompt to maintain consistency. However, you can change the musical style, model, or other parameters for each regeneration to get different variations of your song.'
-    },
-    {
-      question: 'What if I use all 3 tries and still want more?',
-      answer: 'If you use all 3 tries and want to create more songs, you can purchase another package. Each new payment gives you another 3 tries for a new song or project.'
+      question: 'What kind of songs can I create?',
+      answer: 'You can create songs for any special occasion: weddings, birthdays, anniversaries, proposals, graduations, and more. Our AI supports multiple languages and musical styles to match your vision perfectly.'
     },
     {
       question: 'How long does it take to generate a song?',
@@ -46,7 +38,7 @@ export default function FAQSection() {
     },
     {
       question: 'What if I have a technical issue during generation?',
-      answer: 'Our support team is here to help! If you experience any technical issues, contact us immediately. We\'ll either resolve the issue or credit you with additional tries to ensure you get your perfect song.'
+      answer: 'Our support team is here to help! If you experience any technical issues, contact us immediately. We\'ll resolve the issue and ensure you get your perfect song.'
     }
   ];
 

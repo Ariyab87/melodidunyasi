@@ -127,7 +127,7 @@ export default function HowItWorksSection() {
         transition={{ duration: 0.8, delay: 0.8 }}
         className="text-center"
       >
-        <div className="bg-gradient-to-r from-accent-50 to-accent-100 rounded-3xl p-8 border-2 border-accent-200 max-w-4xl mx-auto">
+        <div className="bg-gradient-to-r from-accent-50 to-blue-50 rounded-3xl p-8 border-2 border-accent-200 max-w-4xl mx-auto">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <Heart className="w-8 h-8 text-accent-600" />
             <h3 className="text-2xl font-bold text-gray-900">Ready to Create Your Perfect Song?</h3>

@@ -83,6 +83,8 @@ module.exports = {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
         'bounce-gentle': 'bounceGentle 2s ease-in-out infinite',
+        'float-slow': 'float 8s ease-in-out infinite',
+        'pulse-gentle': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         fadeIn: {

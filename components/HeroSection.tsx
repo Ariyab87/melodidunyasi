@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Heart, Sparkles, Music, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/lib/languageContext';
 
@@ -58,11 +58,36 @@ export default function HeroSection() {
   };
 
   return (
-    <section id="hero" className="min-h-screen hero-gradient relative overflow-hidden">
-      {/* Floating elements */}
-      <div className="floating-element top-20 left-10"></div>
-      <div className="floating-element-delayed bottom-20 right-10"></div>
-      <div className="floating-element top-1/2 left-1/4 animation-delay-2000"></div>
+    <section id="hero" className="min-h-screen relative overflow-hidden">
+      {/* Enhanced Background with Multiple Layers */}
+      <div className="absolute inset-0">
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent-50 via-white to-blue-50"></div>
+        
+        {/* Animated geometric patterns */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-accent-200 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute top-40 right-20 w-24 h-24 bg-blue-200 rounded-full blur-3xl animate-float animation-delay-1000"></div>
+          <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-purple-200 rounded-full blur-3xl animate-float animation-delay-2000"></div>
+          <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-pink-200 rounded-full blur-3xl animate-float animation-delay-1000"></div>
+        </div>
+        
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(239, 68, 68, 0.3) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
+        </div>
+        
+        {/* Floating musical notes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-32 left-1/4 text-accent-200 text-6xl animate-bounce-gentle">♪</div>
+          <div className="absolute top-64 right-1/4 text-blue-200 text-4xl animate-bounce-gentle animation-delay-1000">♫</div>
+          <div className="absolute bottom-32 left-1/3 text-purple-200 text-5xl animate-bounce-gentle animation-delay-2000">♬</div>
+          <div className="absolute top-1/3 right-1/3 text-pink-200 text-3xl animate-bounce-gentle animation-delay-1000">♩</div>
+        </div>
+      </div>
       
       <div className="relative z-10 container-custom section-padding">
         <div className="max-w-7xl mx-auto">
@@ -75,8 +100,8 @@ export default function HeroSection() {
               transition={{ duration: 0.8 }}
             >
               <div className="space-y-6">
-                <div className="inline-flex items-center space-x-2 bg-accent-50 text-accent-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
-                  <Sparkles className="w-4 h-4" />
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-accent-100 to-blue-100 text-accent-700 px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg border border-accent-200">
+                  <Sparkles className="w-5 h-5" />
                   <span>AI-Powered Music Creation</span>
                 </div>
                 
@@ -86,7 +111,7 @@ export default function HeroSection() {
                   </span>
                 </h1>
                 
-                <p className="text-lg md:text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-2xl lg:max-w-none text-balance">
+                <p className="text-lg md:text-xl lg:text-2xl text-gray-700 leading-relaxed max-w-2xl lg:max-w-none text-balance">
                   {currentSlideData.subtitle}
                 </p>
               </div>
@@ -95,7 +120,7 @@ export default function HeroSection() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <button 
                     onClick={() => scrollToSection('composer')} 
-                    className="btn-primary text-lg px-8 py-5 transform hover:scale-105 transition-transform duration-300 flex items-center justify-center space-x-2"
+                    className="btn-primary text-lg px-8 py-5 transform hover:scale-105 transition-transform duration-300 flex items-center justify-center space-x-2 shadow-wedding hover:shadow-xl"
                   >
                     <Heart className="w-6 h-6" />
                     <span>{currentSlideData.cta}</span>
@@ -104,26 +129,26 @@ export default function HeroSection() {
                   
                   <button 
                     onClick={() => scrollToSection('examples')} 
-                    className="btn-secondary text-lg px-8 py-5 flex items-center justify-center space-x-2"
+                    className="btn-secondary text-lg px-8 py-5 flex items-center justify-center space-x-2 shadow-soft hover:shadow-premium"
                   >
                     <Music className="w-5 h-5" />
                     <span>{currentSlideData.secondaryCta}</span>
                   </button>
                 </div>
 
-                {/* Trust indicators */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Fast delivery</span>
+                {/* Trust indicators with enhanced styling */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft border border-white/50">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-gray-700">Fast delivery</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Studio-quality vocals</span>
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft border border-white/50">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-gray-700">Studio-quality vocals</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Royalty-safe</span>
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft border border-white/50">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-gray-700">Royalty-safe</span>
                   </div>
                 </div>
               </div>
@@ -144,11 +169,11 @@ export default function HeroSection() {
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                 
-                {/* Overlay content */}
+                {/* Enhanced overlay content */}
                 <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                  <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30 shadow-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <Heart className="w-5 h-5 text-accent-300" />
                       <span className="text-sm font-medium">Wedding Special</span>
@@ -158,7 +183,7 @@ export default function HeroSection() {
                 </div>
               </div>
               
-              {/* Slide Indicators */}
+              {/* Enhanced slide indicators */}
               <div className="flex justify-center mt-6 space-x-3">
                 {slides.map((_, index) => (
                   <button
@@ -177,7 +202,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Bottom wave decoration */}
+      {/* Enhanced bottom wave decoration */}
       <div className="absolute bottom-0 left-0 right-0">
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-auto">
           <path 
