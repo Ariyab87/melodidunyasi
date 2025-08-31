@@ -61,31 +61,31 @@ export default function HeroSection() {
     <section id="hero" className="min-h-screen relative overflow-hidden">
       {/* Enhanced Background with Multiple Layers */}
       <div className="absolute inset-0">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent-50 via-white to-blue-50"></div>
+        {/* Special gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-50"></div>
         
         {/* Animated geometric patterns */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-accent-200 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute top-40 right-20 w-24 h-24 bg-blue-200 rounded-full blur-3xl animate-float animation-delay-1000"></div>
-          <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-purple-200 rounded-full blur-3xl animate-float animation-delay-2000"></div>
-          <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-pink-200 rounded-full blur-3xl animate-float animation-delay-1000"></div>
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-200 to-indigo-300 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-300 rounded-full blur-3xl animate-float animation-delay-1000"></div>
+          <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-gradient-to-br from-purple-200 to-pink-300 rounded-full blur-3xl animate-float animation-delay-2000"></div>
+          <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-gradient-to-br from-pink-200 to-red-300 rounded-full blur-3xl animate-float animation-delay-1000"></div>
         </div>
         
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-5">
+        {/* Special grid pattern */}
+        <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(239, 68, 68, 0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.4) 1px, transparent 0)`,
+            backgroundSize: '60px 60px'
           }}></div>
         </div>
         
-        {/* Floating musical notes */}
+        {/* Floating musical notes with special colors */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-32 left-1/4 text-accent-200 text-6xl animate-bounce-gentle">♪</div>
-          <div className="absolute top-64 right-1/4 text-blue-200 text-4xl animate-bounce-gentle animation-delay-1000">♫</div>
-          <div className="absolute bottom-32 left-1/3 text-purple-200 text-5xl animate-bounce-gentle animation-delay-2000">♬</div>
-          <div className="absolute top-1/3 right-1/3 text-pink-200 text-3xl animate-bounce-gentle animation-delay-1000">♩</div>
+          <div className="absolute top-32 left-1/4 text-blue-400 text-6xl animate-bounce-gentle">♪</div>
+          <div className="absolute top-64 right-1/4 text-indigo-400 text-4xl animate-bounce-gentle animation-delay-1000">♫</div>
+          <div className="absolute bottom-32 left-1/3 text-purple-400 text-5xl animate-bounce-gentle animation-delay-2000">♬</div>
+          <div className="absolute top-1/3 right-1/3 text-pink-400 text-3xl animate-bounce-gentle animation-delay-1000">♩</div>
         </div>
       </div>
       
@@ -125,14 +125,6 @@ export default function HeroSection() {
                     <Heart className="w-6 h-6" />
                     <span>{currentSlideData.cta}</span>
                     <ArrowRight className="w-5 h-5" />
-                  </button>
-                  
-                  <button 
-                    onClick={() => scrollToSection('examples')} 
-                    className="btn-secondary text-lg px-8 py-5 flex items-center justify-center space-x-2 shadow-soft hover:shadow-premium"
-                  >
-                    <Music className="w-5 h-5" />
-                    <span>{currentSlideData.secondaryCta}</span>
                   </button>
                 </div>
 
