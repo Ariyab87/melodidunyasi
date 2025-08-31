@@ -1,14 +1,24 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Manrope } from 'next/font/google'
 import './globals.css'
 import { LanguageProvider } from '@/lib/languageContext'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const manrope = Manrope({ 
+  subsets: ['latin'],
+  variable: '--font-manrope',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'Song Creation Platform - Create Your Personalized Songs',
-  description: 'Create personalized songs for special occasions with AI-powered song generation, voice cloning, and video creation.',
-  keywords: 'song creation, AI music, voice cloning, video generation, personalized songs',
+  title: 'MelodiDunyasi - AI-Powered Personalized Songs for Special Moments',
+  description: 'Create your perfect wedding song, birthday anthem, or anniversary melody with our AI-powered platform. Pay once, get 3 tries to perfect your personalized song.',
+  keywords: 'personalized songs, AI music, wedding songs, birthday songs, anniversary songs, custom music, AI song generation',
 }
 
 export default function RootLayout({
@@ -17,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="tr">
-      <body className={inter.className}>
+    <html lang="en">
+      <body className={`${inter.variable} ${manrope.variable} font-sans`}>
         <LanguageProvider>
           {children}
         </LanguageProvider>

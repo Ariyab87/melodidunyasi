@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,37 +7,146 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    font-family: var(--font-inter), var(--font-manrope), system-ui, sans-serif;
   }
   
   body {
-    @apply bg-dark-900 text-white;
+    @apply bg-white text-gray-900 font-body;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl leading-tight;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl leading-tight;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl leading-tight;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105;
+    @apply bg-accent-600 hover:bg-accent-700 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-wedding hover:shadow-lg;
   }
   
   .btn-secondary {
-    @apply bg-dark-700 hover:bg-dark-600 text-white font-semibold py-3 px-6 rounded-lg border border-dark-500 transition-all duration-300;
+    @apply bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-2xl border-2 border-gray-200 hover:border-accent-300 transition-all duration-300 shadow-soft hover:shadow-premium;
+  }
+
+  .btn-outline {
+    @apply bg-transparent hover:bg-accent-50 text-accent-600 font-semibold py-4 px-8 rounded-2xl border-2 border-accent-600 hover:border-accent-700 transition-all duration-300;
   }
   
   .card {
-    @apply bg-dark-800 rounded-xl p-6 border border-dark-700 shadow-lg;
+    @apply bg-white rounded-2xl p-8 border border-gray-100 shadow-soft hover:shadow-premium transition-all duration-300;
+  }
+
+  .card-premium {
+    @apply bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 border border-gray-100 shadow-premium hover:shadow-wedding transition-all duration-500;
   }
   
   .input-field {
-    @apply w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full bg-gray-50 border-2 border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-300;
+  }
+
+  .input-field:focus {
+    @apply bg-white;
+  }
+
+  .section-padding {
+    @apply py-20 md:py-32;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-accent-600 to-accent-700 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-wedding {
+    @apply bg-gradient-to-r from-accent-500 via-accent-600 to-accent-700 bg-clip-text text-transparent;
+  }
+  
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-soft;
+  }
+
+  .hero-gradient {
+    @apply bg-gradient-to-br from-white via-gray-50 to-accent-50;
+  }
+
+  .accent-border {
+    @apply border-2 border-accent-200;
+  }
+
+  .accent-border-hover:hover {
+    @apply border-accent-400;
+  }
+
+  .floating-element {
+    @apply absolute w-24 h-24 bg-accent-100 rounded-full opacity-20 animate-float;
+  }
+
+  .floating-element-delayed {
+    @apply absolute w-32 h-32 bg-accent-200 rounded-full opacity-15 animate-float animation-delay-1000;
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent;
+  .animation-delay-1000 {
+    animation-delay: 1s;
   }
-  
-  .glass-effect {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-gray-900 text-white;
+  }
+
+  .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .card-premium {
+    @apply bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700;
+  }
+
+  .input-field {
+    @apply bg-gray-800 border-gray-700 text-white placeholder-gray-400;
+  }
+
+  .input-field:focus {
+    @apply bg-gray-700;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-800 hover:bg-gray-700 text-white border-gray-600 hover:border-accent-400;
   }
 }
