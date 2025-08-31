@@ -46,8 +46,7 @@ export default function Navigation({ onCreateSong }: NavigationProps) {
   ];
 
   const navItems = [
-    { name: 'howItWorks', id: 'how-it-works', tr: 'Nasıl Çalışır', nl: 'Hoe het werkt' },
-    { name: 'faq', id: 'faq', tr: 'SSS', nl: 'FAQ' }
+    { name: 'howItWorks', id: 'how-it-works', tr: 'Nasıl Çalışır', nl: 'Hoe het werkt' }
   ];
 
   const getLocalizedName = (item: any) => {

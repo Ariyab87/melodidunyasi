@@ -60,18 +60,32 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
     { code: 'nl', name: 'Nederlands' },
     { code: 'es', name: 'Español' },
     { code: 'fr', name: 'Français' },
-    { code: 'de', name: 'Deutsch' }
+    { code: 'de', name: 'Deutsch' },
+    { code: 'it', name: 'Italiano' },
+    { code: 'pt', name: 'Português' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'ja', name: '日本語' },
+    { code: 'ko', name: '한국어' },
+    { code: 'zh', name: '中文' }
   ];
 
   const styles = [
-    { code: 'pop', name: 'Pop' },
-    { code: 'rock', name: 'Rock' },
-    { code: 'jazz', name: 'Jazz' },
-    { code: 'classical', name: 'Classical' },
-    { code: 'country', name: 'Country' },
-    { code: 'electronic', name: 'Electronic' },
-    { code: 'folk', name: 'Folk' },
-    { code: 'r&b', name: 'R&B' }
+    { value: 'pop', label: 'Pop', description: 'Catchy, upbeat melodies' },
+    { value: 'rock', label: 'Rock', description: 'Powerful, energetic sound' },
+    { value: 'jazz', label: 'Jazz', description: 'Smooth, sophisticated harmonies' },
+    { value: 'classical', label: 'Classical', description: 'Elegant, orchestral arrangements' },
+    { value: 'country', label: 'Country', description: 'Heartfelt, storytelling style' },
+    { value: 'electronic', label: 'Electronic', description: 'Modern, synthesized beats' },
+    { value: 'folk', label: 'Folk', description: 'Acoustic, traditional feel' },
+    { value: 'r&b', label: 'R&B', description: 'Soulful, smooth vocals' },
+    { value: 'hip-hop', label: 'Hip-Hop', description: 'Rhythmic, urban sound' },
+    { value: 'reggae', label: 'Reggae', description: 'Laid-back, island vibes' }
+  ];
+
+  const models = [
+    { value: 'v3', label: 'Suno V3', description: 'Latest model with best quality' },
+    { value: 'v2', label: 'Suno V2', description: 'Balanced performance and speed' },
+    { value: 'v1', label: 'Suno V1', description: 'Fast generation, good quality' }
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -276,8 +290,8 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
                     className="input-field"
                   >
                     {styles.map(style => (
-                      <option key={style.code} value={style.code}>
-                        {style.name}
+                      <option key={style.value} value={style.value}>
+                        {style.label}
                       </option>
                     ))}
                   </select>

@@ -95,10 +95,137 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
         
         {/* Floating musical notes with special colors */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-32 left-1/4 text-violet-400 text-7xl animate-bounce-gentle shadow-glow-violet">♪</div>
-          <div className="absolute top-64 right-1/4 text-purple-400 text-5xl animate-bounce-gentle animation-delay-1000 shadow-glow-violet">♫</div>
-          <div className="absolute bottom-32 left-1/3 text-pink-400 text-6xl animate-bounce-gentle animation-delay-2000 shadow-glow-violet">♬</div>
-          <div className="absolute top-1/3 right-1/3 text-indigo-400 text-4xl animate-bounce-gentle animation-delay-1000 shadow-glow-violet">♩</div>
+          <motion.div 
+            className="absolute top-32 left-1/4 text-violet-400 text-7xl animate-bounce-gentle shadow-glow-violet"
+            animate={{ 
+              y: [0, -20, 0],
+              rotate: [0, 5, -5, 0],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            ♪
+          </motion.div>
+          <motion.div 
+            className="absolute top-64 right-1/4 text-purple-400 text-5xl animate-bounce-gentle animation-delay-1000 shadow-glow-violet"
+            animate={{ 
+              y: [0, -15, 0],
+              rotate: [0, -3, 3, 0],
+              scale: [1, 1.05, 1]
+            }}
+            transition={{ 
+              duration: 3.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+          >
+            ♫
+          </motion.div>
+          <motion.div 
+            className="absolute bottom-32 left-1/3 text-pink-400 text-6xl animate-bounce-gentle animation-delay-2000 shadow-glow-violet"
+            animate={{ 
+              y: [0, -25, 0],
+              rotate: [0, 8, -8, 0],
+              scale: [1, 1.15, 1]
+            }}
+            transition={{ 
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+          >
+            ♬
+          </motion.div>
+          <motion.div 
+            className="absolute top-1/3 right-1/3 text-indigo-400 text-4xl animate-bounce-gentle animation-delay-1000 shadow-glow-violet"
+            animate={{ 
+              y: [0, -18, 0],
+              rotate: [0, -5, 5, 0],
+              scale: [1, 1.08, 1]
+            }}
+            transition={{ 
+              duration: 4.2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+          >
+            ♩
+          </motion.div>
+        </div>
+
+        {/* Creative geometric shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            className="absolute top-1/4 left-1/6 w-16 h-16 bg-gradient-to-br from-violet-300/30 to-purple-400/30 rounded-full"
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.3, 0.6, 0.3],
+              rotate: [0, 180, 360]
+            }}
+            transition={{ 
+              duration: 8,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 right-1/6 w-20 h-20 bg-gradient-to-br from-pink-300/30 to-red-400/30 rounded-full"
+            animate={{ 
+              scale: [1, 1.3, 1],
+              opacity: [0.3, 0.5, 0.3],
+              rotate: [360, 180, 0]
+            }}
+            transition={{ 
+              duration: 10,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.div 
+            className="absolute top-1/2 left-1/2 w-12 h-12 bg-gradient-to-br from-blue-300/30 to-indigo-400/30 rounded-full"
+            animate={{ 
+              scale: [1, 1.4, 1],
+              opacity: [0.3, 0.7, 0.3],
+              rotate: [0, 90, 180, 270, 360]
+            }}
+            transition={{ 
+              duration: 6,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+        </div>
+
+        {/* Animated sparkles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+              style={{
+                left: `${20 + (i * 10)}%`,
+                top: `${15 + (i * 8)}%`
+              }}
+              animate={{
+                scale: [0, 1, 0],
+                opacity: [0, 1, 0],
+                rotate: [0, 180, 360]
+              }}
+              transition={{
+                duration: 2 + i * 0.5,
+                repeat: Infinity,
+                delay: i * 0.3,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
         </div>
       </div>
       
