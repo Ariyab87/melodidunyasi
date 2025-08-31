@@ -8,6 +8,7 @@ interface User {
   name: string;
   credits: number;
   triesLeft: number;
+  isAdmin?: boolean; // Added isAdmin field
 }
 
 interface AuthContextType {
@@ -47,60 +48,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      
-      // Mock login - replace with actual API call
-      const mockUser: User = {
-        id: 'user_' + Date.now(),
-        email,
-        name: email.split('@')[0],
-        credits: 0,
-        triesLeft: 0
-      };
+  // Check if user is admin (you can modify this logic)
+  const isAdmin = (email: string) => {
+    const adminEmails = [
+      'admin@melodidunyasi.com',
+      'ariya@melodidunyasi.com',
+      'negar@melodidunyasi.com',
+      'test@melodidunyasi.com'
+    ];
+    return adminEmails.includes(email.toLowerCase());
+  };
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+  const login = async (email: string, password: string): Promise<boolean> => {
+    // Mock login - in real app, validate with backend
+    if (email && password) {
+      const userData: User = {
+        id: '1',
+        name: email.split('@')[0],
+        email,
+        credits: isAdmin(email) ? 999 : 0, // Admins get unlimited credits
+        triesLeft: isAdmin(email) ? 999 : 0, // Admins get unlimited tries
+        isAdmin: isAdmin(email)
+      };
       
-      setUser(mockUser);
-      localStorage.setItem('melodiUser', JSON.stringify(mockUser));
-      
+      setUser(userData);
+      localStorage.setItem('melodiUser', JSON.stringify(userData));
       return true;
-    } catch (error) {
-      console.error('Login failed:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
     }
+    return false;
   };
 
   const signup = async (email: string, password: string, name: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      
-      // Mock signup - replace with actual API call
-      const mockUser: User = {
-        id: 'user_' + Date.now(),
-        email,
+    // Mock signup - in real app, create account in backend
+    if (email && password && name) {
+      const userData: User = {
+        id: '1',
         name,
-        credits: 0,
-        triesLeft: 0
+        email,
+        credits: isAdmin(email) ? 999 : 0, // Admins get unlimited credits
+        triesLeft: isAdmin(email) ? 999 : 0, // Admins get unlimited tries
+        isAdmin: isAdmin(email)
       };
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setUser(mockUser);
-      localStorage.setItem('melodiUser', JSON.stringify(mockUser));
-      
+      setUser(userData);
+      localStorage.setItem('melodiUser', JSON.stringify(userData));
       return true;
-    } catch (error) {
-      console.error('Signup failed:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
     }
+    return false;
   };
 
   const logout = () => {

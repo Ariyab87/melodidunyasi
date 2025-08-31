@@ -189,7 +189,8 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
       return;
     }
 
-    if (user && user.triesLeft <= 0) {
+    // Check if user has tries left (skip for admins)
+    if (!user?.isAdmin && (user?.triesLeft ?? 0) <= 0) {
       openPaymentModal();
       return;
     }
@@ -239,8 +240,10 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
         setSongResults(prev => [...prev, newSong]);
         setGenerationStatus('ready');
         
-        // Decrement tries
-        decrementTries();
+        // Decrement tries (skip for admins)
+        if (!user?.isAdmin) {
+          decrementTries();
+        }
       } else {
         setError('Song generation failed. Please try again.');
         setGenerationStatus('idle');
@@ -254,15 +257,15 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
   };
 
   const handleRegenerate = async () => {
-    if (user && user.triesLeft <= 0) {
+    // Clear previous results
+    setSongResults([]);
+    setError(null);
+    
+    // Check if user has tries left (skip for admins)
+    if (!user?.isAdmin && (user?.triesLeft ?? 0) <= 0) {
       openPaymentModal();
       return;
     }
-
-    // Clear previous results and start new generation
-    setSongResults([]);
-    setCurrentSongId(null);
-    setGenerationStatus('idle');
     
     // Start new generation
     await handleGenerate();
@@ -327,8 +330,21 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
             
             {user && (
               <div className="text-right">
-                <div className="text-sm text-accent-600 font-medium">Tries left</div>
-                <div className="text-2xl font-bold text-accent-700">{user.triesLeft}/3</div>
+                {user.isAdmin ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-end">
+                      <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                        ADMIN
+                      </span>
+                    </div>
+                    <div className="text-sm text-accent-600 font-medium">♾️ Unlimited Access</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-sm text-accent-600 font-medium">Tries left</div>
+                    <div className="text-2xl font-bold text-accent-700">{user.triesLeft}/3</div>
+                  </>
+                )}
               </div>
             )}
           </div>
