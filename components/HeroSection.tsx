@@ -19,41 +19,41 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
       id: 1,
       image: '/images/pexels-cottonbro-7097831.jpg',
       alt: 'Wedding couple dancing',
-      title: 'Make Your First Dance Truly Yours',
-      subtitle: 'Create a personalized song that captures the magic of your special moment. From first dances to wedding proposals, make every celebration unforgettable.',
-      cta: 'Create Song'
+      title: t('hero.slide1.title'),
+      subtitle: t('hero.slide1.subtitle'),
+      cta: t('hero.button')
     },
     {
       id: 2,
       image: '/images/pexels-ekaterina-121008470-9961400.jpg',
       alt: 'Birthday celebration',
-      title: 'Every Birthday Deserves a Theme Song',
-      subtitle: 'Turn your birthday into a musical celebration with a custom song that tells your story. Perfect for milestone birthdays and special celebrations.',
-      cta: 'Create Song'
+      title: t('hero.slide2.title'),
+      subtitle: t('hero.slide2.subtitle'),
+      cta: t('hero.button')
     },
     {
       id: 3,
       image: '/images/pexels-juliano-goncalves-1623825-30817330.jpg',
       alt: 'Anniversary celebration',
-      title: 'Celebrate Your Love Story in Song',
-      subtitle: 'Mark your anniversary with a beautiful, personalized song that captures your journey together. Every year deserves its own melody.',
-      cta: 'Create Song'
+      title: t('hero.slide3.title'),
+      subtitle: t('hero.slide3.subtitle'),
+      cta: t('hero.button')
     },
     {
       id: 4,
       image: '/images/pexels-karolina-grabowska-5882547.jpg',
       alt: 'Proposal celebration',
-      title: 'Make Your Proposal Unforgettable',
-      subtitle: 'Set the perfect mood for your special moment with a custom song that captures your love story. Create memories that last forever.',
-      cta: 'Create Song'
+      title: t('hero.slide4.title'),
+      subtitle: t('hero.slide4.subtitle'),
+      cta: t('hero.button')
     },
     {
       id: 5,
       image: '/images/pexels-obviouslyarthur-1439261.jpg',
       alt: 'Graduation celebration',
-      title: 'Celebrate Your Achievements in Song',
-      subtitle: 'Mark your graduation, promotion, or any milestone with a personalized anthem that celebrates your success and journey.',
-      cta: 'Create Song'
+      title: t('hero.slide5.title'),
+      subtitle: t('hero.slide5.subtitle'),
+      cta: t('hero.button')
     }
   ];
 
@@ -255,56 +255,56 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
       
       <div className="relative z-10 container-custom section-padding">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+          <div className="grid lg:grid-cols-2 gap-8 items-center min-h-[60vh]">
             {/* Text Content - Left Side */}
             <motion.div 
-              className="space-y-8 text-center lg:text-left"
+              className="space-y-6 text-center lg:text-left"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="space-y-6">
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-xl border-2 border-violet-200">
-                  <Sparkles className="w-5 h-5" />
-                  <span>AI-Powered Music Creation</span>
+              <div className="space-y-4">
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 px-4 py-2 rounded-full text-sm font-medium mb-3 shadow-lg border-2 border-violet-200">
+                  <Sparkles className="w-4 h-4" />
+                  <span>{t('hero.aiPowered')}</span>
                 </div>
                 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-balance">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-balance">
                   <span className="text-gradient-wedding">
                     {currentSlideData.title}
                   </span>
                 </h1>
                 
-                <p className="text-lg md:text-xl lg:text-2xl text-gray-700 leading-relaxed max-w-2xl lg:max-w-none text-balance">
+                <p className="text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed max-w-xl lg:max-w-none text-balance">
                   {currentSlideData.subtitle}
                 </p>
               </div>
               
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                   <button 
                     onClick={handleCreateSong} 
-                    className="btn-primary text-lg px-8 py-5 transform hover:scale-105 transition-transform duration-300 flex items-center justify-center space-x-2 shadow-wedding hover:shadow-xl"
+                    className="btn-primary text-base px-6 py-3 transform hover:scale-105 transition-transform duration-300 flex items-center justify-center space-x-2 shadow-wedding hover:shadow-xl"
                   >
-                    <Heart className="w-6 h-6" />
+                    <Heart className="w-5 h-5" />
                     <span>{currentSlideData.cta}</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Trust indicators with enhanced styling */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
-                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft border border-white/50">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-700">Fast delivery</span>
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-soft border border-white/50">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-medium text-gray-700">{t('hero.trust.fastDelivery')}</span>
                   </div>
-                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft border border-white/50">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-700">Studio-quality vocals</span>
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-soft border border-white/50">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-medium text-gray-700">{t('hero.trust.studioQuality')}</span>
                   </div>
-                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft border border-white/50">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-700">Royalty-safe</span>
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-soft border border-white/50">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-medium text-gray-700">{t('hero.trust.royaltySafe')}</span>
                   </div>
                 </div>
               </div>
@@ -317,7 +317,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-3xl overflow-hidden shadow-wedding">
+              <div className="relative w-full h-[250px] md:h-[300px] lg:h-[350px] rounded-2xl overflow-hidden shadow-wedding">
                 <Image
                   src={currentSlideData.image}
                   alt={currentSlideData.alt}
@@ -328,24 +328,24 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                 
                 {/* Enhanced overlay content */}
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30 shadow-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Heart className="w-5 h-5 text-accent-300" />
-                      <span className="text-sm font-medium">Wedding Special</span>
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                  <div className="bg-white/20 backdrop-blur-md rounded-xl p-3 border border-white/30 shadow-lg">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Heart className="w-4 h-4 text-accent-300" />
+                      <span className="text-xs font-medium">{t('hero.overlay.weddingSpecial')}</span>
                     </div>
-                    <p className="text-sm opacity-90">Perfect for your first dance</p>
+                    <p className="text-xs opacity-90">{t('hero.overlay.perfectForFirstDance')}</p>
                   </div>
                 </div>
               </div>
               
               {/* Enhanced slide indicators */}
-              <div className="flex justify-center mt-6 space-x-3">
+              <div className="flex justify-center mt-4 space-x-2">
                 {slides.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                       index === currentSlide 
                         ? 'bg-accent-500 scale-125 shadow-lg' 
                         : 'bg-gray-300 hover:bg-accent-300'

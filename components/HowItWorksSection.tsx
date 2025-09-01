@@ -1,25 +1,28 @@
 'use client';
 import { motion } from 'framer-motion';
 import { Music, Sparkles, CreditCard, Heart, ArrowRight, PenTool } from 'lucide-react';
+import { useLanguage } from '@/lib/languageContext';
 
 export default function HowItWorksSection() {
+  const { t } = useLanguage();
+  
   const steps = [
     {
       icon: <PenTool className="w-12 h-12" />,
-      title: 'Describe Your Vision',
-      description: 'Tell us about your special moment, the mood you want, and any specific details that matter to you.',
+      title: t('howItWorks.step1.title'),
+      description: t('howItWorks.step1.description'),
       color: 'from-blue-500 to-indigo-600'
     },
     {
       icon: <Sparkles className="w-12 h-12" />,
-      title: 'AI Creates Your Song',
-      description: 'Our advanced AI analyzes your vision and composes a unique, personalized song just for you.',
+      title: t('howItWorks.step2.title'),
+      description: t('howItWorks.step2.description'),
       color: 'from-violet-500 to-purple-600'
     },
     {
       icon: <Heart className="w-12 h-12" />,
-      title: 'Review & Perfect',
-      description: 'Listen to your song and regenerate if needed. Get it exactly right with our 3-try system.',
+      title: t('howItWorks.step3.title'),
+      description: t('howItWorks.step3.description'),
       color: 'from-pink-500 to-red-600'
     }
   ];
@@ -34,11 +37,11 @@ export default function HowItWorksSection() {
         className="mb-16"
       >
         <h2 className="text-4xl font-bold text-gray-900 mb-6">
-          Create Your Song in{' '}
-          <span className="text-gradient-wedding">3 Simple Steps</span>
+          {t('howItWorks.title')}{' '}
+          <span className="text-gradient-wedding">{t('howItWorks.subtitle')}</span>
         </h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          From idea to finished song in minutes. Our AI-powered platform makes creating personalized music as easy as describing your vision.
+          {t('howItWorks.description')}
         </p>
       </motion.div>
 

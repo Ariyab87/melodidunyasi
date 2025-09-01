@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, Globe, Moon, Sun, User, LogOut, Heart } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut, Heart } from 'lucide-react';
 import { useLanguage } from '@/lib/languageContext';
 import { useAuth } from '@/lib/authContext';
 
@@ -12,13 +12,8 @@ interface NavigationProps {
 export default function Navigation({ onCreateSong }: NavigationProps) {
   const { language, changeLanguage, t } = useLanguage();
   const { isAuthenticated, user, logout } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
 
   const handleCreateSong = () => {
     if (onCreateSong) {
@@ -46,7 +41,9 @@ export default function Navigation({ onCreateSong }: NavigationProps) {
   ];
 
   const navItems = [
-    { name: 'howItWorks', id: 'how-it-works', tr: 'Nasıl Çalışır', nl: 'Hoe het werkt' }
+    { name: 'howItWorks', id: 'how-it-works', tr: t('nav.howItWorks'), nl: 'Hoe het werkt' },
+    { name: 'requestSong', id: 'song-request', tr: t('nav.requestSong'), nl: 'Liedje Aanvraag' },
+    { name: 'requestVideo', id: 'video-request', tr: t('nav.requestVideo'), nl: 'Video Aanvraag' }
   ];
 
   const getLocalizedName = (item: any) => {
@@ -106,14 +103,6 @@ export default function Navigation({ onCreateSong }: NavigationProps) {
 
           {/* Right side controls */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Dark mode toggle */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 text-gray-400 hover:text-violet-600 transition-colors duration-300 rounded-xl hover:bg-gray-50"
-            >
-              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            
             {/* Language Dropdown */}
             <div className="relative group">
               <button className="flex items-center space-x-2 text-gray-600 hover:text-violet-600 transition-colors duration-300 p-2 rounded-xl hover:bg-gray-50">

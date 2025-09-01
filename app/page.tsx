@@ -5,16 +5,21 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
+import ServicesSection from '@/components/ServicesSection';
 import InlineComposer from '@/components/InlineComposer';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
+import SongGenerationModal from '@/components/SongGenerationModal';
 import { AuthProvider } from '@/lib/authContext';
 import { PaymentProvider } from '@/lib/paymentContext';
 import { SunoStatusProvider } from '@/lib/sunoStatusContext';
+import { useLanguage } from '@/lib/languageContext';
 
 export default function Home() {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
+  const [isSongModalOpen, setIsSongModalOpen] = useState(false);
+  const { t } = useLanguage();
 
   const expandComposer = () => {
     setIsComposerExpanded(true);
@@ -58,9 +63,23 @@ export default function Home() {
               ))}
             </div>
 
-            <Navigation onCreateSong={expandComposer} />
+            <Navigation onCreateSong={() => setIsSongModalOpen(true)} />
             
-            <HeroSection onCreateSong={expandComposer} />
+            <HeroSection onCreateSong={() => setIsSongModalOpen(true)} />
+            
+            {/* Services Section */}
+            <motion.section 
+              id="services" 
+              className="section-padding bg-gradient-to-b from-violet-50/80 to-white/70 relative"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+            >
+              <div className="container-custom relative z-10">
+                <ServicesSection />
+              </div>
+            </motion.section>
             
             {/* Inline Composer Section */}
             <motion.section 
@@ -160,7 +179,7 @@ export default function Home() {
                     transition={{ duration: 0.8 }}
                     className="text-4xl font-bold text-gray-900 mb-6"
                   >
-                    Create Personalized Videos with{' '}
+                    {t('videoRequest.title')}{' '}
                     <span className="text-gradient-wedding">AI Magic</span>
                   </motion.h2>
                   <motion.p
@@ -170,7 +189,7 @@ export default function Home() {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="text-xl text-gray-600 max-w-3xl mx-auto"
                   >
-                    Transform your photos into stunning videos with AI-generated music, effects, and animations. Perfect for social media, presentations, and special memories.
+                    {t('videoRequest.subtitle')}
                   </motion.p>
                 </div>
 
@@ -178,21 +197,21 @@ export default function Home() {
                   {[
                     {
                       icon: '🎬',
-                      title: 'Photo to Video',
-                      description: 'Convert your photos into engaging videos with smooth transitions and effects.',
-                      features: ['AI-generated transitions', 'Custom music overlay', 'Professional effects']
+                      title: t('videoRequest.features.photoToVideo.title'),
+                      description: t('videoRequest.features.photoToVideo.description'),
+                      features: [t('videoRequest.features.photoToVideo.feature1'), t('videoRequest.features.photoToVideo.feature2'), t('videoRequest.features.photoToVideo.feature3')]
                     },
                     {
                       icon: '🎵',
-                      title: 'Music Integration',
-                      description: 'Add personalized music that perfectly matches your video content and mood.',
-                      features: ['Custom song creation', 'Mood-based selection', 'Perfect timing sync']
+                      title: t('videoRequest.features.musicIntegration.title'),
+                      description: t('videoRequest.features.musicIntegration.description'),
+                      features: [t('videoRequest.features.musicIntegration.feature1'), t('videoRequest.features.musicIntegration.feature2'), t('videoRequest.features.musicIntegration.feature3')]
                     },
                     {
                       icon: '✨',
-                      title: 'AI Effects',
-                      description: 'Enhance your videos with AI-powered effects, filters, and animations.',
-                      features: ['Smart filters', 'Motion effects', 'Style transfer']
+                      title: t('videoRequest.features.aiEffects.title'),
+                      description: t('videoRequest.features.aiEffects.description'),
+                      features: [t('videoRequest.features.aiEffects.feature1'), t('videoRequest.features.aiEffects.feature2'), t('videoRequest.features.aiEffects.feature3')]
                     }
                   ].map((feature, index) => (
                     <motion.div
@@ -229,7 +248,7 @@ export default function Home() {
                   <button className="btn-primary text-lg px-8 py-4">
                     <div className="flex items-center space-x-2">
                       <span>🎬</span>
-                      <span>Start Creating Videos</span>
+                      <span>{t('videoRequest.cta.button')}</span>
                       <ArrowRight className="w-5 h-5" />
                     </div>
                   </button>
@@ -366,6 +385,12 @@ export default function Home() {
 
             <Footer />
           </main>
+
+          {/* Song Generation Modal */}
+          <SongGenerationModal 
+            isOpen={isSongModalOpen} 
+            onClose={() => setIsSongModalOpen(false)} 
+          />
         </SunoStatusProvider>
       </PaymentProvider>
     </AuthProvider>

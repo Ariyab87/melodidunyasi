@@ -134,7 +134,7 @@ export default function Footer() {
                 transition={{ duration: 0.2 }}
               >
                 <Mail className="w-4 h-4 text-violet-400" />
-                <span>hello@melodidunyasi.com</span>
+                <span>eviewsyardim@gmail.com</span>
               </motion.div>
               <motion.div
                 className="flex items-center space-x-2"
