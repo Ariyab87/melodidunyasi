@@ -154,31 +154,121 @@ export default function Home() {
                           placeholder="Tell us about your special moment, the emotions you want to convey, any specific story or message that should be in the song..."
                           required
                         />
+                        <p className="text-violet-300 text-xs mt-2">Be as detailed as possible! Include specific emotions, memories, or stories you want in the song.</p>
                       </div>
                       
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2">Occasion</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-                            <option value="birthday">Birthday</option>
-                            <option value="wedding">Wedding</option>
+                          <label className="block text-white font-medium mb-2">Occasion *</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                            <option value="">Select an occasion</option>
+                            <option value="wedding">Wedding / Marriage</option>
+                            <option value="proposal">Proposal / Engagement</option>
                             <option value="anniversary">Anniversary</option>
+                            <option value="birthday">Birthday</option>
                             <option value="graduation">Graduation</option>
-                            <option value="proposal">Proposal</option>
+                            <option value="baby">Baby Shower / New Baby</option>
+                            <option value="memorial">Memorial / Tribute</option>
+                            <option value="celebration">General Celebration</option>
+                            <option value="love">Love Song</option>
+                            <option value="friendship">Friendship</option>
+                            <option value="family">Family</option>
                             <option value="other">Other</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-white font-medium mb-2">Musical Style</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                          <label className="block text-white font-medium mb-2">Musical Style *</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                            <option value="">Select musical style</option>
                             <option value="pop">Pop - Catchy, upbeat melodies</option>
                             <option value="rock">Rock - Powerful, energetic</option>
                             <option value="jazz">Jazz - Smooth, sophisticated</option>
                             <option value="classical">Classical - Elegant, timeless</option>
                             <option value="folk">Folk - Warm, acoustic</option>
                             <option value="electronic">Electronic - Modern, innovative</option>
+                            <option value="country">Country - Storytelling, heartfelt</option>
+                            <option value="r&b">R&B - Soulful, smooth</option>
+                            <option value="indie">Indie - Alternative, unique</option>
+                            <option value="latin">Latin - Rhythmic, passionate</option>
                           </select>
                         </div>
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-white font-medium mb-2">Mood & Emotion *</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                            <option value="">Select mood</option>
+                            <option value="romantic">Romantic & Loving</option>
+                            <option value="joyful">Joyful & Happy</option>
+                            <option value="nostalgic">Nostalgic & Sentimental</option>
+                            <option value="energetic">Energetic & Upbeat</option>
+                            <option value="calm">Calm & Peaceful</option>
+                            <option value="melancholic">Melancholic & Reflective</option>
+                            <option value="celebratory">Celebratory & Festive</option>
+                            <option value="inspirational">Inspirational & Uplifting</option>
+                            <option value="intimate">Intimate & Personal</option>
+                            <option value="playful">Playful & Fun</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-white font-medium mb-2">Tempo *</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                            <option value="">Select tempo</option>
+                            <option value="slow">Slow & Ballad-like (60-80 BPM)</option>
+                            <option value="medium-slow">Medium-Slow (80-100 BPM)</option>
+                            <option value="medium">Medium (100-120 BPM)</option>
+                            <option value="medium-fast">Medium-Fast (120-140 BPM)</option>
+                            <option value="fast">Fast & Energetic (140+ BPM)</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-white font-medium mb-2">Language *</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                            <option value="">Select language</option>
+                            <option value="english">English</option>
+                            <option value="turkish">Turkish</option>
+                            <option value="dutch">Dutch</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="french">French</option>
+                            <option value="german">German</option>
+                            <option value="italian">Italian</option>
+                            <option value="portuguese">Portuguese</option>
+                            <option value="instrumental">Instrumental (No Lyrics)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-white font-medium mb-2">Song Length *</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                            <option value="">Select length</option>
+                            <option value="short">Short (1-2 minutes)</option>
+                            <option value="medium">Medium (2-3 minutes)</option>
+                            <option value="long">Long (3-4 minutes)</option>
+                            <option value="extended">Extended (4+ minutes)</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-white font-medium mb-2">Special Instructions</label>
+                        <textarea
+                          className="w-full h-24 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                          placeholder="Any specific instruments, vocal style, or special elements you'd like? (e.g., 'Include piano solo', 'Female vocals', 'Add strings', 'Make it danceable')"
+                        />
+                        <p className="text-violet-300 text-xs mt-2">Optional: Add specific musical elements, instruments, or vocal preferences.</p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-white font-medium mb-2">Reference Songs (Optional)</label>
+                        <input
+                          type="text"
+                          className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          placeholder="e.g., 'Like Ed Sheeran's Perfect', 'Similar to Adele's style'"
+                        />
+                        <p className="text-violet-300 text-xs mt-2">Mention songs or artists you like for reference (optional).</p>
                       </div>
                       
                       <div className="text-center pt-6">
@@ -193,7 +283,7 @@ export default function Home() {
                           </div>
                         </button>
                         <p className="text-violet-300 text-sm mt-3">
-                          We'll review your request and get back to you within 24 hours
+                          We'll review your detailed request and get back to you within 24 hours
                         </p>
                       </div>
                     </form>
