@@ -107,10 +107,10 @@ export default function Home() {
                     transition={{ duration: 0.8 }}
                     className="text-4xl font-bold text-gray-900 mb-6"
                   >
-                    Create Your Perfect Song
+                    {t('songForm.title')}
                   </motion.h2>
                   <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Tell us about your vision and we'll create a personalized song that captures your emotions perfectly.
+                    {t('songForm.subtitle')}
                   </p>
                 </div>
                 
@@ -121,40 +121,40 @@ export default function Home() {
                       <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <span className="text-4xl">🎵</span>
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Start Your Song Creation</h3>
-                      <p className="text-violet-200">Fill out the form below to begin</p>
+                      <h3 className="text-2xl font-bold text-white mb-2">{t('songForm.header.title')}</h3>
+                      <p className="text-violet-200">{t('songForm.header.subtitle')}</p>
                     </div>
                     
                     <form className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2">Full Name *</label>
+                          <label className="block text-white font-medium mb-2">{t('songForm.fields.fullName')}</label>
                           <input
                             type="text"
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="Enter your full name"
+                            placeholder={t('songForm.placeholders.fullName')}
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-white font-medium mb-2">Email *</label>
+                          <label className="block text-white font-medium mb-2">{t('songForm.fields.email')}</label>
                           <input
                             type="email"
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder="your.email@example.com"
+                            placeholder={t('songForm.placeholders.email')}
                             required
                           />
                         </div>
                       </div>
                       
                       <div>
-                        <label className="block text-white font-medium mb-2">Song Description *</label>
+                        <label className="block text-white font-medium mb-2">{t('songForm.fields.songDescription')}</label>
                         <textarea
                           className="w-full h-32 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
-                          placeholder="Tell us about your special moment, the emotions you want to convey, any specific story or message that should be in the song..."
+                          placeholder={t('songForm.placeholders.songDescription')}
                           required
                         />
-                        <p className="text-violet-300 text-xs mt-2">Be as detailed as possible! Include specific emotions, memories, or stories you want in the song.</p>
+                        <p className="text-violet-300 text-xs mt-2">{t('songForm.helpText.songDescription')}</p>
                       </div>
                       
                       <div className="grid md:grid-cols-2 gap-6">
@@ -276,15 +276,15 @@ export default function Home() {
                           type="submit"
                           className="group relative px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                         >
-                          <div className="flex items-center space-x-3">
-                            <span className="text-xl">💝</span>
-                            <span>Submit Song Request</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                          </div>
-                        </button>
-                        <p className="text-violet-300 text-sm mt-3">
-                          We'll review your detailed request and get back to you within 24 hours
-                        </p>
+                                                  <div className="flex items-center space-x-3">
+                          <span className="text-xl">💝</span>
+                          <span>{t('songForm.submitButton')}</span>
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </div>
+                      </button>
+                      <p className="text-violet-300 text-sm mt-3">
+                        {t('songForm.responseTime')}
+                      </p>
                       </div>
                     </form>
                   </div>
@@ -511,7 +511,7 @@ export default function Home() {
                     transition={{ duration: 0.8 }}
                     className="text-4xl font-bold text-gray-900 mb-6"
                   >
-                    Clone Your Voice with{' '}
+                    {t('voiceCloning.title')}{' '}
                     <span className="text-gradient-wedding">AI Technology</span>
                   </motion.h2>
                   <motion.p
@@ -521,7 +521,7 @@ export default function Home() {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="text-xl text-gray-600 max-w-3xl mx-auto"
                   >
-                    Create a digital copy of your voice to use in songs, videos, podcasts, and more. Our advanced AI captures the unique characteristics of your voice perfectly.
+                    {t('voiceCloning.subtitle')}
                   </motion.p>
                 </div>
 
@@ -537,21 +537,21 @@ export default function Home() {
                     {[
                       {
                         icon: '🎤',
-                        title: 'Voice Recording',
-                        description: 'Record a few minutes of your voice to create a high-quality voice model.',
-                        details: 'We recommend 3-5 minutes of clear speech in a quiet environment'
+                        title: t('voiceCloning.features.recording.title'),
+                        description: t('voiceCloning.features.recording.description'),
+                        details: t('voiceCloning.features.recording.details')
                       },
                       {
                         icon: '🤖',
-                        title: 'AI Processing',
-                        description: 'Our AI analyzes your voice patterns and creates a digital voice clone.',
-                        details: 'Advanced neural networks capture tone, pitch, and unique characteristics'
+                        title: t('voiceCloning.features.processing.title'),
+                        description: t('voiceCloning.features.processing.description'),
+                        details: t('voiceCloning.features.processing.details')
                       },
                       {
                         icon: '🎵',
-                        title: 'Voice Integration',
-                        description: 'Use your cloned voice in songs, videos, and other creative projects.',
-                        details: 'Perfect for personalized content, presentations, and entertainment'
+                        title: t('voiceCloning.features.integration.title'),
+                        description: t('voiceCloning.features.integration.description'),
+                        details: t('voiceCloning.features.integration.details')
                       }
                     ].map((feature, index) => (
                       <motion.div
@@ -587,12 +587,12 @@ export default function Home() {
                         <div className="w-24 h-24 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
                           <span className="text-4xl">🎤</span>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900">Start Voice Cloning</h3>
-                        <p className="text-gray-600">Record your voice and let AI create your digital voice twin</p>
+                        <h3 className="text-2xl font-bold text-gray-900">{t('voiceCloning.cta.title')}</h3>
+                        <p className="text-gray-600">{t('voiceCloning.cta.description')}</p>
                         <button className="btn-primary">
                           <div className="flex items-center space-x-2">
                             <span>🎙️</span>
-                            <span>Start Recording</span>
+                            <span>{t('voiceCloning.cta.button')}</span>
                           </div>
                         </button>
                       </div>
