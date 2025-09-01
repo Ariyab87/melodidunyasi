@@ -62,6 +62,30 @@ export default function Home() {
     }));
   };
 
+  // Map form language to Suno language codes
+  const getSunoLanguage = (formLanguage: string) => {
+    switch (formLanguage) {
+      case 'turkish':
+        return 'tr';
+      case 'dutch':
+        return 'nl';
+      case 'spanish':
+        return 'es';
+      case 'french':
+        return 'fr';
+      case 'german':
+        return 'de';
+      case 'italian':
+        return 'it';
+      case 'portuguese':
+        return 'pt';
+      case 'instrumental':
+        return 'en'; // Instrumental songs still need a base language
+      default:
+        return 'en';
+    }
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -84,7 +108,7 @@ export default function Home() {
         throw new Error('Please enter a valid email address');
       }
 
-      // Prepare the data for Suno API submission
+      // Prepare the data for Suno API submission with proper language mapping
       const songFormData = {
         fullName: formData.fullName,
         email: formData.email,
@@ -92,7 +116,7 @@ export default function Home() {
         songStyle: formData.musicalStyle,
         mood: formData.mood,
         tempo: formData.tempo,
-        language: formData.language === 'instrumental' ? 'en' : formData.language,
+        language: getSunoLanguage(formData.language),
         namesToInclude: formData.fullName,
         yourStory: formData.songDescription,
         additionalNotes: `${formData.specialInstructions ? `Special Instructions: ${formData.specialInstructions}. ` : ''}${formData.referenceSongs ? `Reference Songs: ${formData.referenceSongs}. ` : ''}Song Length: ${formData.songLength}`,
@@ -185,7 +209,10 @@ export default function Home() {
       audioElement.pause();
       setIsPlaying(false);
     } else {
-      audioElement.play();
+      audioElement.play().catch(error => {
+        console.error('Error playing audio:', error);
+        setIsPlaying(false);
+      });
       setIsPlaying(true);
     }
   };
@@ -208,6 +235,10 @@ export default function Home() {
     if (audioUrl && !audioElement) {
       const audio = new Audio(audioUrl);
       audio.addEventListener('ended', () => setIsPlaying(false));
+      audio.addEventListener('error', () => {
+        console.error('Audio playback error');
+        setIsPlaying(false);
+      });
       setAudioElement(audio);
     }
   }, [audioUrl, audioElement]);
@@ -546,7 +577,12 @@ export default function Home() {
                             {/* Audio Controls */}
                             <div className="flex items-center justify-center space-x-4 mb-4">
                               <button
-                                onClick={togglePlayPause}
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  togglePlayPause();
+                                }}
                                 className="flex items-center justify-center w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-200"
                               >
                                 {isPlaying ? (
@@ -557,7 +593,12 @@ export default function Home() {
                               </button>
                               
                               <button
-                                onClick={handleDownload}
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleDownload();
+                                }}
                                 className="flex items-center space-x-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-colors duration-200"
                               >
                                 <Download className="w-5 h-5" />
