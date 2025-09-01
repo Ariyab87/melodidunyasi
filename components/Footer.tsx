@@ -1,9 +1,11 @@
 'use client';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Heart, Globe, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/lib/languageContext';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
@@ -60,15 +62,14 @@ export default function Footer() {
             </motion.div>
             
             <p className="text-gray-300 mb-6 leading-relaxed max-w-md">
-              Create personalized songs for your special moments with our AI-powered platform. 
-              From weddings to birthdays, make every celebration unforgettable with custom music.
+              {t('footer.description')}
             </p>
             
             <div className="flex space-x-4">
               {[
-                { icon: '🎵', label: 'AI Music' },
-                { icon: '🌍', label: 'Multi-language' },
-                { icon: '⚡', label: 'Fast Delivery' }
+                { icon: '🎵', label: t('footer.features.aiMusic') },
+                { icon: '🌍', label: t('footer.features.multiLanguage') },
+                { icon: '⚡', label: t('footer.features.fastDelivery') }
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -93,14 +94,14 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">{t('footer.quickLinks.title')}</h3>
             <ul className="space-y-3">
               {[
-                { name: 'How It Works', href: '#how-it-works' },
-                { name: 'Create Song', href: '#composer' },
-                { name: 'About Us', href: '#' },
-                { name: 'Contact', href: '#' }
-              ].map((link, index) => (
+                { name: t('footer.quickLinks.howItWorks'), href: '#how-it-works' },
+                { name: t('footer.quickLinks.createSong'), href: '#song-request' },
+                                  { name: t('footer.quickLinks.aboutUs'), href: '#' },
+                  { name: t('footer.quickLinks.contact'), href: '#' }
+                ].map((link, index) => (
                 <motion.li
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -126,7 +127,7 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h3 className="text-lg font-semibold mb-4 text-white">Contact</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">{t('footer.contact.title')}</h3>
             <div className="space-y-3 text-gray-300">
               <motion.div
                 className="flex items-center space-x-2"
@@ -167,21 +168,21 @@ export default function Footer() {
                 className="hover:text-violet-400 transition-colors duration-300"
                 whileHover={{ scale: 1.05 }}
               >
-                Privacy Policy
+                {t('footer.privacyPolicy')}
               </motion.a>
               <motion.a
                 href="#"
                 className="hover:text-violet-400 transition-colors duration-300"
                 whileHover={{ scale: 1.05 }}
               >
-                Terms of Service
+                {t('footer.termsOfService')}
               </motion.a>
               <motion.div
                 className="flex items-center space-x-2 text-violet-400"
                 whileHover={{ scale: 1.05 }}
               >
-                <span className="text-xs">Powered by</span>
-                <span className="font-semibold">AI Technology</span>
+                <span className="text-xs">{t('footer.poweredBy.text')}</span>
+                <span className="font-semibold">{t('footer.poweredBy.aiTechnology')}</span>
               </motion.div>
             </div>
           </div>

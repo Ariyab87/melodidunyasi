@@ -110,7 +110,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
         </div>
         
         {/* Floating musical notes with special colors */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 5 }}>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
           <motion.div 
             className="absolute top-32 left-1/4 text-violet-400 text-7xl animate-bounce-gentle shadow-glow-violet"
             animate={{ 
@@ -123,7 +123,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            style={{ zIndex: 6 }}
+            style={{ zIndex: 1 }}
           >
             ♪
           </motion.div>
@@ -140,7 +140,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               ease: "easeInOut",
               delay: 1
             }}
-            style={{ zIndex: 6 }}
+            style={{ zIndex: 1 }}
           >
             ♫
           </motion.div>
@@ -157,7 +157,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               ease: "easeInOut",
               delay: 2
             }}
-            style={{ zIndex: 6 }}
+            style={{ zIndex: 1 }}
           >
             ♬
           </motion.div>
@@ -174,7 +174,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
               ease: "easeInOut",
               delay: 1
             }}
-            style={{ zIndex: 6 }}
+            style={{ zIndex: 1 }}
           >
             ♩
           </motion.div>
@@ -253,7 +253,7 @@ export default function HeroSection({ onCreateSong }: HeroSectionProps) {
         </div>
       </div>
       
-      <div className="relative z-10 container-custom section-padding">
+      <div className="relative z-20 container-custom section-padding">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-center min-h-[60vh]">
             {/* Text Content - Left Side */}

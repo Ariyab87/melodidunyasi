@@ -456,7 +456,15 @@ export default function Home() {
                   transition={{ duration: 0.8, delay: 0.6 }}
                   className="text-center mt-12"
                 >
-                  <button className="btn-primary text-lg px-8 py-4">
+                  <button 
+                    className="btn-primary text-lg px-8 py-4"
+                    onClick={() => {
+                      const element = document.getElementById('voice-cloning');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
                     <div className="flex items-center space-x-2">
                       <span>🎬</span>
                       <span>{t('videoRequest.cta.button')}</span>
@@ -591,6 +599,34 @@ export default function Home() {
                     </div>
                   </motion.div>
                 </div>
+                
+                {/* Call to Action */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                  className="text-center mt-16"
+                >
+                  <button 
+                    className="btn-primary text-lg px-8 py-4"
+                    onClick={() => {
+                      const element = document.getElementById('song-request');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span>🎵</span>
+                      <span>Create Your Song Now</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </div>
+                  </button>
+                  <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+                    Ready to create your personalized song? Fill out our detailed form and let AI compose the perfect melody for your special moment.
+                  </p>
+                </motion.div>
               </div>
             </motion.section>
 
