@@ -173,7 +173,7 @@ export default function HowItWorksSection() {
               transition={{ duration: 0.6, delay: 1 }}
             >
               <Heart className="w-8 h-8 text-violet-600 animate-heartbeat" />
-              <h3 className="text-2xl font-bold text-gray-900">Ready to Create Your Perfect Song?</h3>
+                              <h3 className="text-2xl font-bold text-gray-900">{t('howItWorks.cta.readyToCreate')}</h3>
             </motion.div>
             
             <motion.p 
@@ -183,7 +183,7 @@ export default function HowItWorksSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 1.2 }}
             >
-              Join thousands of happy customers who have created personalized songs for their special moments. Start your musical journey today.
+              {t('howItWorks.cta.joinThousands')}
             </motion.p>
             
             <motion.button 
@@ -205,7 +205,7 @@ export default function HowItWorksSection() {
             >
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-5 h-5 animate-pulse" />
-                <span>Start Creating Now</span>
+                <span>{t('howItWorks.cta.startCreatingNow')}</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </div>
             </motion.button>

@@ -623,12 +623,12 @@ export default function Home() {
                   >
                     <div className="flex items-center space-x-2">
                       <span>🎵</span>
-                      <span>Create Your Song Now</span>
+                                              <span>{t('cta.createSongNow')}</span>
                       <ArrowRight className="w-5 h-5" />
                     </div>
                   </button>
                   <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-                    Ready to create your personalized song? Fill out our detailed form and let AI compose the perfect melody for your special moment.
+                    {t('cta.readyToCreate')}
                   </p>
                 </motion.div>
               </div>

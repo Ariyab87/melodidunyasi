@@ -301,6 +301,20 @@ const translations = {
     'voiceCloning.cta.title': 'Ses Klonlamaya Başlayın',
     'voiceCloning.cta.description': 'Sesinizi kaydedin ve AI\'nın dijital ses ikizinizi oluşturmasına izin verin',
     'voiceCloning.cta.button': 'Kayıt Yapmaya Başla',
+    
+    // Additional missing translations
+    'cta.createSongNow': 'Şarkınızı Şimdi Oluşturun',
+    'cta.readyToCreate': 'Kişiselleştirilmiş şarkınızı oluşturmaya hazır mısınız? Detaylı formumuzu doldurun ve AI\'nın özel anınız için mükemmel melodiyi bestelemesine izin verin.',
+    'cta.readyToCreatePerfect': 'Mükemmel Şarkınızı Oluşturmaya Hazır mısınız?',
+    'cta.joinThousands': 'Özel anları için kişiselleştirilmiş şarkılar oluşturan binlerce mutlu müşteriye katılın. Müzik yolculuğunuza bugün başlayın.',
+    'cta.startCreatingNow': 'Şimdi Oluşturmaya Başlayın',
+    'cta.readyToStart': 'Müzik yolculuğunuza başlamaya hazır mısınız?',
+    'cta.readyToStartDescription': 'Özel anları için kişiselleştirilmiş şarkılar oluşturan binlerce mutlu müşteriye katılın.',
+    
+    // How It Works additional translations
+    'howItWorks.cta.readyToCreate': 'Mükemmel Şarkınızı Oluşturmaya Hazır mısınız?',
+    'howItWorks.cta.joinThousands': 'Özel anları için kişiselleştirilmiş şarkılar oluşturan binlerce mutlu müşteriye katılın. Müzik yolculuğunuza bugün başlayın.',
+    'howItWorks.cta.startCreatingNow': 'Şimdi Oluşturmaya Başlayın',
   },
   en: {
     // Hero Section
@@ -592,6 +606,20 @@ const translations = {
     'voiceCloning.cta.title': 'Start Voice Cloning',
     'voiceCloning.cta.description': 'Record your voice and let AI create your digital voice twin',
     'voiceCloning.cta.button': 'Start Recording',
+    
+    // Additional missing translations
+    'cta.createSongNow': 'Create Your Song Now',
+    'cta.readyToCreate': 'Ready to create your personalized song? Fill out our detailed form and let AI compose the perfect melody for your special moment.',
+    'cta.readyToCreatePerfect': 'Ready to Create Your Perfect Song?',
+    'cta.joinThousands': 'Join thousands of happy customers who have created personalized songs for their special moments. Start your musical journey today.',
+    'cta.startCreatingNow': 'Start Creating Now',
+    'cta.readyToStart': 'Ready to start your musical journey?',
+    'cta.readyToStartDescription': 'Join thousands of happy customers who have created personalized songs for their special moments.',
+    
+    // How It Works additional translations
+    'howItWorks.cta.readyToCreate': 'Ready to Create Your Perfect Song?',
+    'howItWorks.cta.joinThousands': 'Join thousands of happy customers who have created personalized songs for their special moments. Start your musical journey today.',
+    'howItWorks.cta.startCreatingNow': 'Start Creating Now',
   },
   nl: {
     // Hero Section
@@ -664,6 +692,36 @@ const translations = {
     'services.videoAnimation.feature4': 'Hoge resolutie output',
     'services.videoAnimation.feature5': 'Ondersteuning voor meerdere formaten',
     'services.videoAnimation.feature6': 'Levering tot 5 minuten',
+    
+    // Voice Cloning Section
+    'voiceCloning.title': 'Kloon Je Stem met AI Technologie',
+    'voiceCloning.subtitle': 'Maak een digitale kopie van je stem om te gebruiken in liedjes, video\'s, podcasts en meer. Onze geavanceerde AI vangt de unieke kenmerken van je stem perfect op.',
+    'voiceCloning.features.recording.title': 'Stem Opname',
+    'voiceCloning.features.recording.description': 'Neem je stem een paar minuten op om een hoogwaardig stemmodel te maken.',
+    'voiceCloning.features.recording.details': 'We raden 3-5 minuten duidelijke spraak aan in een rustige omgeving',
+    'voiceCloning.features.processing.title': 'AI Verwerking',
+    'voiceCloning.features.processing.description': 'Onze AI analyseert je stempatronen en creëert je digitale stemkloon.',
+    'voiceCloning.features.processing.details': 'Geavanceerde neurale netwerken vangen toon, toonhoogte en unieke kenmerken op',
+    'voiceCloning.features.integration.title': 'Stem Integratie',
+    'voiceCloning.features.integration.description': 'Gebruik je gekloonde stem in liedjes, video\'s en andere creatieve projecten.',
+    'voiceCloning.features.integration.details': 'Perfect voor gepersonaliseerde inhoud, presentaties en entertainment',
+    'voiceCloning.cta.title': 'Begin met Stemklonen',
+    'voiceCloning.cta.description': 'Neem je stem op en laat AI je digitale stemtweeling creëren',
+    'voiceCloning.cta.button': 'Begin met Opnemen',
+    
+    // Additional missing translations
+    'cta.createSongNow': 'Maak Je Liedje Nu',
+    'cta.readyToCreate': 'Klaar om je gepersonaliseerde liedje te maken? Vul ons gedetailleerde formulier in en laat AI de perfecte melodie voor je speciale moment componeren.',
+    'cta.readyToCreatePerfect': 'Klaar om Je Perfecte Liedje te Maken?',
+    'cta.joinThousands': 'Doe mee met duizenden tevreden klanten die gepersonaliseerde liedjes voor hun speciale momenten hebben gemaakt. Begin vandaag nog aan je muzikale reis.',
+    'cta.startCreatingNow': 'Begin Nu met Maken',
+    'cta.readyToStart': 'Klaar om aan je muzikale reis te beginnen?',
+    'cta.readyToStartDescription': 'Doe mee met duizenden tevreden klanten die gepersonaliseerde liedjes voor hun speciale momenten hebben gemaakt.',
+    
+    // How It Works additional translations
+    'howItWorks.cta.readyToCreate': 'Klaar om Je Perfecte Liedje te Maken?',
+    'howItWorks.cta.joinThousands': 'Doe mee met duizenden tevreden klanten die gepersonaliseerde liedjes voor hun speciale momenten hebben gemaakt. Begin vandaag nog aan je muzikale reis.',
+    'howItWorks.cta.startCreatingNow': 'Begin Nu met Maken',
     
     // Pricing
     'pricing.payPerUse.name': 'Per Gebruik Betalen',
@@ -869,21 +927,7 @@ const translations = {
     'videoRequest.features.aiEffects.feature3': 'Stil transferi',
     'videoRequest.cta.button': 'Video Oluşturmaya Başla',
 
-    // Voice Cloning Section
-    'voiceCloning.title': 'AI Teknolojisi ile Sesinizi Klonlayın',
-    'voiceCloning.subtitle': 'Şarkılar, videolar, podcast\'ler ve daha fazlası için sesinizin dijital kopyasını oluşturun. Gelişmiş AI\'mız sesinizin benzersiz özelliklerini mükemmel şekilde yakalar.',
-    'voiceCloning.features.recording.title': 'Ses Kaydı',
-    'voiceCloning.features.recording.description': 'Yüksek kaliteli bir ses modeli oluşturmak için sesinizi birkaç dakika kaydedin.',
-    'voiceCloning.features.recording.details': 'Sessiz bir ortamda 3-5 dakika net konuşma öneriyoruz',
-    'voiceCloning.features.processing.title': 'AI İşleme',
-    'voiceCloning.features.processing.description': 'AI\'mız ses kalıplarınızı analiz eder ve dijital ses klonunuzu oluşturur.',
-    'voiceCloning.features.processing.details': 'Gelişmiş sinir ağları ton, perde ve benzersiz özellikleri yakalar',
-    'voiceCloning.features.integration.title': 'Ses Entegrasyonu',
-    'voiceCloning.features.integration.description': 'Klonlanmış sesinizi şarkılarda, videolarda ve diğer yaratıcı projelerde kullanın.',
-    'voiceCloning.features.integration.details': 'Kişiselleştirilmiş içerik, sunumlar ve eğlence için mükemmel',
-    'voiceCloning.cta.title': 'Ses Klonlamaya Başlayın',
-    'voiceCloning.cta.description': 'Sesinizi kaydedin ve AI\'nın dijital ses ikizinizi oluşturmasına izin verin',
-    'voiceCloning.cta.button': 'Kayıt Yapmaya Başla',
+
   }
 };
 
