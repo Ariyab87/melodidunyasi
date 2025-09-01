@@ -3,19 +3,18 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Download, Play, Pause, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/languageContext';
+import { submitSongForm, StatusResp, getSongStatus } from '@/lib/api';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
 import ServicesSection from '@/components/ServicesSection';
 import InlineComposer from '@/components/InlineComposer';
-import HowItWorksSection from '@/components/HowItWorksSection';
-import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
 import { AuthProvider } from '@/lib/authContext';
 import { PaymentProvider } from '@/lib/paymentContext';
 import { SunoStatusProvider } from '@/lib/sunoStatusContext';
-import { useLanguage } from '@/lib/languageContext';
-import { submitSongForm, StatusResp } from '@/lib/api';
-import React from 'react'; // Added missing import
+import React from 'react';
 
 export default function Home() {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
@@ -138,8 +137,8 @@ export default function Home() {
       }
       
       try {
-        const response = await fetch(`/api/song/status/${songId}`);
-        const statusData: StatusResp = await response.json();
+        const response = await getSongStatus(songId);
+        const statusData: StatusResp = response;
         
         if (statusData.status === 'completed' && statusData.audioUrl) {
           setSongStatus('completed');
