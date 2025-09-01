@@ -41,8 +41,8 @@ const translations = {
     'nav.getStarted': 'Başla',
     
     // Services
-    'services.title': 'Hizmetlerimiz ve Fiyatlandırma',
-    'services.subtitle': 'Prompt gönderdiğinizde ödeme yapılır. Memnun kalmazsanız 2 yeniden oluşturma hakkı dahildir.',
+    'services.title': 'Hizmetlerimiz',
+    'services.subtitle': 'Özel anlarınız için kişiselleştirilmiş AI destekli hizmetler sunuyoruz.',
     'services.paymentInfo.title': 'Ödeme Bilgileri',
     'services.paymentInfo.description': 'Prompt gönderdiğinizde ödeme yapılır. Memnun kalmazsanız 2 yeniden oluşturma hakkı dahildir.',
     'services.paymentInfo.step1': 'Prompt gönderin',
@@ -303,8 +303,8 @@ const translations = {
     'nav.getStarted': 'Get Started',
     
     // Services
-    'services.title': 'Our Services & Pricing',
-    'services.subtitle': 'Payment happens when you submit your prompt. Includes up to 2 re-generations if you\'re not satisfied.',
+    'services.title': 'Our Services',
+    'services.subtitle': 'We offer personalized AI-powered services for your special moments.',
     'services.paymentInfo.title': 'Payment Information',
     'services.paymentInfo.description': 'Payment happens when you submit your prompt. Includes up to 2 re-generations if you\'re not satisfied.',
     'services.paymentInfo.step1': 'Submit your prompt',
@@ -565,8 +565,8 @@ const translations = {
     'nav.getStarted': 'Start',
     
     // Services
-    'services.title': 'Onze Diensten en Prijzen',
-    'services.subtitle': 'Betaling gebeurt wanneer je je prompt indient. Inclusief tot 2 hergeneraties als je niet tevreden bent.',
+    'services.title': 'Onze Diensten',
+    'services.subtitle': 'We bieden gepersonaliseerde AI-aangedreven diensten voor je speciale momenten.',
     'services.paymentInfo.title': 'Betalingsinformatie',
     'services.paymentInfo.description': 'Betaling gebeurt wanneer je je prompt indient. Inclusief tot 2 hergeneraties als je niet tevreden bent.',
     'services.paymentInfo.step1': 'Dien je prompt in',

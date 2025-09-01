@@ -10,7 +10,6 @@ import InlineComposer from '@/components/InlineComposer';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
-import SongGenerationModal from '@/components/SongGenerationModal';
 import { AuthProvider } from '@/lib/authContext';
 import { PaymentProvider } from '@/lib/paymentContext';
 import { SunoStatusProvider } from '@/lib/sunoStatusContext';
@@ -18,7 +17,6 @@ import { useLanguage } from '@/lib/languageContext';
 
 export default function Home() {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
-  const [isSongModalOpen, setIsSongModalOpen] = useState(false);
   const { t } = useLanguage();
 
   const expandComposer = () => {
@@ -63,9 +61,19 @@ export default function Home() {
               ))}
             </div>
 
-            <Navigation onCreateSong={() => setIsSongModalOpen(true)} />
+            <Navigation onCreateSong={() => {
+              const element = document.getElementById('song-request');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }} />
             
-            <HeroSection onCreateSong={() => setIsSongModalOpen(true)} />
+            <HeroSection onCreateSong={() => {
+              const element = document.getElementById('song-request');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }} />
             
             {/* Services Section */}
             <motion.section 
@@ -78,6 +86,119 @@ export default function Home() {
             >
               <div className="container-custom relative z-10">
                 <ServicesSection />
+              </div>
+            </motion.section>
+            
+            {/* Song Request Section */}
+            <motion.section 
+              id="song-request" 
+              className="section-padding bg-gradient-to-b from-white/70 to-violet-50/80 relative"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+            >
+              <div className="container-custom relative z-10">
+                <div className="text-center mb-16">
+                  <motion.h2
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="text-4xl font-bold text-gray-900 mb-6"
+                  >
+                    Create Your Perfect Song
+                  </motion.h2>
+                  <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Tell us about your vision and we'll create a personalized song that captures your emotions perfectly.
+                  </p>
+                </div>
+                
+                {/* Song Request Form */}
+                <div className="max-w-4xl mx-auto">
+                  <div className="bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 rounded-3xl p-8 shadow-2xl">
+                    <div className="text-center mb-8">
+                      <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <span className="text-4xl">🎵</span>
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Start Your Song Creation</h3>
+                      <p className="text-violet-200">Fill out the form below to begin</p>
+                    </div>
+                    
+                    <form className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-white font-medium mb-2">Full Name *</label>
+                          <input
+                            type="text"
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                            placeholder="Enter your full name"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-white font-medium mb-2">Email *</label>
+                          <input
+                            type="email"
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                            placeholder="your.email@example.com"
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-white font-medium mb-2">Song Description *</label>
+                        <textarea
+                          className="w-full h-32 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                          placeholder="Tell us about your special moment, the emotions you want to convey, any specific story or message that should be in the song..."
+                          required
+                        />
+                      </div>
+                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-white font-medium mb-2">Occasion</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                            <option value="birthday">Birthday</option>
+                            <option value="wedding">Wedding</option>
+                            <option value="anniversary">Anniversary</option>
+                            <option value="graduation">Graduation</option>
+                            <option value="proposal">Proposal</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-white font-medium mb-2">Musical Style</label>
+                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                            <option value="pop">Pop - Catchy, upbeat melodies</option>
+                            <option value="rock">Rock - Powerful, energetic</option>
+                            <option value="jazz">Jazz - Smooth, sophisticated</option>
+                            <option value="classical">Classical - Elegant, timeless</option>
+                            <option value="folk">Folk - Warm, acoustic</option>
+                            <option value="electronic">Electronic - Modern, innovative</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center pt-6">
+                        <button
+                          type="submit"
+                          className="group relative px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-xl">💝</span>
+                            <span>Submit Song Request</span>
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                          </div>
+                        </button>
+                        <p className="text-violet-300 text-sm mt-3">
+                          We'll review your request and get back to you within 24 hours
+                        </p>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
             </motion.section>
             
@@ -385,12 +506,6 @@ export default function Home() {
 
             <Footer />
           </main>
-
-          {/* Song Generation Modal */}
-          <SongGenerationModal 
-            isOpen={isSongModalOpen} 
-            onClose={() => setIsSongModalOpen(false)} 
-          />
         </SunoStatusProvider>
       </PaymentProvider>
     </AuthProvider>

@@ -523,8 +523,6 @@ export default function SongRequestForm() {
       <SongGenerationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        songId={songId || ''}
-        jobId={jobId}
       />
     </section>
   );

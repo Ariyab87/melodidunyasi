@@ -7,9 +7,9 @@ export default function ServicesSection() {
   const { t } = useLanguage();
 
   const services = [
-    { icon: Music, title: t('services.songCreation.title'), description: t('services.songCreation.description'), price: t('services.songCreation.price'), priceNote: t('services.songCreation.priceNote'), features: [t('services.songCreation.feature1'), t('services.songCreation.feature2'), t('services.songCreation.feature3'), t('services.songCreation.feature4'), t('services.songCreation.feature5'), t('services.songCreation.feature6')], popular: true, isFree: false },
-    { icon: Mic, title: t('services.voiceCloning.title'), description: t('services.voiceCloning.description'), price: t('services.voiceCloning.price'), priceNote: t('services.voiceCloning.priceNote'), features: [t('services.voiceCloning.feature1'), t('services.voiceCloning.feature2'), t('services.voiceCloning.feature3'), t('services.voiceCloning.feature4'), t('services.voiceCloning.feature5'), t('services.voiceCloning.feature6')], popular: false, isFree: false },
-    { icon: Video, title: t('services.videoAnimation.title'), description: t('services.videoAnimation.description'), price: t('services.videoAnimation.price'), priceNote: t('services.videoAnimation.priceNote'), features: [t('services.videoAnimation.feature1'), t('services.videoAnimation.feature2'), t('services.videoAnimation.feature3'), t('services.videoAnimation.feature4'), t('services.videoAnimation.feature5'), t('services.videoAnimation.feature6')], popular: false, isFree: false }
+    { icon: Music, title: t('services.songCreation.title'), description: t('services.songCreation.description'), features: [t('services.songCreation.feature1'), t('services.songCreation.feature2'), t('services.songCreation.feature3'), t('services.songCreation.feature4'), t('services.songCreation.feature5'), t('services.songCreation.feature6')], popular: true },
+    { icon: Mic, title: t('services.voiceCloning.title'), description: t('services.voiceCloning.description'), features: [t('services.voiceCloning.feature1'), t('services.voiceCloning.feature2'), t('services.voiceCloning.feature3'), t('services.voiceCloning.feature4'), t('services.voiceCloning.feature5'), t('services.voiceCloning.feature6')], popular: false },
+    { icon: Video, title: t('services.videoAnimation.title'), description: t('services.videoAnimation.description'), features: [t('services.videoAnimation.feature1'), t('services.videoAnimation.feature2'), t('services.videoAnimation.feature3'), t('services.videoAnimation.feature4'), t('services.videoAnimation.feature5'), t('services.videoAnimation.feature6')], popular: false }
   ];
 
   const scrollToSection = (sectionId: string) => {
@@ -17,9 +17,7 @@ export default function ServicesSection() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const pricingTiers = [
-    { name: t('pricing.payPerUse.name'), price: t('pricing.payPerUse.price'), description: t('pricing.payPerUse.description'), features: [t('pricing.payPerUse.feature1'), t('pricing.payPerUse.feature2'), t('pricing.payPerUse.feature3'), t('pricing.payPerUse.feature4'), t('pricing.payPerUse.feature5'), t('pricing.payPerUse.feature6')], buttonText: t('pricing.payPerUse.button'), buttonStyle: 'btn-primary' }
-  ];
+
 
   return (
     <section id="services" className="py-16 bg-dark-900">
@@ -55,10 +53,6 @@ export default function ServicesSection() {
                   </div>
                   <h3 className="text-xl font-bold mb-2">{service.title}</h3>
                   <p className="text-dark-300 mb-4 text-sm">{service.description}</p>
-                  <div className="mb-4">
-                    <span className="text-3xl font-bold text-white">{service.price}</span>
-                    <span className="text-dark-400 text-sm"> {service.priceNote}</span>
-                  </div>
                 </div>
                 <ul className="space-y-2 mb-6">
                   {service.features.map((feature, featureIndex) => (

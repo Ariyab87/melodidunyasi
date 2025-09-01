@@ -16,14 +16,10 @@ export default function Navigation({ onCreateSong }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCreateSong = () => {
-    if (onCreateSong) {
-      onCreateSong();
-    } else {
-      // Fallback: scroll to composer
-      const element = document.getElementById('composer');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    // Scroll to song request section
+    const element = document.getElementById('song-request');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
