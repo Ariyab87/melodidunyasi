@@ -8,6 +8,7 @@ type SongForm = {
     songStyle: string;
     mood: string;
     tempo?: string;
+    language?: string;
     namesToInclude?: string;
     yourStory: string;
     additionalNotes?: string;
