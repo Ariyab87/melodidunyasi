@@ -59,7 +59,7 @@ const translations = {
     'services.songCreation.feature3': 'Şarkı başına 3 revizyon',
     'services.songCreation.feature4': 'Yüksek kaliteli ses dosyası',
     'services.songCreation.feature5': 'Kişisel kullanım hakları',
-    'services.songCreation.feature6': '7 gün içinde teslimat',
+    'services.songCreation.feature6': '5 dakika içinde teslimat',
     
     'services.voiceCloning.title': 'Ses Klonlama',
     'services.voiceCloning.description': 'Şarkı söylemek için sesinizin mükemmel bir kopyasını oluşturun',
@@ -70,7 +70,7 @@ const translations = {
     'services.voiceCloning.feature3': 'Çoklu ses varyasyonları',
     'services.voiceCloning.feature4': 'Eğitim verisi dahil',
     'services.voiceCloning.feature5': 'Gelecekteki kullanım için API erişimi',
-    'services.voiceCloning.feature6': '14 gün içinde teslimat',
+    'services.voiceCloning.feature6': '5 dakika içinde teslimat',
     
     'services.videoAnimation.title': 'Fotoğraf/Video Animasyonu',
     'services.videoAnimation.description': 'Fotoğraflarınızı AI animasyonu ile hayata geçirin',
@@ -81,7 +81,7 @@ const translations = {
     'services.videoAnimation.feature3': 'Özel video senaryoları',
     'services.videoAnimation.feature4': 'Yüksek çözünürlüklü çıktı',
     'services.videoAnimation.feature5': 'Çoklu format desteği',
-    'services.videoAnimation.feature6': '10 gün içinde teslimat',
+    'services.videoAnimation.feature6': '5 dakika içinde teslimat',
     
     // Pricing
     'pricing.payPerUse.name': 'Kullanım Başına Ödeme',
@@ -350,7 +350,7 @@ const translations = {
     'services.songCreation.feature3': 'Up to 3 revisions per song',
     'services.songCreation.feature4': 'High-quality audio file',
     'services.songCreation.feature5': 'Personal usage rights',
-    'services.songCreation.feature6': 'Delivery within 7 days',
+    'services.songCreation.feature6': 'Delivery up to 5 minutes',
     
     'services.voiceCloning.title': 'Voice Cloning',
     'services.voiceCloning.description': 'Create a perfect replica of your voice for singing',
@@ -361,7 +361,7 @@ const translations = {
     'services.voiceCloning.feature3': 'Multiple voice variations',
     'services.voiceCloning.feature4': 'Training data included',
     'services.voiceCloning.feature5': 'API access for future use',
-    'services.voiceCloning.feature6': 'Delivery within 14 days',
+    'services.voiceCloning.feature6': 'Delivery up to 5 minutes',
     
     'services.videoAnimation.title': 'Photo/Video Animation',
     'services.videoAnimation.description': 'Bring your photos to life with AI animation',
@@ -372,7 +372,7 @@ const translations = {
     'services.videoAnimation.feature3': 'Custom video scenarios',
     'services.videoAnimation.feature4': 'High-resolution output',
     'services.videoAnimation.feature5': 'Multiple format support',
-    'services.videoAnimation.feature6': 'Delivery within 10 days',
+    'services.videoAnimation.feature6': 'Delivery up to 5 minutes',
     
     // Pricing
     'pricing.payPerUse.name': 'Pay Per Use',
@@ -641,7 +641,7 @@ const translations = {
     'services.songCreation.feature3': 'Tot 3 revisies per liedje',
     'services.songCreation.feature4': 'Hoogwaardig audiobestand',
     'services.songCreation.feature5': 'Persoonlijke gebruiksrechten',
-    'services.songCreation.feature6': 'Levering binnen 7 dagen',
+    'services.songCreation.feature6': 'Levering tot 5 minuten',
     
     'services.voiceCloning.title': 'Stem Klonen',
     'services.voiceCloning.description': 'Maak een perfecte replica van je stem voor zingen',
@@ -652,7 +652,7 @@ const translations = {
     'services.voiceCloning.feature3': 'Meerdere stemvariaties',
     'services.voiceCloning.feature4': 'Trainingsgegevens inbegrepen',
     'services.voiceCloning.feature5': 'API-toegang voor toekomstig gebruik',
-    'services.voiceCloning.feature6': 'Levering binnen 14 dagen',
+    'services.voiceCloning.feature6': 'Levering tot 5 minuten',
     
     'services.videoAnimation.title': 'Foto/Video Animatie',
     'services.videoAnimation.description': 'Breng je foto\'s tot leven met AI-animatie',
@@ -663,7 +663,7 @@ const translations = {
     'services.videoAnimation.feature3': 'Aangepaste videoscenario\'s',
     'services.videoAnimation.feature4': 'Hoge resolutie output',
     'services.videoAnimation.feature5': 'Ondersteuning voor meerdere formaten',
-    'services.videoAnimation.feature6': 'Levering binnen 10 dagen',
+    'services.videoAnimation.feature6': 'Levering tot 5 minuten',
     
     // Pricing
     'pricing.payPerUse.name': 'Per Gebruik Betalen',

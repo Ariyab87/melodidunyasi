@@ -17,7 +17,7 @@ import { useLanguage } from '@/lib/languageContext';
 
 export default function Home() {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const expandComposer = () => {
     setIsComposerExpanded(true);
@@ -106,55 +106,59 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                     className="text-4xl font-bold text-gray-900 mb-6"
+                    key={`page-title-${language}`}
                   >
                     {t('songForm.title')}
                   </motion.h2>
-                  <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                  <p className="text-xl text-gray-600 max-w-3xl mx-auto" key={`page-subtitle-${language}`}>
                     {t('songForm.subtitle')}
                   </p>
                 </div>
                 
                 {/* Song Request Form */}
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-4xl mx-auto" key={language}>
                   <div className="bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 rounded-3xl p-8 shadow-2xl">
                     <div className="text-center mb-8">
                       <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <span className="text-4xl">🎵</span>
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-2">{t('songForm.header.title')}</h3>
-                      <p className="text-violet-200">{t('songForm.header.subtitle')}</p>
+                      <h3 className="text-2xl font-bold text-white mb-2" key={`header-title-${language}`}>{t('songForm.header.title')}</h3>
+                      <p className="text-violet-200" key={`header-subtitle-${language}`}>{t('songForm.header.subtitle')}</p>
                     </div>
                     
                     <form className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2">{t('songForm.fields.fullName')}</label>
+                          <label className="block text-white font-medium mb-2" key={`fullName-${language}`}>{t('songForm.fields.fullName')}</label>
                           <input
                             type="text"
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                             placeholder={t('songForm.placeholders.fullName')}
                             required
+                            key={`fullName-input-${language}`}
                           />
                         </div>
                         <div>
-                          <label className="block text-white font-medium mb-2">{t('songForm.fields.email')}</label>
+                          <label className="block text-white font-medium mb-2" key={`email-${language}`}>{t('songForm.fields.email')}</label>
                           <input
                             type="email"
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                             placeholder={t('songForm.placeholders.email')}
                             required
+                            key={`email-input-${language}`}
                           />
                         </div>
                       </div>
                       
                       <div>
-                        <label className="block text-white font-medium mb-2">{t('songForm.fields.songDescription')}</label>
+                        <label className="block text-white font-medium mb-2" key={`songDescription-${language}`}>{t('songForm.fields.songDescription')}</label>
                         <textarea
                           className="w-full h-32 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                           placeholder={t('songForm.placeholders.songDescription')}
                           required
+                          key={`songDescription-textarea-${language}`}
                         />
-                        <p className="text-violet-300 text-xs mt-2">{t('songForm.helpText.songDescription')}</p>
+                        <p className="text-violet-300 text-xs mt-2" key={`songDescription-help-${language}`}>{t('songForm.helpText.songDescription')}</p>
                       </div>
                       
                       <div className="grid md:grid-cols-2 gap-6">
@@ -278,11 +282,11 @@ export default function Home() {
                         >
                                                   <div className="flex items-center space-x-3">
                           <span className="text-xl">💝</span>
-                          <span>{t('songForm.submitButton')}</span>
+                          <span key={`submit-button-${language}`}>{t('songForm.submitButton')}</span>
                           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                         </div>
                       </button>
-                      <p className="text-violet-300 text-sm mt-3">
+                      <p className="text-violet-300 text-sm mt-3" key={`response-time-${language}`}>
                         {t('songForm.responseTime')}
                       </p>
                       </div>
