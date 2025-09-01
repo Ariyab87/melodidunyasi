@@ -18,16 +18,97 @@ import { useLanguage } from '@/lib/languageContext';
 export default function Home() {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const { t, language } = useLanguage();
+  
+  // Form state management
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    songDescription: '',
+    occasion: '',
+    musicalStyle: '',
+    mood: '',
+    tempo: '',
+    language: '',
+    songLength: '',
+    specialInstructions: '',
+    referenceSongs: ''
+  });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const expandComposer = () => {
-    setIsComposerExpanded(true);
-    // Scroll to composer section after a short delay to ensure it's rendered
-    setTimeout(() => {
-      const element = document.getElementById('composer');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsComposerExpanded(!isComposerExpanded);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
+    try {
+      // Validate required fields
+      const requiredFields = ['fullName', 'email', 'songDescription', 'occasion', 'musicalStyle', 'mood', 'tempo', 'language', 'songLength'];
+      const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Please fill in all required fields: ${missingFields.join(', ')}`);
       }
-    }, 100);
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      // Prepare the data for submission
+      const submissionData = {
+        ...formData,
+        submittedAt: new Date().toISOString(),
+        language: language // Current UI language
+      };
+
+      // For now, we'll simulate an API call
+      // In production, this would connect to your backend
+      console.log('Submitting song request:', submissionData);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simulate successful submission
+      setSubmitStatus('success');
+      setSubmitMessage('Your song request has been submitted successfully! We\'ll review it and get back to you within 24 hours.');
+      
+      // Reset form after successful submission
+      setFormData({
+        fullName: '',
+        email: '',
+        songDescription: '',
+        occasion: '',
+        musicalStyle: '',
+        mood: '',
+        tempo: '',
+        language: '',
+        songLength: '',
+        specialInstructions: '',
+        referenceSongs: ''
+      });
+
+    } catch (error) {
+      setSubmitStatus('error');
+      setSubmitMessage(error instanceof Error ? error.message : 'An error occurred while submitting your request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -126,12 +207,14 @@ export default function Home() {
                       <p className="text-violet-200" key={`header-subtitle-${language}`}>{t('songForm.header.subtitle')}</p>
                     </div>
                     
-                    <form className="space-y-6">
+                    <form onSubmit={handleFormSubmit} className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-white font-medium mb-2" key={`fullName-${language}`}>{t('songForm.fields.fullName')}</label>
                           <input
                             type="text"
+                            value={formData.fullName}
+                            onChange={(e) => handleInputChange('fullName', e.target.value)}
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                             placeholder={t('songForm.placeholders.fullName')}
                             required
@@ -142,6 +225,8 @@ export default function Home() {
                           <label className="block text-white font-medium mb-2" key={`email-${language}`}>{t('songForm.fields.email')}</label>
                           <input
                             type="email"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                             placeholder={t('songForm.placeholders.email')}
                             required
@@ -153,6 +238,8 @@ export default function Home() {
                       <div>
                         <label className="block text-white font-medium mb-2" key={`songDescription-${language}`}>{t('songForm.fields.songDescription')}</label>
                         <textarea
+                          value={formData.songDescription}
+                          onChange={(e) => handleInputChange('songDescription', e.target.value)}
                           className="w-full h-32 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                           placeholder={t('songForm.placeholders.songDescription')}
                           required
@@ -164,7 +251,12 @@ export default function Home() {
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-white font-medium mb-2">Occasion *</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                          <select 
+                            value={formData.occasion}
+                            onChange={(e) => handleInputChange('occasion', e.target.value)}
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" 
+                            required
+                          >
                             <option value="">Select an occasion</option>
                             <option value="wedding">Wedding / Marriage</option>
                             <option value="proposal">Proposal / Engagement</option>
@@ -182,7 +274,12 @@ export default function Home() {
                         </div>
                         <div>
                           <label className="block text-white font-medium mb-2">Musical Style *</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                          <select 
+                            value={formData.musicalStyle}
+                            onChange={(e) => handleInputChange('musicalStyle', e.target.value)}
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" 
+                            required
+                          >
                             <option value="">Select musical style</option>
                             <option value="pop">Pop - Catchy, upbeat melodies</option>
                             <option value="rock">Rock - Powerful, energetic</option>
@@ -201,7 +298,12 @@ export default function Home() {
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-white font-medium mb-2">Mood & Emotion *</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                          <select 
+                            value={formData.mood}
+                            onChange={(e) => handleInputChange('mood', e.target.value)}
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" 
+                            required
+                          >
                             <option value="">Select mood</option>
                             <option value="romantic">Romantic & Loving</option>
                             <option value="joyful">Joyful & Happy</option>
@@ -217,7 +319,12 @@ export default function Home() {
                         </div>
                         <div>
                           <label className="block text-white font-medium mb-2">Tempo *</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                          <select 
+                            value={formData.tempo}
+                            onChange={(e) => handleInputChange('tempo', e.target.value)}
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" 
+                            required
+                          >
                             <option value="">Select tempo</option>
                             <option value="slow">Slow & Ballad-like (60-80 BPM)</option>
                             <option value="medium-slow">Medium-Slow (80-100 BPM)</option>
@@ -231,7 +338,12 @@ export default function Home() {
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-white font-medium mb-2">Language *</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                          <select 
+                            value={formData.language}
+                            onChange={(e) => handleInputChange('language', e.target.value)}
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" 
+                            required
+                          >
                             <option value="">Select language</option>
                             <option value="english">English</option>
                             <option value="turkish">Turkish</option>
@@ -246,7 +358,12 @@ export default function Home() {
                         </div>
                         <div>
                           <label className="block text-white font-medium mb-2">Song Length *</label>
-                          <select className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" required>
+                          <select 
+                            value={formData.songLength}
+                            onChange={(e) => handleInputChange('songLength', e.target.value)}
+                            className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" 
+                            required
+                          >
                             <option value="">Select length</option>
                             <option value="short">Short (1-2 minutes)</option>
                             <option value="medium">Medium (2-3 minutes)</option>
@@ -259,6 +376,8 @@ export default function Home() {
                       <div>
                         <label className="block text-white font-medium mb-2">Special Instructions</label>
                         <textarea
+                          value={formData.specialInstructions}
+                          onChange={(e) => handleInputChange('specialInstructions', e.target.value)}
                           className="w-full h-24 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                           placeholder="Any specific instruments, vocal style, or special elements you'd like? (e.g., 'Include piano solo', 'Female vocals', 'Add strings', 'Make it danceable')"
                         />
@@ -269,26 +388,53 @@ export default function Home() {
                         <label className="block text-white font-medium mb-2">Reference Songs (Optional)</label>
                         <input
                           type="text"
+                          value={formData.referenceSongs}
+                          onChange={(e) => handleInputChange('referenceSongs', e.target.value)}
                           className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                           placeholder="e.g., 'Like Ed Sheeran's Perfect', 'Similar to Adele's style'"
                         />
                         <p className="text-violet-300 text-xs mt-2">Mention songs or artists you like for reference (optional).</p>
                       </div>
                       
-                      <div className="text-center pt-6">
+                                            <div className="text-center pt-6">
+                        {/* Status Messages */}
+                        {submitStatus === 'success' && (
+                          <div className="mb-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl">
+                            <p className="text-green-300 text-sm">{submitMessage}</p>
+                          </div>
+                        )}
+                        
+                        {submitStatus === 'error' && (
+                          <div className="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
+                            <p className="text-red-300 text-sm">{submitMessage}</p>
+                          </div>
+                        )}
+                        
                         <button
                           type="submit"
-                          className="group relative px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                          disabled={isSubmitting}
+                          className={`group relative px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
+                            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                          }`}
                         >
-                                                  <div className="flex items-center space-x-3">
-                          <span className="text-xl">💝</span>
-                          <span key={`submit-button-${language}`}>{t('songForm.submitButton')}</span>
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                        </div>
-                      </button>
-                      <p className="text-violet-300 text-sm mt-3" key={`response-time-${language}`}>
-                        {t('songForm.responseTime')}
-                      </p>
+                          <div className="flex items-center space-x-3">
+                            {isSubmitting ? (
+                              <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                <span>Submitting...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-xl">💝</span>
+                                <span key={`submit-button-${language}`}>{t('songForm.submitButton')}</span>
+                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                              </>
+                            )}
+                          </div>
+                        </button>
+                        <p className="text-violet-300 text-sm mt-3" key={`response-time-${language}`}>
+                          {t('songForm.responseTime')}
+                        </p>
                       </div>
                     </form>
                   </div>
