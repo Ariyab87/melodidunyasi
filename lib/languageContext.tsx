@@ -13,6 +13,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations = {
   tr: {
     // Hero Section
+    \\
     'hero.subtitle': 'Özel anlarınız için kişiselleştirilmiş şarkılar yaratın. Düğünlerden doğum günlerine kadar, her kutlamayı unutulmaz kılın.',
     'hero.button': 'Şarkı Oluştur',
     'hero.process': 'Basit: Prompt → Oluştur → Öde → Keyfet',

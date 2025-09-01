@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Download, Play, Pause, Loader2 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
 import ServicesSection from '@/components/ServicesSection';
@@ -14,6 +14,8 @@ import { AuthProvider } from '@/lib/authContext';
 import { PaymentProvider } from '@/lib/paymentContext';
 import { SunoStatusProvider } from '@/lib/sunoStatusContext';
 import { useLanguage } from '@/lib/languageContext';
+import { submitSongForm, StatusResp } from '@/lib/api';
+import React from 'react'; // Added missing import
 
 export default function Home() {
   const [isComposerExpanded, setIsComposerExpanded] = useState(false);
@@ -37,6 +39,18 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
+  
+  // Song generation state
+  const [songId, setSongId] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [songStatus, setSongStatus] = useState<'idle' | 'generating' | 'completed' | 'failed'>('idle');
+  const [songProgress, setSongProgress] = useState(0);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  
+  // Audio player state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
   const expandComposer = () => {
     setIsComposerExpanded(!isComposerExpanded);
@@ -54,6 +68,7 @@ export default function Home() {
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setSubmitMessage('');
+    setSongStatus('idle');
 
     try {
       // Validate required fields
@@ -70,46 +85,143 @@ export default function Home() {
         throw new Error('Please enter a valid email address');
       }
 
-      // Prepare the data for submission
-      const submissionData = {
-        ...formData,
-        submittedAt: new Date().toISOString(),
-        language: language // Current UI language
+      // Prepare the data for Suno API submission
+      const songFormData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        specialOccasion: formData.occasion,
+        songStyle: formData.musicalStyle,
+        mood: formData.mood,
+        tempo: formData.tempo,
+        language: formData.language === 'instrumental' ? 'en' : formData.language,
+        namesToInclude: formData.fullName,
+        yourStory: formData.songDescription,
+        additionalNotes: `${formData.specialInstructions ? `Special Instructions: ${formData.specialInstructions}. ` : ''}${formData.referenceSongs ? `Reference Songs: ${formData.referenceSongs}. ` : ''}Song Length: ${formData.songLength}`,
+        instrumental: formData.language === 'instrumental'
       };
 
-      // For now, we'll simulate an API call
-      // In production, this would connect to your backend
-      console.log('Submitting song request:', submissionData);
+      // Submit to Suno API for song generation
+      const response = await submitSongForm(songFormData);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate successful submission
-      setSubmitStatus('success');
-      setSubmitMessage('Your song request has been submitted successfully! We\'ll review it and get back to you within 24 hours.');
-      
-      // Reset form after successful submission
-      setFormData({
-        fullName: '',
-        email: '',
-        songDescription: '',
-        occasion: '',
-        musicalStyle: '',
-        mood: '',
-        tempo: '',
-        language: '',
-        songLength: '',
-        specialInstructions: '',
-        referenceSongs: ''
-      });
+      if (response.success) {
+        setSongId(response.songId);
+        setJobId(response.jobId);
+        setSongStatus('generating');
+        setSubmitStatus('success');
+        setSubmitMessage('Song generation started! This may take a few minutes. We\'ll notify you when it\'s ready.');
+        
+        // Start polling for song status
+        pollSongStatus(response.songId);
+      } else {
+        throw new Error('Failed to start song generation');
+      }
 
     } catch (error) {
       setSubmitStatus('error');
       setSubmitMessage(error instanceof Error ? error.message : 'An error occurred while submitting your request. Please try again.');
+      setSongStatus('failed');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Poll song status until completion
+  const pollSongStatus = async (songId: string) => {
+    const maxAttempts = 60; // 5 minutes with 5-second intervals
+    let attempts = 0;
+    
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        setSongStatus('failed');
+        setSubmitMessage('Song generation timed out. Please try again.');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/song/status/${songId}`);
+        const statusData: StatusResp = await response.json();
+        
+        if (statusData.status === 'completed' && statusData.audioUrl) {
+          setSongStatus('completed');
+          setAudioUrl(statusData.audioUrl);
+          setSubmitMessage('Your song is ready! You can now play and download it.');
+          
+          // Download audio for offline use
+          downloadAudio(statusData.audioUrl);
+        } else if (statusData.status === 'failed' || statusData.status === 'error') {
+          setSongStatus('failed');
+          setSubmitMessage('Song generation failed. Please try again.');
+        } else {
+          // Still processing, continue polling
+          setSongProgress(statusData.progress || 0);
+          attempts++;
+          setTimeout(poll, 5000); // Poll every 5 seconds
+        }
+      } catch (error) {
+        console.error('Error polling song status:', error);
+        attempts++;
+        setTimeout(poll, 5000);
+      }
+    };
+    
+    poll();
+  };
+
+  // Download audio file
+  const downloadAudio = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      setAudioBlob(blob);
+    } catch (error) {
+      console.error('Error downloading audio:', error);
+    }
+  };
+
+  // Audio player controls
+  const togglePlayPause = () => {
+    if (!audioElement) return;
+    
+    if (isPlaying) {
+      audioElement.pause();
+      setIsPlaying(false);
+    } else {
+      audioElement.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!audioBlob) return;
+    
+    const url = URL.createObjectURL(audioBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `song_${songId}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Initialize audio element when audioUrl changes
+  React.useEffect(() => {
+    if (audioUrl && !audioElement) {
+      const audio = new Audio(audioUrl);
+      audio.addEventListener('ended', () => setIsPlaying(false));
+      setAudioElement(audio);
+    }
+  }, [audioUrl, audioElement]);
+
+  // Cleanup audio element
+  React.useEffect(() => {
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
+      }
+    };
+  }, [audioElement]);
 
   return (
     <AuthProvider>
@@ -410,11 +522,59 @@ export default function Home() {
                           </div>
                         )}
                         
+                        {/* Song Generation Status */}
+                        {songStatus === 'generating' && (
+                          <div className="mb-4 p-4 bg-blue-500/20 border border-blue-500/30 rounded-xl">
+                            <div className="flex items-center justify-center space-x-3 mb-2">
+                              <Loader2 className="w-5 h-5 animate-spin text-blue-300" />
+                              <span className="text-blue-300 text-sm">Generating your song...</span>
+                            </div>
+                            <div className="w-full bg-blue-500/20 rounded-full h-2">
+                              <div 
+                                className="bg-blue-400 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${songProgress}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-blue-300 text-xs mt-2">This may take a few minutes</p>
+                          </div>
+                        )}
+                        
+                        {/* Audio Player */}
+                        {songStatus === 'completed' && audioUrl && (
+                          <div className="mb-6 p-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl">
+                            <h4 className="text-lg font-semibold text-green-300 mb-4">🎵 Your Song is Ready!</h4>
+                            
+                            {/* Audio Controls */}
+                            <div className="flex items-center justify-center space-x-4 mb-4">
+                              <button
+                                onClick={togglePlayPause}
+                                className="flex items-center justify-center w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full transition-colors duration-200"
+                              >
+                                {isPlaying ? (
+                                  <Pause className="w-8 h-8 text-white" />
+                                ) : (
+                                  <Play className="w-8 h-8 text-white ml-1" />
+                                )}
+                              </button>
+                              
+                              <button
+                                onClick={handleDownload}
+                                className="flex items-center space-x-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-colors duration-200"
+                              >
+                                <Download className="w-5 h-5" />
+                                <span>Download MP3</span>
+                              </button>
+                            </div>
+                            
+                            <p className="text-green-300 text-sm">Your personalized song has been generated successfully!</p>
+                          </div>
+                        )}
+                        
                         <button
                           type="submit"
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || songStatus === 'generating'}
                           className={`group relative px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${
-                            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                            (isSubmitting || songStatus === 'generating') ? 'opacity-70 cursor-not-allowed' : ''
                           }`}
                         >
                           <div className="flex items-center space-x-3">
@@ -422,6 +582,11 @@ export default function Home() {
                               <>
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                 <span>Submitting...</span>
+                              </>
+                            ) : songStatus === 'generating' ? (
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Generating Song...</span>
                               </>
                             ) : (
                               <>
