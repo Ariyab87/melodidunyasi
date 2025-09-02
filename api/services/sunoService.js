@@ -197,12 +197,12 @@ async function startGeneration(record) {
   try {
     console.log('[START_GENERATION] Starting generation for record:', record.id);
     
-    // Detect language from user input
-    const detectedLanguage = detectLanguage(record.story || record.prompt || '');
-    console.log('[START_GENERATION] Detected language:', detectedLanguage);
+    // Use language from form or detect from user input
+    const userLanguage = record.language || detectLanguage(record.story || record.prompt || '');
+    console.log('[START_GENERATION] User language:', userLanguage);
     
     // Build the prompt for exact lyrics mode
-    const prompt = buildExactLyricsPrompt(record, detectedLanguage);
+    const prompt = buildExactLyricsPrompt(record, userLanguage);
     console.log('[START_GENERATION] Generated prompt:', prompt.substring(0, 200) + '...');
 
     // Use the musicProvider instead of the old sunoService
@@ -232,7 +232,7 @@ async function startGeneration(record) {
     const updateData = {
       status: 'queued',
       updatedAt: new Date().toISOString(),
-      detectedLanguage: detectedLanguage,
+      detectedLanguage: userLanguage,
       instrumental: record.instrumental || false
     };
 
@@ -325,6 +325,7 @@ function detectLanguage(text) {
   const chineseChars = /[\u4e00-\u9fff]/;
   const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
   const koreanChars = /[\uac00-\ud7af]/;
+  const dutchChars = /\b(het|de|een|van|en|in|op|te|voor|met|zijn|dat|niet|aan|ook|als|naar|maar|om|hier|zo|dan|wat|nu|al|bij|na|wel|of|uit|kan|nog|geen|ja|er|maar|omdat|dit|zoals|jij|zij|wij|ons|mijn|zijn|haar|hun|dit|dat|deze|die|mijn|jouw|zijn|haar|ons|jullie|hun)\b/i;
   
   if (turkishChars.test(text)) return 'tr';
   if (russianChars.test(text)) return 'ru';
@@ -333,6 +334,7 @@ function detectLanguage(text) {
   if (chineseChars.test(text)) return 'zh';
   if (japaneseChars.test(text)) return 'ja';
   if (koreanChars.test(text)) return 'ko';
+  if (dutchChars.test(text)) return 'nl';
   
   // Default to English if no specific characters detected
   return 'en';
@@ -369,7 +371,8 @@ function buildExactLyricsPrompt(record, language) {
       'zh': 'Chinese',
       'ja': 'Japanese',
       'ko': 'Korean',
-      'en': 'English'
+      'en': 'English',
+      'nl': 'Dutch'
     };
     
     const languageName = languageNames[language] || 'the input language';
@@ -385,8 +388,23 @@ function buildExactLyricsPrompt(record, language) {
   }
   
   // Free-form mode (default) - traditional prompt generation
+  const languageNames = {
+    'tr': 'Turkish',
+    'ru': 'Russian', 
+    'ar': 'Arabic',
+    'fa': 'Persian',
+    'zh': 'Chinese',
+    'ja': 'Japanese',
+    'ko': 'Korean',
+    'en': 'English',
+    'nl': 'Dutch'
+  };
+  
+  const languageName = languageNames[language] || 'English';
+  
   return `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
          `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
+         `Language: ${languageName}. ` +
          `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
 }
 

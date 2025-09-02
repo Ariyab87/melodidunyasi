@@ -35,6 +35,7 @@ interface SongRequestFormData {
   story: string;
   tempo: string;
   notes: string;
+  language: string;
   instrumental: boolean;
   exactLyrics: boolean; // New field for exact lyrics mode
 }
@@ -55,6 +56,7 @@ export default function SongRequestForm() {
     story: '',
     tempo: '',
     notes: '',
+    language: 'tr', // Default to Turkish
     instrumental: false,
     exactLyrics: false, // Initialize new field
   });
@@ -107,6 +109,7 @@ export default function SongRequestForm() {
         yourStory: formData.story, // important: backend expects "yourStory"
         tempo: formData.tempo,
         additionalNotes: formData.notes || undefined,
+        language: formData.language, // Include language in payload
         instrumental: formData.instrumental,
         exactLyrics: formData.exactLyrics, // Include new field in payload
       };
@@ -129,6 +132,7 @@ export default function SongRequestForm() {
         story: '',
         tempo: '',
         notes: '',
+        language: 'tr', // Reset to Turkish
         instrumental: false,
         exactLyrics: false, // Reset new field
       });
@@ -340,6 +344,23 @@ export default function SongRequestForm() {
                       {tempo}
                     </option>
                   ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2 text-white font-medium">
+                  <FileText size={20} className="text-primary-500" />
+                  <span>{t('songForm.fields.language')}</span>
+                </label>
+                <select
+                  name="language"
+                  value={formData.language}
+                  onChange={handleInputChange}
+                  className="input-field"
+                >
+                  <option value="tr">Türkçe</option>
+                  <option value="en">English</option>
+                  <option value="nl">Nederlands</option>
                 </select>
               </div>
 

@@ -248,6 +248,7 @@ router.post('/song', async (req, res) => {
       story,
       tempo,
       notes,
+      language,
       timestamp,
       instrumental,
       exactLyrics
@@ -293,6 +294,7 @@ router.post('/song', async (req, res) => {
       story,
       tempo,
       notes,
+      language: language || 'tr', // Default to Turkish if not provided
       timestamp,
       prompt,
       instrumental: instrumentalValue,
