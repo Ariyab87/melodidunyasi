@@ -387,7 +387,7 @@ router.post('/song', async (req, res) => {
 const generateHandler = async (req, res) => {
   try {
     const {
-      fullName,
+      name,
       email,
       phone,
       specialOccasion,
@@ -396,31 +396,31 @@ const generateHandler = async (req, res) => {
       tempo,
       language,
       namesToInclude,
-      yourStory,
+      story,
       additionalNotes,
       model
     } = req.body;
 
-    if (!fullName || !email || !specialOccasion || !songStyle || !mood || !tempo || !yourStory) {
+    if (!email || !specialOccasion || !songStyle || !mood || !tempo || !story) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
         message: 'Please fill in all required fields',
-        required: ['fullName', 'email', 'specialOccasion', 'songStyle', 'mood', 'tempo', 'yourStory']
+        required: ['email', 'specialOccasion', 'songStyle', 'mood', 'tempo', 'story']
       });
     }
 
     let prompt = `Create a ${songStyle.toLowerCase()} song for a ${specialOccasion.toLowerCase()}. `;
     prompt += `The mood should be ${mood.toLowerCase()} with a ${tempo.toLowerCase()} tempo. `;
     if (namesToInclude) prompt += `Include the names: ${namesToInclude}. `;
-    prompt += `Story: ${yourStory}`;
+    prompt += `Story: ${story}`;
     if (additionalNotes) prompt += ` ${additionalNotes}`;
 
     const requestId = `song_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     await requestStore.create({
       id: requestId,
-      name: fullName,
+      name: name,
       email,
       phone,
       songStyle,
@@ -428,7 +428,7 @@ const generateHandler = async (req, res) => {
       specialOccasion,
       language,
       namesToInclude,
-      story: yourStory,
+      story: story,
       tempo,
       notes: additionalNotes,
       provider: 'sunoapi_org',
@@ -446,7 +446,7 @@ const generateHandler = async (req, res) => {
         mood,
         tempo,
         language,
-        fullName,
+        name,
         email,
         phone,
         model

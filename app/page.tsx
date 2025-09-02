@@ -110,7 +110,7 @@ export default function Home() {
 
       // Prepare the data for Suno API submission with proper language mapping
       const songFormData = {
-        fullName: formData.fullName,
+        name: formData.fullName,
         email: formData.email,
         specialOccasion: formData.occasion,
         songStyle: formData.musicalStyle,
@@ -118,7 +118,7 @@ export default function Home() {
         tempo: formData.tempo,
         language: getSunoLanguage(formData.language),
         namesToInclude: formData.fullName,
-        yourStory: formData.songDescription,
+        story: formData.songDescription,
         additionalNotes: `${formData.specialInstructions ? `Special Instructions: ${formData.specialInstructions}. ` : ''}${formData.referenceSongs ? `Reference Songs: ${formData.referenceSongs}. ` : ''}Song Length: ${formData.songLength}`,
         instrumental: formData.language === 'instrumental'
       };
@@ -352,15 +352,14 @@ export default function Home() {
                     <form onSubmit={handleFormSubmit} className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-white font-medium mb-2" key={`fullName-${language}`}>{t('songForm.fields.fullName')}</label>
+                          <label className="block text-white font-medium mb-2" key={`namesInSong-${language}`}>{t('songForm.fields.namesInSong')}</label>
                           <input
                             type="text"
                             value={formData.fullName}
                             onChange={(e) => handleInputChange('fullName', e.target.value)}
                             className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-white placeholder-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                            placeholder={t('songForm.placeholders.fullName')}
-                            required
-                            key={`fullName-input-${language}`}
+                            placeholder={t('songForm.placeholders.namesInSong')}
+                            key={`namesInSong-input-${language}`}
                           />
                         </div>
                         <div>

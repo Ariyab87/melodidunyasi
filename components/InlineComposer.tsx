@@ -202,12 +202,12 @@ export default function InlineComposer({ isExpanded, onClose }: InlineComposerPr
 
       // Prepare form data for API
       const songData = {
-        fullName: user?.name || 'User',
+        name: user?.name || 'User',
         email: user?.email || '',
         specialOccasion: formData.occasion,
         songStyle: formData.style,
         mood: formData.mood,
-        yourStory: formData.prompt,
+        story: formData.prompt,
         additionalNotes: formData.specialInstructions,
         instrumental: false,
         tempo: formData.tempo,

@@ -1,7 +1,7 @@
 // lib/api.ts
 
 type SongForm = {
-    fullName: string;
+    name: string;
     email: string;
     phone?: string;
     specialOccasion: string;
@@ -10,9 +10,10 @@ type SongForm = {
     tempo?: string;
     language?: string;
     namesToInclude?: string;
-    yourStory: string;
+    story: string;
     additionalNotes?: string;
     instrumental?: boolean;
+    exactLyrics?: boolean;
     model?: string;
   };
   
