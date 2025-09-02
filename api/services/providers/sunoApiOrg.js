@@ -36,7 +36,7 @@ async function health() {
   }
 }
 
-async function generateSong(prompt, duration, style, mood, debugSmall, instrumental = false) {
+async function generateSong(prompt, duration, style, mood, debugSmall, instrumental = false, language = 'en') {
   const body = {
     prompt: prompt || 'SongCreator test',
     title: 'SongCreator',
@@ -50,7 +50,9 @@ async function generateSong(prompt, duration, style, mood, debugSmall, instrumen
     // Add custom mode support
     customMode: false,
     // Add instrumental mode
-    instrumental: !!instrumental
+    instrumental: !!instrumental,
+    // Add language parameter
+    language: language
   };
 
   // Get callback URL from env or construct from backend URL

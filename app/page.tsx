@@ -95,7 +95,7 @@ export default function Home() {
 
     try {
       // Validate required fields
-      const requiredFields = ['fullName', 'email', 'songDescription', 'occasion', 'musicalStyle', 'mood', 'tempo', 'language', 'songLength'];
+      const requiredFields = ['email', 'songDescription', 'occasion', 'musicalStyle', 'mood', 'tempo', 'language', 'songLength'];
       const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
       
       if (missingFields.length > 0) {

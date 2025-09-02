@@ -227,7 +227,8 @@ async function startGeneration(record) {
       record.songStyle || 'pop',
       record.mood || 'happy',
       false, // debugSmall
-      record.instrumental || false // instrumental mode
+      record.instrumental || false, // instrumental mode
+      userLanguage // language parameter
     );
 
     console.log('[START_GENERATION] Song generation initiated:', songResult);
