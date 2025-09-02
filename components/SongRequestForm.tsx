@@ -99,20 +99,23 @@ export default function SongRequestForm() {
 
     try {
       const payload = {
-        fullName: formData.name,
+        name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
         songStyle: formData.songStyle,
         mood: formData.mood,
         specialOccasion: formData.specialOccasion,
         namesToInclude: formData.namesToInclude || undefined,
-        yourStory: formData.story, // important: backend expects "yourStory"
+        story: formData.story, // important: backend expects "story"
         tempo: formData.tempo,
         additionalNotes: formData.notes || undefined,
         language: formData.language, // Include language in payload
         instrumental: formData.instrumental,
         exactLyrics: formData.exactLyrics, // Include new field in payload
       };
+
+      console.log('[FORM] Submitting payload with language:', formData.language);
+      console.log('[FORM] Full payload:', payload);
 
       const result = await submitSongForm(payload);
 
@@ -218,16 +221,15 @@ export default function SongRequestForm() {
               <div className="space-y-2">
                 <label className="flex items-center space-x-2 text-white font-medium">
                   <User size={20} className="text-primary-500" />
-                  <span>{t('songForm.fields.fullName')} *</span>
+                  <span>{t('songForm.fields.namesInSong')}</span>
                 </label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  required
                   className="input-field"
-                  placeholder={t('songForm.placeholders.fullName')}
+                  placeholder={t('songForm.placeholders.namesInSong')}
                 />
               </div>
 

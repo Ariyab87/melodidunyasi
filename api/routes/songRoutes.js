@@ -232,6 +232,22 @@ router.post('/song/simple', async (req, res) => {
 });
 
 // ===========================================================================
+// GET /api/test-language/:text - Test language detection
+// ===========================================================================
+router.get('/test-language/:text', (req, res) => {
+  const { text } = req.params;
+  const { detectLanguage } = require('../services/sunoService');
+  
+  const detected = detectLanguage(decodeURIComponent(text));
+  
+  res.json({
+    text: decodeURIComponent(text),
+    detectedLanguage: detected,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ===========================================================================
 // POST /api/song   (kept for admin/manual requests)
 // Note: Admin users (with valid x-admin-key header) get free access
 // ===========================================================================
@@ -257,12 +273,12 @@ router.post('/song', async (req, res) => {
     const instrumentalValue = typeof instrumental === 'boolean' ? instrumental : false;
     const exactLyricsValue = typeof exactLyrics === 'boolean' ? exactLyrics : false;
 
-    if (!name || !email || !specialOccasion || !songStyle || !mood || !tempo || !story) {
+    if (!email || !specialOccasion || !songStyle || !mood || !tempo || !story) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
         message:
-          'Please provide all required fields: name, email, specialOccasion, songStyle, mood, tempo, story'
+          'Please provide all required fields: email, specialOccasion, songStyle, mood, tempo, story'
       });
     }
 
@@ -277,20 +293,24 @@ router.post('/song', async (req, res) => {
 
     const requestId = `song_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
+    console.log('[ROUTE] Received language from form:', language);
+    console.log('[ROUTE] Using language:', language || 'tr');
+
     const prompt =
       `Create a ${songStyle || 'pop'} song for ${specialOccasion || 'an event'}. ` +
       `Mood: ${mood || 'neutral'}. Tempo: ${tempo || 'Medium (80-120 BPM)'}. ` +
+      `Language: ${language || 'tr'}. ` +
       `Include names: ${namesToInclude || 'N/A'}. Story: ${story || 'N/A'}.`;
 
     const record = {
       id: requestId,
-      name,
+      name: name || null,
       email,
       phone: phone || null,
       songStyle,
       mood,
       specialOccasion,
-      namesToInclude,
+      namesToInclude: name || namesToInclude || null, // Use name field as namesToInclude if provided
       story,
       tempo,
       notes,

@@ -198,8 +198,13 @@ async function startGeneration(record) {
     console.log('[START_GENERATION] Starting generation for record:', record.id);
     
     // Use language from form or detect from user input
-    const userLanguage = record.language || detectLanguage(record.story || record.prompt || '');
-    console.log('[START_GENERATION] User language:', userLanguage);
+    const detectedFromText = detectLanguage(record.story || record.prompt || '');
+    const userLanguage = record.language || detectedFromText;
+    
+    console.log('[START_GENERATION] Record language from form:', record.language);
+    console.log('[START_GENERATION] Story text:', record.story?.substring(0, 100) + '...');
+    console.log('[START_GENERATION] Detected language from text:', detectedFromText);
+    console.log('[START_GENERATION] Final user language:', userLanguage);
     
     // Build the prompt for exact lyrics mode
     const prompt = buildExactLyricsPrompt(record, userLanguage);
@@ -317,17 +322,20 @@ async function startGeneration(record) {
 function detectLanguage(text) {
   if (!text) return 'unknown';
   
-  // Simple language detection based on character sets
+  // Enhanced Turkish detection
   const turkishChars = /[çğıöşüÇĞIİÖŞÜ]/;
+  const turkishWords = /\b(ve|bir|için|bu|ile|var|olan|olan|değil|gibi|kadar|da|de|ki|mi|mu|mü|mı|daha|çok|en|tüm|her|hiç|bütün|kendi|onun|onlar|bizim|sizin|şu|o|ben|sen|biz|siz|onlar|ama|fakat|ancak|sadece|yani|çünkü|eğer|nasıl|neden|nerede|ne|kim|hangi|kaç|şey|zaman|yer|kişi|insan|hayat|dünya|ülke|şehir|ev|okul|iş|para|saat|gün|yıl|ay|hafta|sabah|akşam|gece|bugün|yarın|dün|şimdi|sonra|önce|aşk|sevgi|mutlu|üzgün|güzel|kötü|büyük|küçük|yeni|eski|iyi|kötü|doğru|yanlış|siyah|beyaz|kırmızı|mavi|yeşil|sarı|anne|baba|kardeş|arkadaş|aile|çocuk|kadın|erkek|kız|oğlan|yaşlı|genç|öğrenci|öğretmen|doktor|hemşire|polis|asker|işçi|memur|başkan|yemek|su|ekmek|et|sebze|meyve|çay|kahve|süt|şeker|tuz|yağ|pirinç|makarna|tavuk|balık|peynir|yoğurt|elma|armut|üzüm|portakal|limon|domates|salatalık|soğan|patates|havuç|araba|otobüs|tren|uçak|gemi|bisiklet|yol|köprü|bina|dağ|deniz|göl|nehir|ağaç|çiçek|hayvan|köpek|kedi|kuş|balık|at|inek|koyun|keçi|tavşan|fare|aslan|kaplan|fil|maymun|kitap|gazete|dergi|televizyon|radyo|telefon|bilgisayar|internet|müzik|film|oyun|spor|futbol|basketbol|voleybol|tenis|yüzme|koşu|dans|resim|fotoğraf|seyahat|tatil|alışveriş|market|mağaza|restoran|hastane|eczane|banka|postane|hotel|müze|sinema|tiyatro|konsol|park|bahçe|plaj|orman|çöl|kar|yağmur|güneş|ay|yıldız|bulut|rüzgar|sıcak|soğuk|ilkbahar|yaz|sonbahar|kış|pazartesi|salı|çarşamba|perşembe|cuma|cumartesi|pazar|ocak|şubat|mart|nisan|mayıs|haziran|temmuz|ağustos|eylül|ekim|kasım|aralık)\b/gi;
+  
   const russianChars = /[а-яёА-ЯЁ]/;
   const arabicChars = /[ء-ي]/;
   const persianChars = /[آ-ی]/;
   const chineseChars = /[\u4e00-\u9fff]/;
   const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
   const koreanChars = /[\uac00-\ud7af]/;
-  const dutchChars = /\b(het|de|een|van|en|in|op|te|voor|met|zijn|dat|niet|aan|ook|als|naar|maar|om|hier|zo|dan|wat|nu|al|bij|na|wel|of|uit|kan|nog|geen|ja|er|maar|omdat|dit|zoals|jij|zij|wij|ons|mijn|zijn|haar|hun|dit|dat|deze|die|mijn|jouw|zijn|haar|ons|jullie|hun)\b/i;
+  const dutchChars = /\b(het|de|een|van|en|in|op|te|voor|met|zijn|dat|niet|aan|ook|als|naar|maar|om|hier|zo|dan|wat|nu|al|bij|na|wel|of|uit|kan|nog|geen|ja|er|maar|omdat|dit|zoals|jij|zij|wij|ons|mijn|zijn|haar|hun|dit|dat|deze|die|mijn|jouw|zijn|haar|ons|jullie|hun|ik|je|hij|zij|we|jullie|ze|mijn|jouw|zijn|haar|ons|hun|dit|dat|deze|die|wie|wat|waar|wanneer|waarom|hoeveel|veel|weinig|groot|klein|nieuw|oud|goed|slecht|mooi|lelijk|blij|verdrietig|liefde|geluk|vriendschap|familie|moeder|vader|broer|zus|kind|vrouw|man|meisje|jongen|baby|opa|oma|huis|auto|fiets|trein|bus|vliegtuig|boot|weg|straat|brug|gebouw|berg|zee|meer|rivier|boom|bloem|dier|hond|kat|vogel|vis|paard|koe|schaap|geit|konijn|muis|leeuw|tijger|olifant|aap|boek|krant|tijdschrift|televisie|radio|telefoon|computer|internet|muziek|film|spel|sport|voetbal|basketbal|volleybal|tennis|zwemmen|rennen|dansen|schilderen|fotografie|reizen|vakantie|winkelen|supermarkt|winkel|restaurant|ziekenhuis|apotheek|bank|postkantoor|hotel|museum|bioscoop|theater|concert|park|tuin|strand|bos|woestijn|sneeuw|regen|zon|maan|ster|wolk|wind|warm|koud|lente|zomer|herfst|winter|maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag|januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\b/gi;
   
-  if (turkishChars.test(text)) return 'tr';
+  // Check for Turkish first (chars or common words)
+  if (turkishChars.test(text) || turkishWords.test(text)) return 'tr';
   if (russianChars.test(text)) return 'ru';
   if (arabicChars.test(text)) return 'ar';
   if (persianChars.test(text)) return 'fa';
@@ -377,13 +385,19 @@ function buildExactLyricsPrompt(record, language) {
     
     const languageName = languageNames[language] || 'the input language';
     
+    let strongLanguageInstruction = `LANGUAGE LOCK: Must sing ONLY in ${languageName}. NO TRANSLATION. NO ENGLISH DRIFT.`;
+    if (language === 'tr') {
+      strongLanguageInstruction = `TURKISH LANGUAGE LOCK: Şarkı sadece Türkçe olmalı. İngilizce kelime kullanma. Tüm şarkı Türkçe sözlerle söylenmeli.`;
+    } else if (language === 'nl') {
+      strongLanguageInstruction = `DUTCH LANGUAGE LOCK: Het lied moet alleen in het Nederlands zijn. Geen Engelse woorden gebruiken. Het hele lied moet in Nederlandse teksten worden gezongen.`;
+    }
+    
     return `Create a ${record.songStyle || 'pop'} song with EXACT lyrics. ` +
            `Style: ${record.songStyle || 'pop'}. ` +
            `Mood: ${record.mood || 'neutral'}. ` +
            `Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
            `Duration: ${record.duration || 30} seconds. ` +
-           `LANGUAGE LOCK: Must sing ONLY in ${languageName}. ` +
-           `NO TRANSLATION. NO ENGLISH DRIFT. ` +
+           `${strongLanguageInstruction} ` +
            `EXACT LYRICS TO SING: "${userText}"`;
   }
   
@@ -402,9 +416,19 @@ function buildExactLyricsPrompt(record, language) {
   
   const languageName = languageNames[language] || 'English';
   
+  // Stronger language instructions for Turkish and other non-English languages
+  let languageInstruction = `Sing in ${languageName}.`;
+  if (language === 'tr') {
+    languageInstruction = `IMPORTANT: Sing ONLY in Turkish language. NO English words. Use Turkish lyrics throughout the entire song.`;
+  } else if (language === 'nl') {
+    languageInstruction = `IMPORTANT: Sing ONLY in Dutch language. NO English words. Use Dutch lyrics throughout the entire song.`;
+  } else if (language !== 'en') {
+    languageInstruction = `IMPORTANT: Sing ONLY in ${languageName}. NO English words. Use ${languageName} lyrics throughout the entire song.`;
+  }
+  
   return `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
          `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
-         `Language: ${languageName}. ` +
+         `${languageInstruction} ` +
          `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
 }
 
@@ -414,4 +438,5 @@ module.exports = {
   getModels,
   downloadAudioFile,
   startGeneration,
+  detectLanguage, // Export for testing
 };
