@@ -94,6 +94,11 @@ export default function SongRequestForm() {
     const proceed = await checkBeforeGenerate();
     if (!proceed) return;
 
+    // Ensure language is set
+    if (!formData.language) {
+      setFormData(prev => ({ ...prev, language: 'tr' }));
+    }
+
     setSubmitStatus('submitting');
     setErrorMessage('');
 
@@ -363,7 +368,16 @@ export default function SongRequestForm() {
                   <option value="tr">Türkçe</option>
                   <option value="en">English</option>
                   <option value="nl">Nederlands</option>
+                  <option value="ru">Русский</option>
+                  <option value="ar">العربية</option>
+                  <option value="fa">فارسی</option>
+                  <option value="zh">中文</option>
+                  <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
                 </select>
+                <p className="text-primary-400 text-xs mt-1">
+                  💡 Select the language you want your song to be sung in. The AI will respect this choice and sing entirely in the selected language.
+                </p>
               </div>
 
               <div className="space-y-2">

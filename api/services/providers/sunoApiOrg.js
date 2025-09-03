@@ -77,13 +77,15 @@ async function generateSong(prompt, duration, style, mood, debugSmall, instrumen
 
   let r;
   try {
-    console.log('[SUNO_API_ORG] Sending generation request:', { prompt: prompt.substring(0, 100) + '...', style, mood, duration });
+    console.log('[SUNO_API_ORG] Sending generation request:', { prompt: prompt.substring(0, 100) + '...', style, mood, duration, language });
     console.log('[SUNO_API_ORG] FULL REQUEST BODY:', JSON.stringify(body, null, 2));
     console.log('[SUNO_API_ORG] API URL:', GEN_URL);
     console.log('[SUNO_API_ORG] PROMPT LENGTH:', prompt.length);
     console.log('[SUNO_API_ORG] PROMPT CONTAINS TURKISH:', /[çğıöşüÇĞIİÖŞÜ]/.test(prompt));
     console.log('[SUNO_API_ORG] PROMPT CONTAINS LANGUAGE LOCK:', prompt.includes('LANGUAGE LOCK'));
     console.log('[SUNO_API_ORG] PROMPT CONTAINS EXACT LYRICS:', prompt.includes('EXACT LYRICS'));
+    console.log('[SUNO_API_ORG] LANGUAGE PARAMETER:', language);
+    console.log('[SUNO_API_ORG] LANGUAGE IN BODY:', body.language);
     r = await axios.post(GEN_URL, body, {
       headers: sunoHeaders(),
       timeout: 30000,

@@ -295,12 +295,16 @@ router.post('/song', async (req, res) => {
 
     console.log('[ROUTE] Received language from form:', language);
     console.log('[ROUTE] Using language:', language || 'tr');
+    console.log('[ROUTE] Language type:', typeof language);
+    console.log('[ROUTE] Language value:', JSON.stringify(language));
 
     const prompt =
       `Create a ${songStyle || 'pop'} song for ${specialOccasion || 'an event'}. ` +
       `Mood: ${mood || 'neutral'}. Tempo: ${tempo || 'Medium (80-120 BPM)'}. ` +
       `Language: ${language || 'tr'}. ` +
       `Include names: ${namesToInclude || 'N/A'}. Story: ${story || 'N/A'}.`;
+    
+    console.log('[ROUTE] Generated prompt with language:', prompt.substring(0, 200) + '...');
 
     const record = {
       id: requestId,

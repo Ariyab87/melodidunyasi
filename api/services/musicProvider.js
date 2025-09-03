@@ -132,6 +132,9 @@ class MusicProviderService {
   async generateSong(prompt, duration, style, mood, debugSmall, instrumental = false, language = 'en') {
     if (!this.provider) throw new Error('Music provider not initialized');
 
+    console.log('[MUSIC_PROVIDER] generateSong called with language:', language);
+    console.log('[MUSIC_PROVIDER] prompt preview:', prompt.substring(0, 100) + '...');
+
     try {
       return await this.provider.generateSong(prompt, duration, style, mood, debugSmall, instrumental, language);
     } catch (error) {

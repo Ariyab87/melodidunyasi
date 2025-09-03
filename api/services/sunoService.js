@@ -197,7 +197,7 @@ async function startGeneration(record) {
   try {
     console.log('[START_GENERATION] Starting generation for record:', record.id);
     
-    // Use language from form or detect from user input
+    // Prioritize user-selected language from form, fallback to detected language
     const detectedFromText = detectLanguage(record.story || record.prompt || '');
     const userLanguage = record.language || detectedFromText;
     
@@ -205,6 +205,15 @@ async function startGeneration(record) {
     console.log('[START_GENERATION] Story text:', record.story?.substring(0, 100) + '...');
     console.log('[START_GENERATION] Detected language from text:', detectedFromText);
     console.log('[START_GENERATION] Final user language:', userLanguage);
+    
+    // If user explicitly selected a language in the form, use that
+    if (record.language && record.language !== 'en') {
+      console.log('[START_GENERATION] Using user-selected language from form:', record.language);
+    } else if (detectedFromText && detectedFromText !== 'en') {
+      console.log('[START_GENERATION] Using detected language from text:', detectedFromText);
+    } else {
+      console.log('[START_GENERATION] Defaulting to English');
+    }
     
     // Build the prompt for exact lyrics mode
     const prompt = buildExactLyricsPrompt(record, userLanguage);
@@ -336,7 +345,10 @@ function detectLanguage(text) {
   const dutchChars = /\b(het|de|een|van|en|in|op|te|voor|met|zijn|dat|niet|aan|ook|als|naar|maar|om|hier|zo|dan|wat|nu|al|bij|na|wel|of|uit|kan|nog|geen|ja|er|maar|omdat|dit|zoals|jij|zij|wij|ons|mijn|zijn|haar|hun|dit|dat|deze|die|mijn|jouw|zijn|haar|ons|jullie|hun|ik|je|hij|zij|we|jullie|ze|mijn|jouw|zijn|haar|ons|hun|dit|dat|deze|die|wie|wat|waar|wanneer|waarom|hoeveel|veel|weinig|groot|klein|nieuw|oud|goed|slecht|mooi|lelijk|blij|verdrietig|liefde|geluk|vriendschap|familie|moeder|vader|broer|zus|kind|vrouw|man|meisje|jongen|baby|opa|oma|huis|auto|fiets|trein|bus|vliegtuig|boot|weg|straat|brug|gebouw|berg|zee|meer|rivier|boom|bloem|dier|hond|kat|vogel|vis|paard|koe|schaap|geit|konijn|muis|leeuw|tijger|olifant|aap|boek|krant|tijdschrift|televisie|radio|telefoon|computer|internet|muziek|film|spel|sport|voetbal|basketbal|volleybal|tennis|zwemmen|rennen|dansen|schilderen|fotografie|reizen|vakantie|winkelen|supermarkt|winkel|restaurant|ziekenhuis|apotheek|bank|postkantoor|hotel|museum|bioscoop|theater|concert|park|tuin|strand|bos|woestijn|sneeuw|regen|zon|maan|ster|wolk|wind|warm|koud|lente|zomer|herfst|winter|maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag|januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\b/gi;
   
   // Check for Turkish first (chars or common words)
-  if (turkishChars.test(text) || turkishWords.test(text)) return 'tr';
+  if (turkishChars.test(text) || turkishWords.test(text)) {
+    console.log('[LANGUAGE_DETECTION] Turkish detected from text');
+    return 'tr';
+  }
   if (russianChars.test(text)) return 'ru';
   if (arabicChars.test(text)) return 'ar';
   if (persianChars.test(text)) return 'fa';
@@ -386,11 +398,23 @@ function buildExactLyricsPrompt(record, language) {
     
     const languageName = languageNames[language] || 'the input language';
     
-    let strongLanguageInstruction = `LANGUAGE LOCK: Must sing ONLY in ${languageName}. NO TRANSLATION. NO ENGLISH DRIFT.`;
+    let strongLanguageInstruction = `CRITICAL LANGUAGE LOCK: Must sing ONLY in ${languageName}. NO TRANSLATION. NO ENGLISH DRIFT. NO ENGLISH WORDS.`;
     if (language === 'tr') {
-      strongLanguageInstruction = `TURKISH LANGUAGE LOCK: Şarkı sadece Türkçe olmalı. İngilizce kelime kullanma. Tüm şarkı Türkçe sözlerle söylenmeli.`;
+      strongLanguageInstruction = `CRITICAL TURKISH LANGUAGE LOCK: Şarkı SADECE Türkçe olmalı. İngilizce kelime KULLANMA. Tüm şarkı Türkçe sözlerle söylenmeli. Hiçbir İngilizce kelime olmamalı. Bu kesin bir gereklilik.`;
     } else if (language === 'nl') {
-      strongLanguageInstruction = `DUTCH LANGUAGE LOCK: Het lied moet alleen in het Nederlands zijn. Geen Engelse woorden gebruiken. Het hele lied moet in Nederlandse teksten worden gezongen.`;
+      strongLanguageInstruction = `CRITICAL DUTCH LANGUAGE LOCK: Het lied moet ALLEEN in het Nederlands zijn. GEEN Engelse woorden gebruiken. Het hele lied moet in Nederlandse teksten worden gezongen. Geen Engelse woorden toegestaan. Dit is een strikte vereiste.`;
+    } else if (language === 'ru') {
+      strongLanguageInstruction = `CRITICAL RUSSIAN LANGUAGE LOCK: Песня должна быть ТОЛЬКО на русском языке. НЕ использовать английские слова. Вся песня должна быть на русском языке. Никаких английских слов не допускается. Это строгое требование.`;
+    } else if (language === 'ar') {
+      strongLanguageInstruction = `CRITICAL ARABIC LANGUAGE LOCK: يجب أن تكون الأغنية باللغة العربية فقط. لا تستخدم الكلمات الإنجليزية. يجب أن تكون الأغنية بأكملها باللغة العربية. لا يُسمح بأي كلمات إنجليزية. هذا متطلب صارم.`;
+    } else if (language === 'fa') {
+      strongLanguageInstruction = `CRITICAL PERSIAN LANGUAGE LOCK: آهنگ باید فقط به فارسی باشد. از کلمات انگلیسی استفاده نکنید. کل آهنگ باید به فارسی باشد. هیچ کلمه انگلیسی مجاز نیست. این یک الزام سختگیرانه است.`;
+    } else if (language === 'zh') {
+      strongLanguageInstruction = `CRITICAL CHINESE LANGUAGE LOCK: 歌曲必须只用中文演唱。不要使用英语单词。整首歌必须用中文演唱。不允许任何英语单词。这是一个严格的要求。`;
+    } else if (language === 'ja') {
+      strongLanguageInstruction = `CRITICAL JAPANESE LANGUAGE LOCK: 歌は日本語でのみ歌われる必要があります。英語の単語を使用しないでください。歌全体は日本語で歌われる必要があります。英語の単語は許可されません。これは厳格な要件です。`;
+    } else if (language === 'ko') {
+      strongLanguageInstruction = `CRITICAL KOREAN LANGUAGE LOCK: 노래는 한국어로만 불러야 합니다. 영어 단어를 사용하지 마세요. 전체 노래는 한국어로 불러야 합니다. 영어 단어는 허용되지 않습니다. 이것은 엄격한 요구사항입니다.`;
     }
     
     return `Create a ${record.songStyle || 'pop'} song with EXACT lyrics. ` +
@@ -417,14 +441,26 @@ function buildExactLyricsPrompt(record, language) {
   
   const languageName = languageNames[language] || 'English';
   
-  // Stronger language instructions for Turkish and other non-English languages
+  // Very strong language instructions for non-English languages
   let languageInstruction = `Sing in ${languageName}.`;
   if (language === 'tr') {
-    languageInstruction = `IMPORTANT: Sing ONLY in Turkish language. NO English words. Use Turkish lyrics throughout the entire song.`;
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Turkish language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Turkish. Use Turkish lyrics, Turkish words, Turkish phrases throughout. This is a strict requirement - the song cannot contain any English.`;
   } else if (language === 'nl') {
-    languageInstruction = `IMPORTANT: Sing ONLY in Dutch language. NO English words. Use Dutch lyrics throughout the entire song.`;
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Dutch language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Dutch. Use Dutch lyrics, Dutch words, Dutch phrases throughout. This is a strict requirement - the song cannot contain any English.`;
+  } else if (language === 'ru') {
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Russian language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Russian. Use Russian lyrics, Russian words, Russian phrases throughout. This is a strict requirement - the song cannot contain any English.`;
+  } else if (language === 'ar') {
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Arabic language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Arabic. Use Arabic lyrics, Arabic words, Arabic phrases throughout. This is a strict requirement - the song cannot contain any English.`;
+  } else if (language === 'fa') {
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Persian language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Persian. Use Persian lyrics, Persian words, Persian phrases throughout. This is a strict requirement - the song cannot contain any English.`;
+  } else if (language === 'zh') {
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Chinese language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Chinese. Use Chinese lyrics, Chinese words, Chinese phrases throughout. This is a strict requirement - the song cannot contain any English.`;
+  } else if (language === 'ja') {
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Japanese language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Japanese. Use Japanese lyrics, Japanese words, Japanese phrases throughout. This is a strict requirement - the song cannot contain any English.`;
+  } else if (language === 'ko') {
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in Korean language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in Korean. Use Korean lyrics, Korean words, Korean phrases throughout. This is a strict requirement - the song cannot contain any English.`;
   } else if (language !== 'en') {
-    languageInstruction = `IMPORTANT: Sing ONLY in ${languageName}. NO English words. Use ${languageName} lyrics throughout the entire song.`;
+    languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in ${languageName} language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in ${languageName}. Use ${languageName} lyrics, ${languageName} words, ${languageName} phrases throughout. This is a strict requirement - the song cannot contain any English.`;
   }
   
   return `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
