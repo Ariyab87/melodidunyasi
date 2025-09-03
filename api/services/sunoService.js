@@ -199,7 +199,8 @@ async function startGeneration(record) {
     
     // Prioritize user-selected language from form, fallback to detected language
     const detectedFromText = detectLanguage(record.story || record.prompt || '');
-    const userLanguage = record.language || detectedFromText;
+    // Always prioritize the user-selected language from the form
+    const userLanguage = record.language || 'tr'; // Default to Turkish if not specified
     
     console.log('[START_GENERATION] Record language from form:', record.language);
     console.log('[START_GENERATION] Story text:', record.story?.substring(0, 100) + '...');
@@ -218,6 +219,9 @@ async function startGeneration(record) {
     // Build the prompt for exact lyrics mode
     const prompt = buildExactLyricsPrompt(record, userLanguage);
     console.log('[START_GENERATION] Generated prompt:', prompt.substring(0, 200) + '...');
+    console.log('[START_GENERATION] Exact lyrics mode:', record.exactLyrics);
+    console.log('[START_GENERATION] Instrumental mode:', record.instrumental);
+    console.log('[START_GENERATION] Final language used:', userLanguage);
 
     // Use the musicProvider instead of the old sunoService
     const musicProvider = require('./musicProvider');
@@ -334,7 +338,7 @@ function detectLanguage(text) {
   
   // Enhanced Turkish detection
   const turkishChars = /[çğıöşüÇĞIİÖŞÜ]/;
-  const turkishWords = /\b(ve|bir|için|bu|ile|var|olan|olan|değil|gibi|kadar|da|de|ki|mi|mu|mü|mı|daha|çok|en|tüm|her|hiç|bütün|kendi|onun|onlar|bizim|sizin|şu|o|ben|sen|biz|siz|onlar|ama|fakat|ancak|sadece|yani|çünkü|eğer|nasıl|neden|nerede|ne|kim|hangi|kaç|şey|zaman|yer|kişi|insan|hayat|dünya|ülke|şehir|ev|okul|iş|para|saat|gün|yıl|ay|hafta|sabah|akşam|gece|bugün|yarın|dün|şimdi|sonra|önce|aşk|sevgi|mutlu|üzgün|güzel|kötü|büyük|küçük|yeni|eski|iyi|kötü|doğru|yanlış|siyah|beyaz|kırmızı|mavi|yeşil|sarı|anne|baba|kardeş|arkadaş|aile|çocuk|kadın|erkek|kız|oğlan|yaşlı|genç|öğrenci|öğretmen|doktor|hemşire|polis|asker|işçi|memur|başkan|yemek|su|ekmek|et|sebze|meyve|çay|kahve|süt|şeker|tuz|yağ|pirinç|makarna|tavuk|balık|peynir|yoğurt|elma|armut|üzüm|portakal|limon|domates|salatalık|soğan|patates|havuç|araba|otobüs|tren|uçak|gemi|bisiklet|yol|köprü|bina|dağ|deniz|göl|nehir|ağaç|çiçek|hayvan|köpek|kedi|kuş|balık|at|inek|koyun|keçi|tavşan|fare|aslan|kaplan|fil|maymun|kitap|gazete|dergi|televizyon|radyo|telefon|bilgisayar|internet|müzik|film|oyun|spor|futbol|basketbol|voleybol|tenis|yüzme|koşu|dans|resim|fotoğraf|seyahat|tatil|alışveriş|market|mağaza|restoran|hastane|eczane|banka|postane|hotel|müze|sinema|tiyatro|konsol|park|bahçe|plaj|orman|çöl|kar|yağmur|güneş|ay|yıldız|bulut|rüzgar|sıcak|soğuk|ilkbahar|yaz|sonbahar|kış|pazartesi|salı|çarşamba|perşembe|cuma|cumartesi|pazar|ocak|şubat|mart|nisan|mayıs|haziran|temmuz|ağustos|eylül|ekim|kasım|aralık)\b/gi;
+  const turkishWords = /\b(ve|bir|için|bu|ile|var|olan|değil|gibi|kadar|da|de|ki|mi|mu|mü|mı|daha|çok|tüm|her|hiç|bütün|kendi|onun|onlar|bizim|sizin|şu|o|ben|sen|biz|siz|ama|fakat|ancak|sadece|yani|çünkü|eğer|nasıl|neden|nerede|ne|kim|hangi|kaç|şey|zaman|yer|kişi|insan|hayat|dünya|ülke|şehir|ev|okul|iş|para|saat|gün|yıl|ay|hafta|sabah|akşam|gece|bugün|yarın|dün|şimdi|sonra|önce|aşk|sevgi|mutlu|üzgün|güzel|kötü|büyük|küçük|yeni|eski|iyi|doğru|yanlış|siyah|beyaz|kırmızı|mavi|yeşil|sarı|anne|baba|kardeş|arkadaş|aile|çocuk|kadın|erkek|kız|oğlan|yaşlı|genç|öğrenci|öğretmen|doktor|hemşire|polis|asker|işçi|memur|başkan|yemek|su|ekmek|et|sebze|meyve|çay|kahve|süt|şeker|tuz|yağ|pirinç|makarna|tavuk|balık|peynir|yoğurt|elma|armut|üzüm|portakal|limon|domates|salatalık|soğan|patates|havuç|araba|otobüs|tren|uçak|gemi|bisiklet|yol|köprü|bina|dağ|deniz|göl|nehir|ağaç|çiçek|hayvan|köpek|kedi|kuş|at|inek|koyun|keçi|tavşan|fare|aslan|kaplan|fil|maymun|kitap|gazete|dergi|televizyon|radyo|telefon|bilgisayar|internet|müzik|film|oyun|spor|futbol|basketbol|voleybol|tenis|yüzme|koşu|dans|resim|fotoğraf|seyahat|tatil|alışveriş|market|mağaza|restoran|hastane|eczane|banka|postane|hotel|müze|sinema|tiyatro|konsol|park|bahçe|plaj|orman|çöl|kar|yağmur|güneş|yıldız|bulut|rüzgar|sıcak|soğuk|ilkbahar|yaz|sonbahar|kış|pazartesi|salı|çarşamba|perşembe|cuma|cumartesi|pazar|ocak|şubat|mart|nisan|mayıs|haziran|temmuz|ağustos|eylül|ekim|kasım|aralık|merhaba|türkçe|konuşuyorum|test|metnidir)\b/gi;
   
   const russianChars = /[а-яёА-ЯЁ]/;
   const arabicChars = /[ء-ي]/;
@@ -349,6 +353,13 @@ function detectLanguage(text) {
     console.log('[LANGUAGE_DETECTION] Turkish detected from text');
     return 'tr';
   }
+  
+  // Check for English words to avoid false positives
+  const englishWords = /\b(the|and|for|are|but|not|you|all|can|had|her|was|one|our|out|day|get|has|him|his|how|man|new|now|old|see|two|way|who|boy|did|its|let|put|say|she|too|use|hello|speaking|test|text|this|is|am)\b/gi;
+  if (englishWords.test(text) && !turkishChars.test(text)) {
+    console.log('[LANGUAGE_DETECTION] English detected from text');
+    return 'en';
+  }
   if (russianChars.test(text)) return 'ru';
   if (arabicChars.test(text)) return 'ar';
   if (persianChars.test(text)) return 'fa';
@@ -358,6 +369,7 @@ function detectLanguage(text) {
   if (dutchChars.test(text)) return 'nl';
   
   // Default to English if no specific characters detected
+  console.log('[LANGUAGE_DETECTION] No specific language detected, defaulting to English');
   return 'en';
 }
 
@@ -463,10 +475,21 @@ function buildExactLyricsPrompt(record, language) {
     languageInstruction = `CRITICAL LANGUAGE REQUIREMENT: The song MUST be sung ENTIRELY in ${languageName} language. NO English words allowed. NO English phrases. NO English lyrics. The entire song from start to finish must be in ${languageName}. Use ${languageName} lyrics, ${languageName} words, ${languageName} phrases throughout. This is a strict requirement - the song cannot contain any English.`;
   }
   
-  return `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
+  // For Turkish, add even more explicit instructions at the beginning
+  let basePrompt = `Create a ${record.songStyle || 'pop'} song for ${record.specialOccasion || 'an event'}. ` +
          `Mood: ${record.mood || 'neutral'}. Tempo: ${record.tempo || 'Medium (80-120 BPM)'}. ` +
          `${languageInstruction} ` +
          `Include names: ${record.namesToInclude || 'N/A'}. Story: ${record.story || 'N/A'}.`;
+  
+  // For Turkish, add a very explicit instruction at the very beginning
+  if (language === 'tr') {
+    basePrompt = `TURKISH SONG REQUIREMENT: This song MUST be sung ENTIRELY in Turkish language. NO English words. NO English phrases. NO English lyrics. The entire song from start to finish must be in Turkish. Use Turkish lyrics, Turkish words, Turkish phrases throughout. This is a strict requirement - the song cannot contain any English. ` + basePrompt;
+    
+    // Add additional Turkish-specific instructions
+    basePrompt += ` IMPORTANT: The song lyrics must be in Turkish language only. Do not use any English words or phrases. The entire song should be sung in Turkish from beginning to end.`;
+  }
+  
+  return basePrompt;
 }
 
 module.exports = {
@@ -476,4 +499,5 @@ module.exports = {
   downloadAudioFile,
   startGeneration,
   detectLanguage, // Export for testing
+  buildExactLyricsPrompt, // Export for testing
 };

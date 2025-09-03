@@ -305,6 +305,9 @@ router.post('/song', async (req, res) => {
       `Include names: ${namesToInclude || 'N/A'}. Story: ${story || 'N/A'}.`;
     
     console.log('[ROUTE] Generated prompt with language:', prompt.substring(0, 200) + '...');
+    console.log('[ROUTE] Language parameter being sent:', language);
+    console.log('[ROUTE] Language type:', typeof language);
+    console.log('[ROUTE] Language value:', JSON.stringify(language));
 
     const record = {
       id: requestId,

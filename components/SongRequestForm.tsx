@@ -120,6 +120,8 @@ export default function SongRequestForm() {
       };
 
       console.log('[FORM] Submitting payload with language:', formData.language);
+      console.log('[FORM] Language type:', typeof formData.language);
+      console.log('[FORM] Language value:', JSON.stringify(formData.language));
       console.log('[FORM] Full payload:', payload);
 
       const result = await submitSongForm(payload);

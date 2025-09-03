@@ -46,7 +46,7 @@ async function generateSong(prompt, duration, style, mood, debugSmall, instrumen
     mood,
     debugSmall,
     // Add model version to match playground
-    model: 'V4', // Temporarily hardcoded to match playground exactly
+    model: 'V4_5', // Use latest model for better language support
     // Add custom mode support
     customMode: false,
     // Add instrumental mode
