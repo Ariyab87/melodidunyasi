@@ -7,6 +7,7 @@ import { useLanguage } from '@/lib/languageContext';
 import { submitSongForm, StatusResp, getSongStatus } from '@/lib/api';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
+import Toast from '@/components/ui/Toast';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import ServicesSection from '@/components/ServicesSection';
 import InlineComposer from '@/components/InlineComposer';
@@ -50,6 +51,9 @@ export default function Home() {
   // Audio player state
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  
+  // API disabled notification
+  const [showApiDisabledToast, setShowApiDisabledToast] = useState(false);
 
   const expandComposer = () => {
     setIsComposerExpanded(!isComposerExpanded);
@@ -141,8 +145,14 @@ export default function Home() {
 
     } catch (error) {
       setSubmitStatus('error');
-      setSubmitMessage(error instanceof Error ? error.message : 'An error occurred while submitting your request. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred while submitting your request. Please try again.';
+      setSubmitMessage(errorMessage);
       setSongStatus('failed');
+      
+      // Show API disabled toast if the error is related to API being disabled
+      if (errorMessage.includes('API is currently disabled')) {
+        setShowApiDisabledToast(true);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -290,6 +300,15 @@ export default function Home() {
                 element.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }} />
+            
+            {/* API Disabled Banner */}
+            <div className="bg-red-600 text-white py-3 px-4 text-center">
+              <div className="container-custom">
+                <p className="text-sm font-medium">
+                  ⚠️ API is currently disabled. Song generation features are temporarily unavailable.
+                </p>
+              </div>
+            </div>
             
             <HeroSection onCreateSong={() => {
               const element = document.getElementById('song-request');
@@ -986,6 +1005,16 @@ export default function Home() {
 
             <Footer />
           </main>
+          
+          {/* API Disabled Toast */}
+          {showApiDisabledToast && (
+            <Toast
+              message="API is currently disabled. Song generation features are temporarily unavailable."
+              type="warning"
+              onClose={() => setShowApiDisabledToast(false)}
+              duration={8000}
+            />
+          )}
         </SunoStatusProvider>
       </PaymentProvider>
     </AuthProvider>
