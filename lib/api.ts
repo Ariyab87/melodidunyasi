@@ -55,7 +55,7 @@ type SongForm = {
 };
 
 // API DISABLED - Set to false to disable all API calls
-const API_DISABLED = true;
+const API_DISABLED = false;
 
 // Always default to disabled API if API_DISABLED is true
 export const API_ORIGIN = API_DISABLED 
